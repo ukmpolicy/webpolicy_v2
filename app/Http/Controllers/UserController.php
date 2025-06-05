@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 
+/**
+ * Controller hanya diprogram untuk melakukan validasi data dari http
+ * dan mengembalikan response http. Logic pada controller harus minimum.
+ */
+
 class UserController extends Controller
 {
 

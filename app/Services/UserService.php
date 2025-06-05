@@ -3,6 +3,11 @@ namespace App\Services;
 
 use App\Repositories\UserRepository;
 
+/**
+ * Service hanya diprogram untuk melakukan logic use case. Tidak
+ * diperuntuk untuk menangani http request maupun response.
+ */
+
 class UserService {
     protected $userRepository;
 
