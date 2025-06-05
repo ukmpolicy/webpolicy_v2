@@ -18,7 +18,7 @@ class UserController extends Controller
     {
         try {
             // Inertia rendering logic
-            $message = $this->userService->sayHello("Zulfahmi");
+            $message = $this->userService->sayHello("Rizki Latiful");
             return $message;
         } catch (\Exception $e) {
             // Inertia error handling
