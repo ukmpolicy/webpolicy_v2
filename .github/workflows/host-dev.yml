@@ -10,8 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout kode dari pra-development
+      - name: 🧾 Checkout kode dari development
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
 
       - name: 🧰 Setup PHP dan Composer
         uses: shivammathur/setup-php@v2
@@ -37,9 +40,6 @@ jobs:
         run: |
           npm ci
           npm run build
-          
-      - name: 🔍 Debug token (jangan lakukan di produksi!)
-        run: echo "GH_TOKEN=${{ secrets.GH_TOKEN }}"
 
       - name: 🟢 Commit hasil build ke branch host-development
         run: |
@@ -47,5 +47,5 @@ jobs:
           git config --global user.name "GitHub Actions"
           git checkout -B host-development
           git add .
-          git commit -m "Auto-build from development"
+          git commit -m "Auto-build from development" || echo "Nothing to commit"
           git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/ukmpolicy/webpolicy_v2.git host-development --force
