@@ -1,0 +1,48 @@
+name: Build and Push to Development
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout kode dari pra-development
+        uses: actions/checkout@v3
+
+      - name: 🧰 Setup PHP dan Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, curl
+
+      - name: 🧩 Install Composer Dependencies (tanpa dev)
+        run: composer install --no-dev --prefer-dist --no-progress --no-interaction
+
+      - name: ⚙️ Laravel Cache Commands
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      - name: 🧰 Setup Node.js dan Install
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: 📦 Install & Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: 🟢 Commit hasil build ke branch development
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git checkout -B host-development
+          git add .
+          git commit -m "🚀 Auto-build from development"
+          git push origin host-development --force
