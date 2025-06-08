@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
+    Route::post('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('roles.permissions.update');
 });
 
 require __DIR__.'/settings.php';
