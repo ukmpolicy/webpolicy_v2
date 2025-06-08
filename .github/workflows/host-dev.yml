@@ -37,8 +37,11 @@ jobs:
         run: |
           npm ci
           npm run build
+          
+      - name: 🔍 Debug token (jangan lakukan di produksi!)
+        run: echo "GH_TOKEN=${{ secrets.GH_TOKEN }}"
 
-      - name: 🟢 Commit hasil build ke branch development
+      - name: 🟢 Commit hasil build ke branch host-development
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
