@@ -30,9 +30,10 @@ type Role = {
 interface RoleTableProps {
   data: Role[];
   onEdit?: (role: Role) => void;
-}
+  onManagePermissions?: (role: Role) => void;
+};
 
-export function RoleTable({ data, onEdit }: RoleTableProps) {
+export function RoleTable({ data, onEdit, onManagePermissions }: RoleTableProps) {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -84,6 +85,9 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
               <Pencil className="w-4 h-4 mr-2" /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManagePermissions?.(row.original)}>
+              <Tag className="w-4 h-4 mr-2" /> Manage Permissions
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"

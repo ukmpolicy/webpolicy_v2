@@ -109,7 +109,7 @@ export function PermissionTable({ data, onEdit }: PermissionTableProps) {
       id: 'actions',
       header: () => (
         <span className="flex items-center gap-1">
-          <Ellipsis className="w-4 h-4" /> Aksi
+           Aksi
         </span>
       ),
       cell: ({ row }) => (
