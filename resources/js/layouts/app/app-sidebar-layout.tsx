@@ -16,6 +16,7 @@ export default function AppSidebarLayout({ children, breadcrumbs = [] }: PropsWi
             <AppContent variant="sidebar">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
 
+                {/* Menambahkan Text Veriry Email */}
                 {user && user.email_verified_at == null && (
                     <div className="px-3">
                         <div className="rounded-lg border border-blue-500 bg-blue-500/10 p-4">
