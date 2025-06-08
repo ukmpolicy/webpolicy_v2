@@ -17,9 +17,11 @@ class RoleController extends Controller
 
     public function index()
     {
-        $roles = $this->roleService->getAllRoles();
+        $roles = $this->roleService->getAllRoles(); // pastikan eager load permissions jika perlu
+        $permissions = \App\Models\Permission::all();
         return Inertia::render('roles/index', [
             'roles' => $roles,
+            'permissions' => $permissions,
         ]);
     }
 
