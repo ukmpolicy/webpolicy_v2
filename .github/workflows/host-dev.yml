@@ -44,5 +44,5 @@ jobs:
           git config --global user.name "GitHub Actions"
           git checkout -B host-development
           git add .
-          git commit -m "🚀 Auto-build from development"
-          git push origin host-development --force
+          git commit -m "Auto-build from development"
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/ukmpolicy/webpolicy_v2.git host-development --force
