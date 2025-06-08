@@ -4,9 +4,15 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './ui/select';
-import { Pencil, Trash2, Hash, User, CalendarDays, Ellipsis, Tag, Search, Layers, List } from 'lucide-react';
+import { Pencil, Trash2, Hash, KeyRound, FileText, CalendarDays, Ellipsis, Search, Layers, List } from 'lucide-react';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog';
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from './ui/select';
 import {
   Pagination,
   PaginationContent,
@@ -20,19 +26,21 @@ import { Inertia } from '@inertiajs/inertia';
 import { toast } from 'sonner';
 import React from 'react';
 
-type Role = {
+type Permission = {
   id: number;
   name: string;
+  key: string;
+  description?: string;
   created_at: string;
   updated_at: string;
 };
 
-interface RoleTableProps {
-  data: Role[];
-  onEdit?: (role: Role) => void;
+interface PermissionTableProps {
+  data: Permission[];
+  onEdit?: (permission: Permission) => void;
 }
 
-export function RoleTable({ data, onEdit }: RoleTableProps) {
+export function PermissionTable({ data, onEdit }: PermissionTableProps) {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -43,24 +51,50 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
     setPageIndex(0);
   }, [globalFilter, columnFilters]);
 
-  // Unique role names for filter
+  // Unique permission names for filter
   const nameOptions = useMemo(() => Array.from(new Set(data.map(r => r.name))), [data]);
   const nameFilter = columnFilters.find(f => f.id === 'name')?.value as string ?? '';
 
-  const columns: ColumnDef<Role>[] = [
+  const columns: ColumnDef<Permission>[] = [
     {
       accessorKey: 'id',
-      header: '#',
+      header: () => (
+        <span className="flex items-center gap-1">
+          <Hash className="w-4 h-4" />
+        </span>
+      ),
       cell: info => info.getValue(),
     },
     {
       accessorKey: 'name',
-      header: 'Nama Role',
+      header: () => (
+        <span className="flex items-center gap-1">
+          <FileText className="w-4 h-4" /> Nama
+        </span>
+      ),
       cell: info => info.getValue(),
       filterFn: (row, columnId, filterValue) => {
         if (!filterValue || filterValue === '__all__') return true;
         return row.getValue(columnId) === filterValue;
       },
+    },
+    {
+      accessorKey: 'key',
+      header: () => (
+        <span className="flex items-center gap-1">
+          <KeyRound className="w-4 h-4" /> Key
+        </span>
+      ),
+      cell: info => info.getValue(),
+    },
+    {
+      accessorKey: 'description',
+      header: () => (
+        <span className="flex items-center gap-1">
+          <FileText className="w-4 h-4" /> Deskripsi
+        </span>
+      ),
+     cell: info => info.getValue() ? info.getValue() : '-',
     },
     {
       accessorKey: 'created_at',
@@ -73,7 +107,11 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
     },
     {
       id: 'actions',
-      header: 'Aksi',
+      header: () => (
+        <span className="flex items-center gap-1">
+          <Ellipsis className="w-4 h-4" /> Aksi
+        </span>
+      ),
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -125,7 +163,6 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
   const pageCount = table.getPageCount();
   const currentPage = table.getState().pagination.pageIndex;
 
-  // Helper untuk menentukan halaman yang ditampilkan (tanpa duplikat)
   function getPaginationRange(current: number, total: number) {
     const delta = 2;
     let range: number[] = [];
@@ -144,7 +181,7 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
         <div className="relative w-48">
           <Input
             type="search"
-            placeholder="Cari role..."
+            placeholder="Cari permission..."
             value={globalFilter}
             onChange={e => setGlobalFilter(e.target.value)}
             className="pl-9"
@@ -161,15 +198,15 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
           }
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Semua Role" />
+            <SelectValue placeholder="Semua Permission" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">
-              <Layers className="w-4 h-4 mr-2 inline" /> Semua Role
+              <Layers className="w-4 h-4 mr-2 inline" /> Semua Permission
             </SelectItem>
             {nameOptions.map(name => (
               <SelectItem key={name} value={name}>
-                <Tag className="w-4 h-4 mr-2 inline" />{name}
+                <FileText className="w-4 h-4 mr-2 inline" />{name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -291,9 +328,9 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Role?</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Permission?</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus role ini? Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus permission ini? Tindakan ini tidak dapat dibatalkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -301,9 +338,9 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
             <AlertDialogAction
               onClick={() => {
                 if (deleteId) {
-                  Inertia.delete(`/roles/${deleteId}`, {
-                    onSuccess: () => toast.success('Role berhasil dihapus!'),
-                    onError: () => toast.error('Gagal menghapus role.'),
+                  Inertia.delete(`/permissions/${deleteId}`, {
+                    onSuccess: () => toast.success('Permission berhasil dihapus!'),
+                    onError: () => toast.error('Gagal menghapus permission.'),
                   });
                   setDeleteId(null);
                 }

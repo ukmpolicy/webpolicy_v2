@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import InputError from "@/components/input-error";
 import { useForm } from "@inertiajs/react";
 import { toast } from "sonner";
+import React, { useEffect } from "react";
 
 interface RoleFormModalProps {
   open: boolean;
@@ -15,6 +16,10 @@ interface RoleFormModalProps {
 export function RoleFormModal({ open, onClose, initialData }: RoleFormModalProps) {
   const isEdit = !!initialData?.id;
   const { data, setData, post, put, processing, errors, reset } = useForm(initialData || { name: "" });
+""
+  useEffect(() => {
+    setData(initialData || { name: "" });
+  }, [initialData, setData]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
