@@ -29,7 +29,14 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        // Proses name menjadi huruf kecil tanpa spasi
+        $data = $request->validated();
+        if (isset($data['name'])) {
+            $data['name'] = strtolower(str_replace(' ', '', $data['name']));
+        }
+
+        $request->user()->fill($data);
+        // $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
