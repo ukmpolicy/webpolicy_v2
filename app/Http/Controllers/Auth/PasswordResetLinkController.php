@@ -36,6 +36,7 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
-        return back()->with('status', __('A reset link will be sent if the account exists.'));
+        return back()->with('status', __('Please check your inbox or spam for the reset link.'));
+
     }
 }
