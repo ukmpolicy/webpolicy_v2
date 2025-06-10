@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -29,9 +29,14 @@ class RoleRepository
         $role = Role::findOrFail($id);
         return $role->delete();
     }
-    
+
     public function getAllWithPermissions()
     {
         return Role::with('permissions')->get();
+    }
+
+    public function find($id)
+    {
+        return Role::findOrFail($id);
     }
 }

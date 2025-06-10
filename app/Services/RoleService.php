@@ -32,4 +32,10 @@ class RoleService
     {
         return $this->roleRepository->delete($id);
     }
+
+    public function syncPermissions($roleId, array $permissionIds)
+    {
+        $role = $this->roleRepository->find($roleId);
+        $role->permissions()->sync($permissionIds);
+    }
 }
