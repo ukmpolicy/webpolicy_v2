@@ -47,7 +47,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     <InputError message={errors.email} />
                 </div>
 
-                <Button className="w-full bg-red-600 font-bold text-white hover:bg-red-700" disabled={processing}>
+                <Button className="w-full font-bold" variant={'destructive'} disabled={processing}>
                     {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                     Email password reset link
                 </Button>

@@ -103,7 +103,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             <Label htmlFor="remember">Remember Me</Label>
                         </div>
 
-                        <Button type="submit" className="mt-4 w-full bg-red-600 text-white hover:bg-red-700" disabled={processing}>
+                        <Button type="submit" className="mt-4 w-full" variant="destructive" disabled={processing}>
                             {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                             Sign in
                         </Button>

@@ -130,7 +130,7 @@ export default function Register() {
                         <InputError message={errors.password_confirmation} />
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full bg-red-600 font-bold text-white hover:bg-red-700" tabIndex={5} disabled={processing}>
+                    <Button type="submit" className="mt-2 w-full" variant="destructive" tabIndex={5} disabled={processing}>
                         {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Sign up
                     </Button>
