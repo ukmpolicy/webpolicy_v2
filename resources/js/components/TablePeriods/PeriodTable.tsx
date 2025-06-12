@@ -100,7 +100,11 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
         {
             accessorKey: 'is_active',
             header: 'Status Aktif',
-            cell: (info) => (info.getValue() ? 'Aktif' : 'Tidak Aktif'),
+            cell: (info) => (
+                <span className={`text-bold ${info.getValue() ? 'text-green-500' : 'text-red-500'}`}>
+                    {info.getValue() ? 'Aktif' : 'Tidak Aktif'}
+                </span>
+            ),
         },
         {
             id: 'actions',

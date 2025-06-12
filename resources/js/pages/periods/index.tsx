@@ -22,13 +22,6 @@ export default function Index() {
                 <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <h1 className="text-xl font-bold">Periode List</h1>
                     <div className="flex gap-2">
-                        <input
-                            type="text"
-                            placeholder="Cari nama periode..."
-                            className="rounded border px-2 py-1"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
                         <Button
                             onClick={() => {
                                 setEditData(null);
