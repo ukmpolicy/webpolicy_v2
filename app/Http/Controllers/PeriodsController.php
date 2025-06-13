@@ -30,18 +30,18 @@ class PeriodsController extends Controller
 
     public function store(Request $request)
     {
+        // $data = $request->validate([
+        //     'name' => 'required|string|max:50|unique:periods,name',
+        //     'started_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
+        //     'ended_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
+        //     'is_active' => 'boolean',
+        // ]);
         $data = $request->validate([
             'name' => 'required|string|max:50|unique:periods,name',
-            'started_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
-            'ended_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
+            'started_at' => 'required|date',
+            'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',
         ]);
-
-        // Ubah tahun menjadi format datetime
-        $data['started_at'] = $data['started_year'] . '-01-01 00:00:00';
-        $data['ended_at'] = $data['ended_year'] . '-01-01 00:00:00';
-
-        unset($data['started_year'], $data['ended_year']);
 
         $this->periodService->createPeriod($data);
         return redirect()->back()->with('success', 'Periode berhasil ditambahkan!');
@@ -54,16 +54,10 @@ class PeriodsController extends Controller
     {
         $data = $request->validate([
             'name' => "required|string|max:50|unique:periods,name,$id",
-            'started_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
-            'ended_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
+            'started_at' => 'required|date',
+            'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',
         ]);
-
-        // Ubah tahun menjadi format datetime
-        $data['started_at'] = $data['started_year'] . '-01-01 00:00:00';
-        $data['ended_at'] = $data['ended_year'] . '-01-01 00:00:00';
-
-        unset($data['started_year'], $data['ended_year']);
 
         $this->periodService->updatePeriod($id, $data);
         return redirect()->back()->with('success', 'Periode berhasil diperbarui!');

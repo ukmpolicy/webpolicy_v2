@@ -14,8 +14,8 @@ interface PeriodFormModalProps {
     initialData?: {
         id?: number;
         name: string;
-        started_year: string;
-        ended_year: string;
+        started_at: string; // format ISO: YYYY-MM-DDTHH:mm
+        ended_at: string; // format ISO: YYYY-MM-DDTHH:mm
         is_active: boolean;
     };
 }
@@ -25,8 +25,8 @@ export function PeriodFormModal({ open, onClose, initialData }: PeriodFormModalP
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
-        started_year: '',
-        ended_year: '',
+        started_at: '',
+        ended_at: '',
         is_active: false,
         ...initialData,
     });
@@ -40,33 +40,25 @@ export function PeriodFormModal({ open, onClose, initialData }: PeriodFormModalP
         }
     }, [initialData, setData]);
 
-    console.log(data);
-
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
-        if (!data.started_year || !data.ended_year) {
-            toast.error('Tahun mulai dan selesai harus diisi');
+        if (!data.started_at || !data.ended_at) {
+            toast.error('Tanggal mulai dan berakhir harus diisi');
             return;
         }
 
-        if (parseInt(data.started_year) > parseInt(data.ended_year)) {
-            toast.error('Tahun mulai tidak boleh lebih besar dari tahun selesai');
+        const start = new Date(data.started_at);
+        const end = new Date(data.ended_at);
+
+        if (start > end) {
+            toast.error('Tanggal mulai tidak boleh lebih besar dari tanggal selesai');
             return;
         }
-
-        const payload = {
-            ...data,
-            started_at: `${data.started_year}-01-01 00:00:00`,
-            ended_at: `${data.ended_year}-01-01 00:00:00`,
-        };
-
-        delete payload.started_year;
-        delete payload.ended_year;
 
         if (isEdit) {
             put(`/periods/${initialData.id}`, {
-                data: payload,
+                data,
                 onSuccess: () => {
                     toast.success('Periode berhasil diubah!');
                     onClose();
@@ -78,7 +70,7 @@ export function PeriodFormModal({ open, onClose, initialData }: PeriodFormModalP
             });
         } else {
             post('/periods', {
-                data: payload,
+                data,
                 onSuccess: () => {
                     toast.success('Periode berhasil ditambahkan!');
                     onClose();
@@ -90,6 +82,54 @@ export function PeriodFormModal({ open, onClose, initialData }: PeriodFormModalP
             });
         }
     }
+    // function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    //     e.preventDefault();
+
+    //     if (!data.started_year || !data.ended_year) {
+    //         toast.error('Tahun mulai dan selesai harus diisi');
+    //         return;
+    //     }
+
+    //     if (parseInt(data.started_year) > parseInt(data.ended_year)) {
+    //         toast.error('Tahun mulai tidak boleh lebih besar dari tahun selesai');
+    //         return;
+    //     }
+
+    //     const payload = {
+    //         ...data,
+    //         started_at: `${data.started_year}-01-01 00:00:00`,
+    //         ended_at: `${data.ended_year}-01-01 00:00:00`,
+    //     };
+
+    //     delete payload.started_year;
+    //     delete payload.ended_year;
+
+    //     if (isEdit) {
+    //         put(`/periods/${initialData.id}`, {
+    //             data: payload,
+    //             onSuccess: () => {
+    //                 toast.success('Periode berhasil diubah!');
+    //                 onClose();
+    //                 reset();
+    //             },
+    //             onError: () => {
+    //                 toast.error('Gagal mengubah periode.');
+    //             },
+    //         });
+    //     } else {
+    //         post('/periods', {
+    //             data: payload,
+    //             onSuccess: () => {
+    //                 toast.success('Periode berhasil ditambahkan!');
+    //                 onClose();
+    //                 reset();
+    //             },
+    //             onError: () => {
+    //                 toast.error('Gagal menambahkan periode.');
+    //             },
+    //         });
+    //     }
+    // }
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -101,41 +141,25 @@ export function PeriodFormModal({ open, onClose, initialData }: PeriodFormModalP
                         <Input value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="Contoh: 2024-2025" required />
                         <InputError message={errors.name} />
                     </div>
-
                     <div>
-                        <Label>Tahun Mulai</Label>
+                        <Label>Tanggal Mulai</Label>
                         <Input
-                            type="number"
-                            min="1900"
-                            max="2100"
-                            value={data.started_year}
-                            onChange={(e) => {
-                                const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
-                                setData('started_year', value);
-                            }}
+                            type="date"
+                            value={data.started_at.split(' ')[0]} // Hapus waktu jika ada
+                            onChange={(e) => setData('started_at', e.target.value)}
                         />
-                        <InputError message={errors.started_year || errors.ended_year} />
+                        <InputError message={errors.started_at || errors.ended_at} />
                     </div>
 
                     <div>
-                        <Label>Tahun Selesai</Label>
-                        <Input
-                            id="ended_year"
-                            type="number"
-                            min="1900"
-                            max="2100"
-                            value={data.ended_year}
-                            onChange={(e) => {
-                                const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
-                                setData('ended_year', value);
-                            }}
-                        />
-                        <InputError message={errors.ended_year} />
+                        <Label>Tanggal Berakhir</Label>
+                        <Input type="date" value={data.ended_at?.split(' ')[0] || ''} onChange={(e) => setData('ended_at', e.target.value)} />
+                        <InputError message={errors.ended_at} />
                     </div>
 
                     <div className="flex items-center space-x-2">
                         <Checkbox id="is_active" checked={data.is_active} onCheckedChange={(checked) => setData('is_active', checked)} />
-                        <Label htmlFor="is_active">{data.is_active ? 'Aktif' : 'Tidak Aktif'}</Label>
+                        <Label htmlFor="is_active">Status: {data.is_active ? 'Aktif' : 'Tidak Aktif'}</Label>
                     </div>
 
                     <DialogFooter>
