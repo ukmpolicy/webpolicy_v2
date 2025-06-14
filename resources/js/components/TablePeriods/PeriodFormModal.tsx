@@ -82,54 +82,6 @@ export function PeriodFormModal({ open, onClose, initialData }: PeriodFormModalP
             });
         }
     }
-    // function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    //     e.preventDefault();
-
-    //     if (!data.started_year || !data.ended_year) {
-    //         toast.error('Tahun mulai dan selesai harus diisi');
-    //         return;
-    //     }
-
-    //     if (parseInt(data.started_year) > parseInt(data.ended_year)) {
-    //         toast.error('Tahun mulai tidak boleh lebih besar dari tahun selesai');
-    //         return;
-    //     }
-
-    //     const payload = {
-    //         ...data,
-    //         started_at: `${data.started_year}-01-01 00:00:00`,
-    //         ended_at: `${data.ended_year}-01-01 00:00:00`,
-    //     };
-
-    //     delete payload.started_year;
-    //     delete payload.ended_year;
-
-    //     if (isEdit) {
-    //         put(`/periods/${initialData.id}`, {
-    //             data: payload,
-    //             onSuccess: () => {
-    //                 toast.success('Periode berhasil diubah!');
-    //                 onClose();
-    //                 reset();
-    //             },
-    //             onError: () => {
-    //                 toast.error('Gagal mengubah periode.');
-    //             },
-    //         });
-    //     } else {
-    //         post('/periods', {
-    //             data: payload,
-    //             onSuccess: () => {
-    //                 toast.success('Periode berhasil ditambahkan!');
-    //                 onClose();
-    //                 reset();
-    //             },
-    //             onError: () => {
-    //                 toast.error('Gagal menambahkan periode.');
-    //             },
-    //         });
-    //     }
-    // }
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
