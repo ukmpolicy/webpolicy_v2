@@ -83,18 +83,18 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
         },
         {
             accessorKey: 'started_at',
-            header: 'Waktu Mulai',
+            header: 'Tanggal Mulai',
             cell: (info) => {
                 const date = new Date(info.getValue() as string);
-                return date.getFullYear();
+                return date.toLocaleDateString('id-ID'); // Output: 31/12/2024
             },
         },
         {
             accessorKey: 'ended_at',
-            header: 'Waktu Berakhir',
+            header: 'Tanggal Selesai',
             cell: (info) => {
                 const date = new Date(info.getValue() as string);
-                return date.getFullYear();
+                return date.toLocaleDateString('id-ID');
             },
         },
         {

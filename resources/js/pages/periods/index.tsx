@@ -15,6 +15,8 @@ export default function Index() {
     // Filter periods berdasarkan nama
     const filteredPeriods = periods.filter((period) => period.name.toLowerCase().includes(search.toLowerCase()));
 
+    const activePeriod = periods.find((p) => p.is_active);
+
     return (
         <AppLayout breadcrumbs={[{ title: 'Periods', href: '/periods' }]}>
             <Head title="Periods" />
@@ -32,6 +34,11 @@ export default function Index() {
                         </Button>
                     </div>
                 </div>
+                {activePeriod && (
+                    <div className="font-semibold text-green-600">
+                        Periode aktif saat ini: <strong>{activePeriod.name}</strong>
+                    </div>
+                )}
                 <PeriodTable
                     data={filteredPeriods}
                     onEdit={(period) => {
@@ -39,6 +46,7 @@ export default function Index() {
                         setOpen(true);
                     }}
                 />
+
                 <PeriodFormModal
                     open={open}
                     onClose={() => {
