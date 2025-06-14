@@ -15,22 +15,32 @@ class RolePermissionService
 
     public function getAll()
     {
-        return $this->rolePermissionRepository->getAll();
+        return cache()->remember('role_permissions.all', 3600, function () {
+            return $this->rolePermissionRepository->getAll();
+        });
     }
 
     public function assignPermissionToRole($roleId, $permissionId)
     {
-        return $this->rolePermissionRepository->assign($roleId, $permissionId);
+        $result = $this->rolePermissionRepository->assign($roleId, $permissionId);
+        cache()->forget('role_permissions.all');
+        cache()->forget("role_permissions.role.$roleId");
+        return $result;
     }
 
     public function unassignPermissionFromRole($roleId, $permissionId)
     {
-        return $this->rolePermissionRepository->unassign($roleId, $permissionId);
+        $result = $this->rolePermissionRepository->unassign($roleId, $permissionId);
+        cache()->forget('role_permissions.all');
+        cache()->forget("role_permissions.role.$roleId");
+        return $result;
     }
 
     public function getPermissionsByRole($roleId)
     {
-        return $this->rolePermissionRepository->getByRole($roleId);
+        return cache()->remember("role_permissions.role.$roleId", 3600, function () use ($roleId) {
+            return $this->rolePermissionRepository->getByRole($roleId);
+        });
     }
 
     public function getRolesByPermission($permissionId)

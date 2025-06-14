@@ -20,4 +20,17 @@ class UserService {
     {
         return $this->userRepository->sayHello($name);
     }
+
+    public function hasPermission($user, $key)
+    {
+        if (!$user->role) return false;
+        return $user->role->permissions->contains('key', $key);
+    }
+
+    public function assignRole($user, $roleId)
+    {
+        $user->role_id = $roleId;
+        $user->save();
+        return $user;
+    }
 }

@@ -3,22 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Services\RoleService;
+use App\Services\PermissionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class RoleController extends Controller
 {
     protected $roleService;
+    protected $permissionService;
 
-    public function __construct(RoleService $roleService)
+    public function __construct(RoleService $roleService, PermissionService $permissionService)
     {
         $this->roleService = $roleService;
+        $this->permissionService = $permissionService;
     }
 
     public function index()
     {
         $roles = $this->roleService->getAllRoles(); // pastikan eager load permissions jika perlu
-        $permissions = \App\Models\Permission::all();
+        $permissions = $this->permissionService->getAllPermissions();
         return Inertia::render('roles/index', [
             'roles' => $roles,
             'permissions' => $permissions,
