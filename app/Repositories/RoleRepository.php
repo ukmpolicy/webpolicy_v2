@@ -29,4 +29,9 @@ class RoleRepository
         $role = Role::findOrFail($id);
         return $role->delete();
     }
+    
+    public function getAllWithPermissions()
+    {
+        return Role::with('permissions')->get();
+    }
 }

@@ -15,7 +15,7 @@ class RoleService
 
     public function getAllRoles()
     {
-        return $this->roleRepository->getAll();
+        return $this->roleRepository->getAllWithPermissions();
     }
 
     public function createRole(array $data)
