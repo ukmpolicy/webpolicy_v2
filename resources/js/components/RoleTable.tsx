@@ -5,10 +5,20 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './ui/select';
-import { Pencil, Trash2, Hash, User, CalendarDays, Settings, Tag, SearchCheck, } from 'lucide-react';
+import { Pencil, Trash2, Hash, User, CalendarDays, Ellipsis, Tag, Search, Layers, List } from 'lucide-react';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from './ui/pagination';
 import { Inertia } from '@inertiajs/inertia';
 import { toast } from 'sonner';
+import React from 'react';
 
 type Role = {
   id: number;
@@ -20,16 +30,16 @@ type Role = {
 interface RoleTableProps {
   data: Role[];
   onEdit?: (role: Role) => void;
-}
+  onManagePermissions?: (role: Role) => void;
+};
 
-export function RoleTable({ data, onEdit }: RoleTableProps) {
+export function RoleTable({ data, onEdit, onManagePermissions }: RoleTableProps) {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
 
-  // Reset ke halaman pertama saat filter berubah
   useEffect(() => {
     setPageIndex(0);
   }, [globalFilter, columnFilters]);
@@ -41,7 +51,7 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
   const columns: ColumnDef<Role>[] = [
     {
       accessorKey: 'id',
-      header: 'ID',
+      header: '#',
       cell: info => info.getValue(),
     },
     {
@@ -55,7 +65,11 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
     },
     {
       accessorKey: 'created_at',
-      header: 'Dibuat',
+      header: () => (
+        <span className="flex items-center gap-1">
+          <CalendarDays className="w-4 h-4" /> Dibuat
+        </span>
+      ),
       cell: info => new Date(info.getValue() as string).toLocaleDateString('id-ID'),
     },
     {
@@ -65,12 +79,15 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="icon" variant="ghost" aria-label="Aksi">
-              <Pencil className="w-4 h-4" />
+              <Ellipsis className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
               <Pencil className="w-4 h-4 mr-2" /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManagePermissions?.(row.original)}>
+              <Tag className="w-4 h-4 mr-2" /> Manage Permissions
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
@@ -109,18 +126,35 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  const pageCount = table.getPageCount();
+  const currentPage = table.getState().pagination.pageIndex;
+
+  // Helper untuk menentukan halaman yang ditampilkan (tanpa duplikat)
+  function getPaginationRange(current: number, total: number) {
+    const delta = 2;
+    let range: number[] = [];
+    for (let i = Math.max(0, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+      range.push(i);
+    }
+    if (range[0] > 0) range = [0, ...range];
+    if (range[range.length - 1] < total - 1) range = [...range, total - 1];
+    return Array.from(new Set(range));
+  }
+
   return (
     <>
       {/* Filter & Search */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Input
-          
-          type="search"
-          placeholder="Cari role..."
-          value={globalFilter}
-          onChange={e => setGlobalFilter(e.target.value)}
-          className="w-48"
-        />
+      <div className="flex flex-wrap gap-2 mb-4 items-center">
+        <div className="relative w-48">
+          <Input
+            type="search"
+            placeholder="Cari role..."
+            value={globalFilter}
+            onChange={e => setGlobalFilter(e.target.value)}
+            className="pl-9"
+          />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        </div>
         <Select
           value={nameFilter || "__all__"}
           onValueChange={value =>
@@ -134,9 +168,13 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
             <SelectValue placeholder="Semua Role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">Semua Role</SelectItem>
+            <SelectItem value="__all__">
+              <Layers className="w-4 h-4 mr-2 inline" /> Semua Role
+            </SelectItem>
             {nameOptions.map(name => (
-              <SelectItem key={name} value={name}>{name}</SelectItem>
+              <SelectItem key={name} value={name}>
+                <Tag className="w-4 h-4 mr-2 inline" />{name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -149,13 +187,15 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
           </SelectTrigger>
           <SelectContent>
             {[5, 10, 20, 50].map(size => (
-              <SelectItem key={size} value={String(size)}>{size} / halaman</SelectItem>
+              <SelectItem key={size} value={String(size)}>
+                <List className="w-4 h-4 mr-2 inline" />{size}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
       {/* Table */}
-      <Table className="border rounded-lg overflow-hidden">
+      <Table className="border rounded-lg overflow-hidden divide-y divide-muted">
         <TableHeader>
           {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id} className="bg-muted dark:bg-zinc-900">
@@ -185,7 +225,10 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
                 }
               >
                 {row.getVisibleCells().map(cell => (
-                  <TableCell key={cell.id} className="dark:text-zinc-100">
+                  <TableCell
+                    key={cell.id}
+                    className="border-l border-r dark:border-zinc-800 dark:text-zinc-100"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -194,30 +237,60 @@ export function RoleTable({ data, onEdit }: RoleTableProps) {
           )}
         </TableBody>
       </Table>
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-between mt-4">
-        <div>
-          Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Sebelumnya
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Selanjutnya
-          </Button>
-        </div>
-      </div>
+      {/* Pagination */}
+      <Pagination className="mt-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={e => {
+                e.preventDefault();
+                if (currentPage > 0) table.previousPage();
+              }}
+              href="#"
+              aria-disabled={currentPage === 0}
+            />
+          </PaginationItem>
+          {(() => {
+            const range = getPaginationRange(currentPage, pageCount);
+            let last = -1;
+            return range.map((i) => {
+              const showEllipsis = last !== -1 && i - last > 1;
+              last = i;
+              return (
+                <React.Fragment key={i}>
+                  {showEllipsis && (
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )}
+                  <PaginationItem>
+                    <PaginationLink
+                      isActive={i === currentPage}
+                      onClick={e => {
+                        e.preventDefault();
+                        table.setPageIndex(i);
+                      }}
+                      href="#"
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                </React.Fragment>
+              );
+            });
+          })()}
+          <PaginationItem>
+            <PaginationNext
+              onClick={e => {
+                e.preventDefault();
+                if (currentPage < pageCount - 1) table.nextPage();
+              }}
+              href="#"
+              aria-disabled={currentPage === pageCount - 1}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
       {/* AlertDialog for delete */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
