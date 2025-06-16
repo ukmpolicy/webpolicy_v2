@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PeriodsController;
 use App\Http\Controllers\RoleController;
@@ -35,6 +36,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Member management
     Route::resource('members', MemberController:: class);
     Route::post('members/{id}', [MemberController:: class, 'update'] );
+
+    // Division management
+    Route::resource('divisions', DivisionController:: class);
+
 
 
 });
