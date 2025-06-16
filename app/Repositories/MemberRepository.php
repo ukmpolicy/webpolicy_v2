@@ -6,15 +6,20 @@ use App\Models\Member;
 
 class MemberRepository
 {
+    protected $model;
+
+    public function __construct()
+    {
+        $this->model = new Member();
+    }
     public function getAll()
     {
-        return Member::with('period')->get();
-        //  return Member::with('period')->paginate(10);
+        return Member::with(['period'])->get();
     }
 
     public function find($id)
     {
-        return Member::with('period')->findOrFail($id);
+        return Member::with(['period'])->findOrFail($id);
     }
 
     public function create(array $data)
@@ -33,5 +38,18 @@ class MemberRepository
     {
         $member = Member::findOrFail($id);
         return $member->delete();
+    }
+
+    public function checkUnique($email, $nim, $excludeId = null)
+    {
+        $query = Member::where(function ($q) use ($email, $nim) {
+            $q->where('email', $email)->orWhere('nim', $nim);
+        });
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->first();
     }
 }

@@ -28,7 +28,7 @@ class PeriodsController extends Controller
     {
 
         $data = $request->validate([
-            'name' => 'required|string|max:50|unique:periods,name',
+            'name' => 'required|string|max:50',
             'started_at' => 'required|date',
             'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',
@@ -43,7 +43,7 @@ class PeriodsController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => "required|string|max:50|unique:periods,name,$id",
+            'name' => "required|string|max:50",
             'started_at' => 'required|date',
             'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',

@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Member management
     Route::resource('members', MemberController:: class);
+    Route::post('members/{id}', [MemberController:: class, 'update'] );
 
 
 });

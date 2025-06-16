@@ -6,40 +6,34 @@ import { Head, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
-export default function MembersIndex() {
-    const {
-        members = [],
-        periods = [],
-        oldInput = {},
-    } = usePage().props as {
-        members: any[];
-        periods: { id: number; name: string }[];
-        oldInput?: Record<string, any>;
-    };
+export default function MemberIndex() {
+    const { members = [], periods = [], departments = [], activePeriodId = null } = usePage().props;
     const [open, setOpen] = useState(false);
-    const [editData, setEditData] = useState<any>(null);
+    const [editData, setEditData] = useState(null);
 
     return (
         <AppLayout breadcrumbs={[{ title: 'Members', href: '/members' }]}>
             <Head title="Members" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-4 flex items-center justify-between">
-                    <h1 className="text-xl font-bold">Daftar Anggota</h1>
+                    <h1 className="text-xl font-bold"> Members List</h1>
                     <Button
                         onClick={() => {
                             setEditData(null);
                             setOpen(true);
                         }}
                     >
-                        <Plus className="mr-2 h-4 w-4" /> Tambah Member
+                        <Plus className="m-auto w-4" /> Tambah Member
                     </Button>
                 </div>
                 <MemberTable
                     data={members}
-                    periods={periods}
                     onEdit={(member) => {
                         setEditData(member);
                         setOpen(true);
+                    }}
+                    onView={(member) => {
+                        window.location.href = `/members/${member.id}`;
                     }}
                 />
                 <MemberFormModal
@@ -48,23 +42,9 @@ export default function MembersIndex() {
                         setOpen(false);
                         setEditData(null);
                     }}
-                    initialData={{
-                        period_id: '',
-                        name: '',
-                        nim: '',
-                        address: '',
-                        email: '',
-                        department: '',
-                        study_program: '',
-                        joined_college_on: '',
-                        graduated_college_on: '',
-                        born_at: '',
-                        birth_date_at: '',
-                        picture: null,
-                        ...editData,
-                        ...oldInput,
-                    }}
+                    initialData={editData}
                     periods={periods}
+                    departments={departments}
                 />
             </div>
         </AppLayout>
