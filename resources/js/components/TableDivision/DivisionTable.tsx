@@ -23,40 +23,30 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Inertia } from '@inertiajs/inertia';
-import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
+import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
 import { Ellipsis, Layers, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-export function DivisionTable({ data, onEdit, onView }) {
+export function DivisionTable({ data, onEdit }) {
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
-    // Perbaikan extract period options
-    const periodOptions = useMemo(() => {
-        if (!data) return [];
-
-        // Pastikan kita handle case dimana period mungkin null/undefined
-        const periods = data.map((member) => member.period?.name).filter((name) => name !== undefined && name !== null);
-
-        return ['__all__', ...new Set(periods)];
-    }, [data]);
-
-    // Fixed year options extraction
-    const yearOptions = useMemo(() => {
-        const years = data?.map((m) => m.joined_college_on).filter((year) => year) || [];
-        return [...new Set(years)];
+    // Unique division names for filter
+    const divisionNameOptions = useMemo(() => {
+        const names = data?.map((d) => d.name).filter((name) => name) || [];
+        return ['__all__', ...new Set(names)];
     }, [data]);
 
     React.useEffect(() => {
         setPageIndex(0);
     }, [globalFilter, columnFilters]);
 
-    const columns: ColumnDef<any>[] = [
+    const columns = [
         {
             id: 'no',
             header: '#',
@@ -64,48 +54,11 @@ export function DivisionTable({ data, onEdit, onView }) {
         },
         {
             accessorKey: 'name',
-            header: 'Nama Anggota',
-        },
-        {
-            accessorKey: 'nim',
-            header: 'NIM',
-        },
-        {
-            accessorKey: 'email',
-            header: 'Email',
-        },
-        {
-            accessorKey: 'department',
-            header: 'Jurusan',
-        },
-        {
-            accessorKey: 'study_program',
-            header: 'Prodi',
-        },
-        {
-            accessorKey: 'period',
-            header: 'Periode',
-            cell: ({ row }) => row.original.period?.name || '-',
+            header: 'Nama Divisi',
             filterFn: (row, _, filterValue) => {
-                // Handle case ketika period null
-                const periodName = row.original.period?.name;
-
-                if (filterValue === '__all__' || !filterValue) {
-                    return true;
-                }
-
-                return periodName === filterValue;
+                if (!filterValue || filterValue === '__all__') return true;
+                return row.getValue('name') === filterValue;
             },
-        },
-        {
-            accessorKey: 'joined_college_on',
-            header: 'Tahun Masuk',
-
-            // Filter Tahun Masuk
-            // filterFn: (row, columnId, filterValue) => {
-            //     if (!filterValue || filterValue === '__all__') return true;
-            //     return row.getValue(columnId) === filterValue;
-            // },
         },
         {
             id: 'actions',
@@ -118,9 +71,6 @@ export function DivisionTable({ data, onEdit, onView }) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => onView(row.original)}>
-                            <Tag className="mr-2 h-4 w-4" /> Detail
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
@@ -174,11 +124,12 @@ export function DivisionTable({ data, onEdit, onView }) {
 
     return (
         <>
+            {/* Filter & Search */}
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Cari member..."
+                        placeholder="Cari divisi..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
@@ -186,51 +137,29 @@ export function DivisionTable({ data, onEdit, onView }) {
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
 
-                {/* Period Filter */}
+                {/* Filter Nama Divisi */}
                 <Select
-                    value={(table.getColumn('period')?.getFilterValue() as string) || '__all__'}
-                    onValueChange={(value) => {
-                        table.getColumn('period')?.setFilterValue(value === '__all__' ? undefined : value);
-                    }}
+                    value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
+                    onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
                 >
-                    <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Semua Periode" />
+                    <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Semua Divisi" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="__all__">
-                            <Layers className="mr-2 inline h-4 w-4" /> Semua Periode
+                            <Layers className="mr-2 inline h-4 w-4" /> Semua Divisi
                         </SelectItem>
-                        {periodOptions
+                        {divisionNameOptions
                             .filter((opt) => opt !== '__all__')
-                            .map((periodName) => (
-                                <SelectItem key={periodName} value={periodName}>
+                            .map((name) => (
+                                <SelectItem key={name} value={name}>
                                     <Tag className="mr-2 inline h-4 w-4" />
-                                    {periodName}
+                                    {name}
                                 </SelectItem>
                             ))}
                     </SelectContent>
                 </Select>
 
-                {/* Filter Semua Tahun */}
-                {/* <Select
-                    value={(table.getColumn('joined_college_on')?.getFilterValue() as string) || '__all__'}
-                    onValueChange={(value) => table.getColumn('joined_college_on')?.setFilterValue(value === '__all__' ? undefined : value)}
-                >
-                    <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Tahun Masuk" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="__all__">
-                            <CalendarDays className="mr-2 inline h-4 w-4" /> Semua Tahun
-                        </SelectItem>
-                        {yearOptions.map((year) => (
-                            <SelectItem key={year} value={year}>
-                                <CalendarDays className="mr-2 inline h-4 w-4" />
-                                {year}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select> */}
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
                         <SelectValue />
@@ -246,6 +175,7 @@ export function DivisionTable({ data, onEdit, onView }) {
                 </Select>
             </div>
 
+            {/* Table */}
             <Table className="divide-muted divide-y overflow-hidden rounded-lg border">
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -279,6 +209,7 @@ export function DivisionTable({ data, onEdit, onView }) {
                 </TableBody>
             </Table>
 
+            {/* Pagination */}
             <Pagination className="mt-4">
                 <PaginationContent>
                     <PaginationItem>
@@ -333,12 +264,13 @@ export function DivisionTable({ data, onEdit, onView }) {
                 </PaginationContent>
             </Pagination>
 
+            {/* AlertDialog for delete */}
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Member?</AlertDialogTitle>
+                        <AlertDialogTitle>Hapus Divisi?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus member ini? Tindakan ini tidak dapat dibatalkan.
+                            Apakah Anda yakin ingin menghapus divisi ini? Tindakan ini tidak dapat dibatalkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -346,9 +278,9 @@ export function DivisionTable({ data, onEdit, onView }) {
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
-                                    Inertia.delete(`/members/${deleteId}`, {
-                                        onSuccess: () => toast.success('Member berhasil dihapus!'),
-                                        onError: () => toast.error('Gagal menghapus member.'),
+                                    Inertia.delete(`/divisions/${deleteId}`, {
+                                        onSuccess: () => toast.success('Divisi berhasil dihapus!'),
+                                        onError: () => toast.error('Gagal menghapus divisi.'),
                                     });
                                     setDeleteId(null);
                                 }
