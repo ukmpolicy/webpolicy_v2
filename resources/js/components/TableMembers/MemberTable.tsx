@@ -1,16 +1,3 @@
-import { Inertia } from '@inertiajs/inertia';
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    useReactTable,
-} from '@tanstack/react-table';
-import { Ellipsis, Layers, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,10 +7,10 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { Button } from '../ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Input } from '../ui/input';
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
     Pagination,
     PaginationContent,
@@ -32,79 +19,93 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from '../ui/pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+} from '@/components/ui/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Inertia } from '@inertiajs/inertia';
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
+import { Ellipsis, Layers, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
+import * as React from 'react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
-type Period = {
-    id: number;
-    name: string;
-    started_at: string; // Tambahkan ini
-    ended_at: string; // Tambahkan ini
-    created_at: string;
-    updated_at: string;
-};
-
-interface PeriodTableProps {
-    data: Period[];
-    onEdit?: (period: Period) => void;
-}
-
-export function PeriodTable({ data, onEdit }: PeriodTableProps) {
-    const [deleteId, setDeleteId] = useState<number | null>(null);
+export function MemberTable({ data, onEdit, onView }) {
+    const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
-    useEffect(() => {
+    // Perbaikan extract period options
+    const periodOptions = useMemo(() => {
+        if (!data) return [];
+
+        // Pastikan kita handle case dimana period mungkin null/undefined
+        const periods = data.map((member) => member.period?.name).filter((name) => name !== undefined && name !== null);
+
+        return ['__all__', ...new Set(periods)];
+    }, [data]);
+
+    // Fixed year options extraction
+    const yearOptions = useMemo(() => {
+        const years = data?.map((m) => m.joined_college_on).filter((year) => year) || [];
+        return [...new Set(years)];
+    }, [data]);
+
+    React.useEffect(() => {
         setPageIndex(0);
     }, [globalFilter, columnFilters]);
 
-    // Unique role names for filter
-    const nameOptions = useMemo(() => Array.from(new Set(data.map((p) => p.name))), [data]);
-    const nameFilter = (columnFilters.find((f) => f.id === 'name')?.value as string) ?? '';
-
-    // Inisialisasi Coloumn Form
-    const columns: ColumnDef<Period>[] = [
+    const columns: ColumnDef<any>[] = [
         {
-            id: 'rowNumber',
+            id: 'no',
             header: '#',
             cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
         },
         {
             accessorKey: 'name',
-            header: 'Nama Periode',
-            cell: (info) => info.getValue(),
-            filterFn: (row, columnId, filterValue) => {
-                if (!filterValue || filterValue === '__all__') return true;
-                return row.getValue(columnId) === filterValue;
+            header: 'Nama Anggota',
+        },
+        {
+            accessorKey: 'nim',
+            header: 'NIM',
+        },
+        {
+            accessorKey: 'email',
+            header: 'Email',
+        },
+        {
+            accessorKey: 'department',
+            header: 'Jurusan',
+        },
+        {
+            accessorKey: 'study_program',
+            header: 'Prodi',
+        },
+        {
+            accessorKey: 'period',
+            header: 'Periode',
+            cell: ({ row }) => row.original.period?.name || '-',
+            filterFn: (row, _, filterValue) => {
+                // Handle case ketika period null
+                const periodName = row.original.period?.name;
+
+                if (filterValue === '__all__' || !filterValue) {
+                    return true;
+                }
+
+                return periodName === filterValue;
             },
         },
         {
-            accessorKey: 'started_at',
-            header: 'Tanggal Mulai',
-            cell: (info) => {
-                const date = new Date(info.getValue() as string);
-                return date.toLocaleDateString('id-ID'); // Output: 31/12/2024
-            },
-        },
-        {
-            accessorKey: 'ended_at',
-            header: 'Tanggal Selesai',
-            cell: (info) => {
-                const date = new Date(info.getValue() as string);
-                return date.toLocaleDateString('id-ID');
-            },
-        },
-        {
-            accessorKey: 'is_active',
-            header: 'Status Aktif',
-            cell: (info) => (
-                <span className={`text-bold ${info.getValue() ? 'text-green-500' : 'text-red-500'}`}>
-                    {info.getValue() ? 'Aktif' : 'Tidak Aktif'}
-                </span>
-            ),
+            accessorKey: 'joined_college_on',
+            header: 'Tahun Masuk',
+
+            // Filter Tahun Masuk
+            // filterFn: (row, columnId, filterValue) => {
+            //     if (!filterValue || filterValue === '__all__') return true;
+            //     return row.getValue(columnId) === filterValue;
+            // },
         },
         {
             id: 'actions',
@@ -117,10 +118,13 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
+                        <DropdownMenuItem onClick={() => onView(row.original)}>
+                            <Tag className="mr-2 h-4 w-4" /> Detail
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem variant="destructive" onClick={() => setDeleteId(row.original.id)}>
+                        <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Hapus
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -157,10 +161,9 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
     const pageCount = table.getPageCount();
     const currentPage = table.getState().pagination.pageIndex;
 
-    // Helper untuk menentukan halaman yang ditampilkan (tanpa duplikat)
     function getPaginationRange(current: number, total: number) {
         const delta = 2;
-        let range: number[] = [];
+        let range = [];
         for (let i = Math.max(0, current - delta); i <= Math.min(total - 1, current + delta); i++) {
             range.push(i);
         }
@@ -168,30 +171,27 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
         if (range[range.length - 1] < total - 1) range = [...range, total - 1];
         return Array.from(new Set(range));
     }
+
     return (
         <>
-            {/* Filter & Search */}
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Cari Periode..."
+                        placeholder="Cari member..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
                     />
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
+
+                {/* Period Filter */}
                 <Select
-                    value={nameFilter || '__all__'}
-                    onValueChange={(value) =>
-                        setColumnFilters(
-                            (old) =>
-                                [...old.filter((f) => f.id !== 'name'), value !== '__all__' ? { id: 'name', value } : undefined].filter(
-                                    Boolean,
-                                ) as ColumnFiltersState,
-                        )
-                    }
+                    value={(table.getColumn('period')?.getFilterValue() as string) || '__all__'}
+                    onValueChange={(value) => {
+                        table.getColumn('period')?.setFilterValue(value === '__all__' ? undefined : value);
+                    }}
                 >
                     <SelectTrigger className="w-40">
                         <SelectValue placeholder="Semua Periode" />
@@ -200,14 +200,37 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                         <SelectItem value="__all__">
                             <Layers className="mr-2 inline h-4 w-4" /> Semua Periode
                         </SelectItem>
-                        {nameOptions.map((name) => (
-                            <SelectItem key={name} value={name}>
-                                <Tag className="mr-2 inline h-4 w-4" />
-                                {name}
+                        {periodOptions
+                            .filter((opt) => opt !== '__all__')
+                            .map((periodName) => (
+                                <SelectItem key={periodName} value={periodName}>
+                                    <Tag className="mr-2 inline h-4 w-4" />
+                                    {periodName}
+                                </SelectItem>
+                            ))}
+                    </SelectContent>
+                </Select>
+
+                {/* Filter Semua Tahun */}
+                {/* <Select
+                    value={(table.getColumn('joined_college_on')?.getFilterValue() as string) || '__all__'}
+                    onValueChange={(value) => table.getColumn('joined_college_on')?.setFilterValue(value === '__all__' ? undefined : value)}
+                >
+                    <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Tahun Masuk" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all__">
+                            <CalendarDays className="mr-2 inline h-4 w-4" /> Semua Tahun
+                        </SelectItem>
+                        {yearOptions.map((year) => (
+                            <SelectItem key={year} value={year}>
+                                <CalendarDays className="mr-2 inline h-4 w-4" />
+                                {year}
                             </SelectItem>
                         ))}
                     </SelectContent>
-                </Select>
+                </Select> */}
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
                         <SelectValue />
@@ -223,7 +246,6 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                 </Select>
             </div>
 
-            {/* Table */}
             <Table className="divide-muted divide-y overflow-hidden rounded-lg border">
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -256,7 +278,7 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                     )}
                 </TableBody>
             </Table>
-            {/* Pagination */}
+
             <Pagination className="mt-4">
                 <PaginationContent>
                     <PaginationItem>
@@ -310,13 +332,13 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>
-            {/* AlertDialog for delete */}
+
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Periode?</AlertDialogTitle>
+                        <AlertDialogTitle>Hapus Member?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus periode ini? Tindakan ini tidak dapat dibatalkan.
+                            Apakah Anda yakin ingin menghapus member ini? Tindakan ini tidak dapat dibatalkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -324,9 +346,9 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
-                                    Inertia.delete(`/periods/${deleteId}`, {
-                                        onSuccess: () => toast.success('Periode berhasil dihapus!'),
-                                        onError: () => toast.error('Gagal menghapus periode.'),
+                                    Inertia.delete(`/members/${deleteId}`, {
+                                        onSuccess: () => toast.success('Member berhasil dihapus!'),
+                                        onError: () => toast.error('Gagal menghapus member.'),
                                     });
                                     setDeleteId(null);
                                 }

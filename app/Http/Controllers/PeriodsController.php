@@ -22,22 +22,13 @@ class PeriodsController extends Controller
         return Inertia::render('periods/index', [
             'periods' => $periods,
         ]);
-        // $periods = Period::withTrashed()->get(); // Pastikan semua kolom ada
-        // return Inertia::render('periods/index', [
-        //     'periods' => $periods,
-        // ]);
     }
 
     public function store(Request $request)
     {
-        // $data = $request->validate([
-        //     'name' => 'required|string|max:50|unique:periods,name',
-        //     'started_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
-        //     'ended_year' => 'required|integer|min:1900|max:' . (date('Y') + 10),
-        //     'is_active' => 'boolean',
-        // ]);
+
         $data = $request->validate([
-            'name' => 'required|string|max:50|unique:periods,name',
+            'name' => 'required|string|max:50',
             'started_at' => 'required|date',
             'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',
@@ -46,14 +37,13 @@ class PeriodsController extends Controller
         $this->periodService->createPeriod($data);
         return redirect()->back()->with('success', 'Periode berhasil ditambahkan!');
 
-        // $this->periodService->createPeriod($data);
-        // return redirect()->back()->with('success', 'Period created!');
+
     }
 
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => "required|string|max:50|unique:periods,name,$id",
+            'name' => "required|string|max:50",
             'started_at' => 'required|date',
             'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',
@@ -62,11 +52,7 @@ class PeriodsController extends Controller
         $this->periodService->updatePeriod($id, $data);
         return redirect()->back()->with('success', 'Periode berhasil diperbarui!');
 
-        // $data = $request->validate([
-        //     'name' => 'required|unique:periods,name,' . $id,
-        // ]);
-        // $this->periodService->updatePeriod($id, $data);
-        // return redirect()->back()->with('success', 'Period updated!');
+
     }
 
     public function destroy($id)
