@@ -11,6 +11,12 @@ class Division extends Model
 
     protected $fillable = ['name'];
 
+    // Mutator untuk memastikan format nama selalu benar
+    public function setNameAttribute($value)
+    {
+        // Normalisasi: lowercase + single space
+        $this->attributes['name'] = preg_replace('/\s+/', ' ', strtolower(trim($value)));
+    }
     public function periodDivisions()
     {
         return $this->hasMany(PeriodDivision::class);

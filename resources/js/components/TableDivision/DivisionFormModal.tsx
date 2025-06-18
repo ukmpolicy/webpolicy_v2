@@ -25,9 +25,15 @@ export function DivisionFormModal({ open, onClose, initialData }) {
 
     function handleSubmit(e) {
         e.preventDefault();
+        // Normalisasi nama sebelum submit
+        const formattedData = {
+            ...data,
+            name: data.name.toLowerCase().replace(/\s+/g, ' ').trim(),
+        };
 
         const action = isEdit
             ? put(`/divisions/${initialData.id}`, {
+                  data: formattedData,
                   onSuccess: () => {
                       toast.success('Divisi berhasil diperbarui!');
                       onClose();
@@ -37,6 +43,7 @@ export function DivisionFormModal({ open, onClose, initialData }) {
                   },
               })
             : post('/divisions', {
+                  data: formattedData,
                   onSuccess: () => {
                       toast.success('Divisi berhasil ditambahkan!');
                       onClose();
