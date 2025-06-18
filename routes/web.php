@@ -14,6 +14,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
+;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
@@ -22,27 +23,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         //     return Inertia::render('welcome');
         // }
         return Inertia::render('dashboard');
-    })->name('dashboard');
+    })->name('dashboard')->middleware(['permission:dashboard']);
 
 
     // Role roles management
-    Route::resource('roles', RoleController::class);
+    Route::resource('roles', RoleController::class)->middleware(['permission:roles']);
 
     // Permissions management
-    Route::resource('permissions', PermissionController::class);
+    Route::resource('permissions', PermissionController::class)->middleware(['permission:permissions']);
 
     // roles permissions management
     Route::post('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('roles.permissions.update');
 
     // Periods management
-    Route::resource('periods', PeriodsController:: class);
+    Route::resource('periods', PeriodsController:: class)->middleware(['permission:periods']);
 
     // Member management
-    Route::resource('members', MemberController:: class);
+    Route::resource('members', MemberController:: class)->middleware(['permission:members']);
     Route::post('members/{id}', [MemberController:: class, 'update'] );
 
     // Division management
-    Route::resource('divisions', DivisionController:: class);
+    Route::resource('divisions', DivisionController:: class)->middleware(['permission:divisions']);
 
 
 
