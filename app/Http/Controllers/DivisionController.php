@@ -10,7 +10,7 @@ use Inertia\Inertia;
 
 class DivisionController extends Controller
 {
-  protected $divisionService;
+    protected $divisionService;
 
     public function __construct(DivisionService $divisionService)
     {
@@ -21,15 +21,18 @@ class DivisionController extends Controller
     {
         $divisions = $this->divisionService->getAllDivisions();
         return inertia('divisions/index', [
-            'divisions' => $divisions
+            'divisions' => $divisions,
         ]);
     }
 
     public function store(Request $request)
     {
         try {
+            // Normalisasi nama: lowercase + single space
+            $request->merge(['name' => $this->normalizeDivisionName($request->name)]);
+
             $validated = $request->validate([
-                'name' => 'required|string|max:50'
+                'name' => 'required|string|max:50',
             ]);
 
             $this->divisionService->createDivision($validated);
@@ -46,8 +49,11 @@ class DivisionController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            // Normalisasi nama: lowercase + single space
+            $request->merge(['name' => $this->normalizeDivisionName($request->name)]);
+
             $validated = $request->validate([
-                'name' => 'required|string|max:50|'
+                'name' => 'required|string|max:50|',
             ]);
 
             $this->divisionService->updateDivision($id, $validated);
@@ -65,5 +71,11 @@ class DivisionController extends Controller
     {
         $this->divisionService->deleteDivision($id);
         return redirect()->back()->with('success', 'Division deleted successfully!');
+    }
+
+    protected function normalizeDivisionName($name)
+    {
+        // Ubah ke lowercase dan replace multiple spaces dengan single space
+        return preg_replace('/\s+/', ' ', strtolower(trim($name)));
     }
 }

@@ -20,11 +20,15 @@ class DivisionService
 
     public function createDivision(array $data)
     {
+        // Normalisasi nama sebelum create
+        $data['name'] = preg_replace('/\s+/', ' ', strtolower(trim($data['name'])));
         return $this->divisionRepository->create($data);
     }
 
     public function updateDivision($id, array $data)
     {
+        // Normalisasi nama sebelum update
+        $data['name'] = preg_replace('/\s+/', ' ', strtolower(trim($data['name'])));
         return $this->divisionRepository->update($id, $data);
     }
 
