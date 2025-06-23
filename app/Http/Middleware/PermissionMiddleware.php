@@ -24,8 +24,8 @@ class PermissionMiddleware
              if(in_array($permission, array_column($permissions, 'key'))){
                 return $next($request);
              };
-         }    
-        
+         }
+
         // dd($user->role_id);
         return redirect()->route('home')->with('error', 'You do not have permission to access this resource.');
 
