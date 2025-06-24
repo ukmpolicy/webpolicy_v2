@@ -36,6 +36,10 @@ class DivisionPlansController extends Controller
                 'scheduled_at' => 'required|date',
                 'division_id' => 'required|exists:divisions,id',
             ]);
+
+            // Format name: lowercase dan satu spasi
+            $validated['name'] = strtolower(preg_replace('/\s+/', ' ', trim($validated['name'])));
+
             $this->divisionPlansService->createPlan($validated);
 
             // Ambil data terbaru
@@ -68,7 +72,11 @@ class DivisionPlansController extends Controller
                 'division_id' => 'required|exists:divisions,id',
             ]);
 
+            // Format name: lowercase dan satu spasi
+            $validated['name'] = strtolower(preg_replace('/\s+/', ' ', trim($validated['name'])));
+
             $this->divisionPlansService->updatePlan($id, $validated);
+
             // return redirect()->back()->with('success', 'Division Plan updated successfully!');
             return redirect()
                 ->back()

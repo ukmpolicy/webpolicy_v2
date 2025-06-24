@@ -25,7 +25,7 @@ export default function DivisionPlansIndex() {
                             setOpen(true);
                         }}
                     >
-                        <Plus className="m-auto w-4" /> Add Plan
+                        <Plus className="m-auto w-4" /> Tambah Proker
                     </Button>
                 </div>
                 <DivisionPlansTable
