@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use App\Repositories\RoleRepository;
+use App\Repositories\UserRepository;
 
 class RoleService
 {
     protected $roleRepository;
+    protected $userRepository;
 
-    public function __construct(RoleRepository $roleRepository)
+    public function __construct(RoleRepository $roleRepository, UserRepository $userRepository)
     {
         $this->roleRepository = $roleRepository;
+        $this->userRepository = $userRepository; // <-- tambahkan ini
     }
 
     public function getAllRoles()
@@ -37,5 +40,29 @@ class RoleService
     {
         $role = $this->roleRepository->find($roleId);
         $role->permissions()->sync($permissionIds);
+    }
+
+    public function assignOrInviteUserByEmail($roleId, $email)
+    {
+        $user = $this->userRepository->findByEmail($email);
+        if ($user) {
+            $this->userRepository->assignRole($user->id, $roleId);
+        } else {
+            $user = $this->userRepository->create([
+                'email' => $email,
+                'name' => $email,
+                'password' => bcrypt(\Str::random(12)),
+                'role_id' => $roleId,
+            ]);
+            // (Opsional) Kirim email undangan
+        }
+    }
+
+    public function removeUserFromRole($roleId, $userId)
+    {
+        $user = $this->userRepository->find($userId);
+        if ($user->role_id == $roleId) {
+            $this->userRepository->assignRole($userId, null);
+        }
     }
 }
