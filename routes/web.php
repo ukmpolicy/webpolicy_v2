@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DivisionPlansController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PeriodsController;
 use App\Http\Controllers\RoleController;
@@ -49,9 +51,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Division management
     Route::resource('divisions', DivisionController::class);
-// ->middleware(['permission:divisions']);
+    // ->middleware(['permission:divisions']);
+
     // Division Plans Management
-    Route::resource('division-plans',DivisionPlansController::class );
+    Route::resource('division-plans', DivisionPlansController::class);
+
+    // Gallery Management
+    Route::resource('gallery-media', MediaController::class);
+    Route::resource('gallery-album', AlbumController::class);
+    // Additional route for moving media
+    Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])->name('gallery-media.move');
 });
 
 require __DIR__ . '/settings.php';
