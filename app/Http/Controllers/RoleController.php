@@ -30,6 +30,7 @@ class RoleController extends Controller
             'roles' => $roles,
             'permissions' => $permissions,
             'users' => $users, // Kirim ke frontend
+            'canManageUsers' => $this->userService->hasPermission(auth()->user(), 'manage-users'),
         ]);
     }
 

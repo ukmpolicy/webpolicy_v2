@@ -32,9 +32,10 @@ interface RoleTableProps {
     onEdit?: (role: Role) => void;
     onManagePermissions?: (role: Role) => void;
     onManageUsers?: (role: Role) => void; // <-- Tambahkan ini
+    canManageUsers?: boolean; // <-- Tambahkan ini untuk kontrol akses
 };
 
-export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers }: RoleTableProps) {
+export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, canManageUsers }: RoleTableProps) {
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -90,7 +91,11 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers }: 
                         <DropdownMenuItem onClick={() => onManagePermissions?.(row.original)}>
                             <Tag className="w-4 h-4 mr-2" /> Manage Permissions
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onManageUsers?.(row.original)}>
+                        <DropdownMenuItem
+                            onClick={() => onManageUsers?.(row.original)}
+                            disabled={!canManageUsers}
+                            style={{ display: canManageUsers ? undefined : "none" }}
+                        >
                             <User className="w-4 h-4 mr-2" /> Manage Users
                         </DropdownMenuItem>
                         <DropdownMenuItem

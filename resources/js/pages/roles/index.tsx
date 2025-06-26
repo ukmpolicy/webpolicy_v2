@@ -10,7 +10,7 @@ import { Plus } from "lucide-react";
 import { RoleUserFormModal } from "@/components/RoleUserModal/RoleUserFormModal";
 
 export default function Role() {
-  const { roles = [], permissions = [], users = [] } = usePage().props as any;
+  const { roles = [], permissions = [], users = [], canManageUsers = false } = usePage().props as any;
   const [open, setOpen] = useState(false);
   const [openManage, setOpenManage] = useState(false);
   const [editData, setEditData] = useState<any>(null);
@@ -37,6 +37,7 @@ export default function Role() {
           onEdit={role => { setEditData(role); setOpen(true); }}
           onManagePermissions={role => { setManageRoleId(role.id); setOpenManage(true); }}
           onManageUsers={role => { setManageRoleUsersId(role.id); setOpenManageUsers(true); }}
+          canManageUsers={canManageUsers}
         />
         <RoleUserFormModal
           open={openManageUsers}

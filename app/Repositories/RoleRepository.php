@@ -39,4 +39,5 @@ class RoleRepository
     {
         return Role::findOrFail($id);
     }
+    
 }

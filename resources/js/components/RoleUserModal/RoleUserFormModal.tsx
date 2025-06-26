@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@inertiajs/react";
@@ -5,10 +6,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Inertia } from "@inertiajs/inertia";
 
+const PAGE_SIZE = 5;
+
 interface User {
     id: number;
     name: string;
     email: string;
+    role_id?: number;
 }
 
 interface RoleUserFormModalProps {
@@ -22,7 +26,16 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState<User[]>([]);
     const [selectedEmail, setSelectedEmail] = useState("");
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [pendingEmail, setPendingEmail] = useState("");
+    const [alert, setAlert] = useState<string | null>(null);
+
+    // Pagination state
+    const [page, setPage] = useState(0);
+
     const { data, setData, post, processing, reset, errors } = useForm<{ email: string }>({ email: "" });
+
+    // Search suggestion
     useEffect(() => {
         if (query.length > 1) {
             setSuggestions(
@@ -38,6 +51,10 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
         }
     }, [query, allUsers, role]);
 
+    // Pagination for users in role
+    const pagedUsers = role?.users?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) || [];
+    const totalPages = Math.ceil((role?.users?.length || 0) / PAGE_SIZE);
+
     function handleSelect(email: string) {
         setSelectedEmail(email);
         setQuery(email);
@@ -46,7 +63,29 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        setData("email", query); // <-- set data form
+        setAlert(null);
+
+        // Cek apakah user sudah ada di role
+        const userInRole = role?.users?.find(u => u.email === query);
+        if (userInRole) {
+            setAlert("User sudah ada di role ini.");
+            return;
+        }
+
+        // Cek apakah user sudah punya role lain
+        const user = allUsers.find(u => u.email === query);
+        if (user && user.role_id && user.role_id !== role?.id) {
+            setPendingEmail(query);
+            setShowConfirm(true);
+            return;
+        }
+
+        // Lanjut assign/invite
+        doAssign(query);
+    }
+
+    function doAssign(email: string) {
+        setData("email", email);
         post(`/roles/${role?.id}/invite-user`, {
             onSuccess: () => {
                 toast.success("User assigned/invited!");
@@ -55,7 +94,9 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
                 reset();
                 Inertia.reload({ only: ['roles'] });
             },
-            onError: () => toast.error("Gagal assign/invite user"),
+            onError: (errors) => {
+                toast.error(errors.email || "Gagal assign/invite user");
+            },
             preserveScroll: true,
         });
     }
@@ -78,14 +119,14 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block mb-1 font-medium">Tambah user ke role (by email):</label>
-                        <input
+                        <Input
                             type="email"
-                            className="input w-full"
                             placeholder="Masukkan email user"
                             value={query}
                             onChange={e => {
                                 setQuery(e.target.value);
                                 setSelectedEmail("");
+                                setAlert(null);
                             }}
                             autoComplete="off"
                             required
@@ -103,6 +144,7 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
                                 ))}
                             </ul>
                         )}
+                        {alert && <div className="text-red-500 text-xs mt-1">{alert}</div>}
                         {errors.email && <div className="text-red-500 text-xs">{errors.email}</div>}
                     </div>
                     <DialogFooter>
@@ -115,7 +157,7 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
                 <div className="mt-6">
                     <h4 className="font-semibold mb-2">User pada Role ini:</h4>
                     <ul className="space-y-1">
-                        {role?.users?.map(user => (
+                        {pagedUsers.map(user => (
                             <li key={user.id} className="flex items-center gap-2">
                                 <span>{user.name} ({user.email})</span>
                                 <Button
@@ -129,8 +171,40 @@ export function RoleUserFormModal({ open, onClose, role, allUsers }: RoleUserFor
                         ))}
                         {role?.users?.length === 0 && <li className="text-muted-foreground">Belum ada user di role ini.</li>}
                     </ul>
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex gap-2 mt-2">
+                            <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Prev</Button>
+                            <span className="text-xs">Page {page + 1} of {totalPages}</span>
+                            <Button size="sm" variant="outline" disabled={page === totalPages - 1} onClick={() => setPage(p => p + 1)}>Next</Button>
+                        </div>
+                    )}
                 </div>
             </DialogContent>
+            {/* Modal konfirmasi jika user sudah punya role lain */}
+            {showConfirm && (
+                <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+                    <DialogContent>
+                        <DialogTitle>Konfirmasi</DialogTitle>
+                        <div>
+                            User dengan email <b>{pendingEmail}</b> sudah memiliki role lain.<br />
+                            Apakah Anda yakin ingin memindahkan user ke role ini?
+                        </div>
+                        <DialogFooter>
+                            <Button variant="secondary" onClick={() => setShowConfirm(false)}>Batal</Button>
+                            <Button
+                                variant="destructive"
+                                onClick={() => {
+                                    setShowConfirm(false);
+                                    doAssign(pendingEmail);
+                                }}
+                            >
+                                Pindahkan User
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
         </Dialog>
     );
 }

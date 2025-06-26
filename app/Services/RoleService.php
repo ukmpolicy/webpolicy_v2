@@ -46,6 +46,9 @@ class RoleService
     {
         $user = $this->userRepository->findByEmail($email);
         if ($user) {
+            if ($user->role_id == $roleId) {
+                throw new \Exception("User sudah ada di role ini.");
+            }
             $this->userRepository->assignRole($user->id, $roleId);
         } else {
             $user = $this->userRepository->create([
@@ -54,7 +57,6 @@ class RoleService
                 'password' => bcrypt(\Str::random(12)),
                 'role_id' => $roleId,
             ]);
-            // (Opsional) Kirim email undangan
         }
     }
 
