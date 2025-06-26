@@ -12,7 +12,12 @@ export default function DivisionIndex() {
     const [editData, setEditData] = useState(null);
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Divisions', href: '/divisions' }]}>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Division', href: '#' },
+                { title: 'Division', href: '/divisions' },
+            ]}
+        >
             <Head title="Divisi" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-4 flex items-center justify-between">
