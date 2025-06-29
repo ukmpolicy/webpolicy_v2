@@ -15,6 +15,7 @@ export default function DivisionPlansIndex() {
 
     return (
         <AppLayout
+            // navigasi
             breadcrumbs={[
                 { title: 'Division', href: '#' },
                 { title: 'Division', href: '/divisions' },
@@ -24,7 +25,7 @@ export default function DivisionPlansIndex() {
             <Head title="Division Plans" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-4 flex items-center justify-between">
-                    <h1 className="text-xl font-bold">Division Plans List</h1>
+                    <h1 className="text-xl font-bold">Daftar Rencana Divisi</h1>
                     <Button
                         onClick={() => {
                             setEditData(null);

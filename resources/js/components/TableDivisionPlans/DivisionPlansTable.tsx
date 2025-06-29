@@ -24,7 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Inertia } from '@inertiajs/inertia';
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
-import { Ellipsis, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
+import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -129,7 +129,7 @@ export function DivisionPlansTable({ data, divisions, onEdit }) {
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Search proker..."
+                        placeholder="Cari nama proker..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
@@ -138,7 +138,7 @@ export function DivisionPlansTable({ data, divisions, onEdit }) {
                 </div>
 
                 {/* Filter by Division */}
-                <Select
+                {/* <Select
                     value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
                     onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
                 >
@@ -156,7 +156,7 @@ export function DivisionPlansTable({ data, divisions, onEdit }) {
                             </SelectItem>
                         ))}
                     </SelectContent>
-                </Select>
+                </Select> */}
 
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">

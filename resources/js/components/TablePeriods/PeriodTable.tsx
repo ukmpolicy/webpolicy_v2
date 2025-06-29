@@ -8,7 +8,7 @@ import {
     getPaginationRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { Ellipsis, Layers, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
+import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -182,7 +182,7 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                     />
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
-                <Select
+                {/* <Select
                     value={nameFilter || '__all__'}
                     onValueChange={(value) =>
                         setColumnFilters(
@@ -207,7 +207,7 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                             </SelectItem>
                         ))}
                     </SelectContent>
-                </Select>
+                </Select> */}
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
                         <SelectValue />

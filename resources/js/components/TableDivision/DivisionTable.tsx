@@ -24,7 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Inertia } from '@inertiajs/inertia';
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
-import { Ellipsis, Layers, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
+import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -138,7 +138,7 @@ export function DivisionTable({ data, onEdit }) {
                 </div>
 
                 {/* Filter Nama Divisi */}
-                <Select
+                {/* <Select
                     value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
                     onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
                 >
@@ -158,7 +158,7 @@ export function DivisionTable({ data, onEdit }) {
                                 </SelectItem>
                             ))}
                     </SelectContent>
-                </Select>
+                </Select> */}
 
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">

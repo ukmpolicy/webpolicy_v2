@@ -16,7 +16,7 @@ export default function MemberIndex() {
             <Head title="Members" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-4 flex items-center justify-between">
-                    <h1 className="text-xl font-bold"> Members List</h1>
+                    <h1 className="text-xl font-bold"> Daftar Members</h1>
                     <Button
                         onClick={() => {
                             setEditData(null);
