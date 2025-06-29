@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\AlbumService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class AlbumController extends Controller
 {
@@ -29,7 +30,7 @@ class AlbumController extends Controller
         ]);
 
         $album = $this->albumService->createAlbum($validated);
-        return redirect()->back()->with('success', 'Album created successfully');
+        return redirect()->back()->with('success', 'Album Berhasil ditambahkan');
     }
 
     public function show($id)
@@ -46,12 +47,19 @@ class AlbumController extends Controller
         ]);
 
         $album = $this->albumService->updateAlbum($id, $validated);
-        return redirect()->back()->with('success', 'Album updated successfully');
+        return redirect()->back()->with('success', 'Album berhasil diperbarui');
     }
 
     public function destroy($id)
     {
-        $this->albumService->deleteAlbum($id);
-        return redirect()->back()->with('success', 'Album deleted successfully');
+        // $this->albumService->deleteAlbum($id);
+        // return redirect()->back()->with('success', 'Album berhasil dihapus');
+          try {
+            $this->albumService->deleteAlbum($id);
+            return redirect()->back()->with('success', 'Album dan semua medianya berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menghapus album ID ' . $id . ': ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus album. Terjadi kesalahan server.');
+        }
     }
 }

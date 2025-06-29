@@ -7,13 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MediaFile extends Model
 {
-     protected $fillable = [
-        'file',
-        'caption',
-        'mimetype',
-        'author_id',
-        'album_id',
-    ];
+    protected $fillable = ['file', 'caption', 'thumbnail_file', 'mimetype', 'author_id', 'album_id'];
 
     public function album(): BelongsTo
     {

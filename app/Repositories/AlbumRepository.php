@@ -16,7 +16,9 @@ class AlbumRepository
 
     public function getAll()
     {
-        return $this->model->withCount('media')->latest()->get();
+        // return $this->model->withCount('media')->latest()->get();
+        // Urutkan ASC agar album baru muncul di bawah
+        return $this->model->withCount('media')->orderBy('created_at', 'asc')->get();
     }
 
     public function findById($id)

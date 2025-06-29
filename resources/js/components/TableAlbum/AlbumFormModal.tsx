@@ -16,15 +16,18 @@ export function AlbumFormModal({ open, onClose, initialData }) {
     });
 
     useEffect(() => {
-        if (initialData) {
-            setData({
-                name: initialData.name || '',
-                is_private: initialData.is_private || false,
-            });
-        } else {
-            reset();
+        if (open) {
+            // Hanya reset/set data jika modal dibuka
+            if (initialData) {
+                setData({
+                    name: initialData.name || '',
+                    is_private: initialData.is_private || false,
+                });
+            } else {
+                reset();
+            }
         }
-    }, [initialData, open]);
+    }, [initialData, open]); // Tambahkan 'open' ke dependency array
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -32,22 +35,26 @@ export function AlbumFormModal({ open, onClose, initialData }) {
             ? put(`/gallery-album/${initialData.id}`, {
                   data,
                   onSuccess: () => {
-                      toast.success('Album updated successfully!');
+                      toast.success('Album berhasil diperbarui!');
                       onClose();
                   },
                   onError: (errors) => {
-                      toast.error('Failed to update album.');
+                      // Menampilkan pesan error spesifik jika ada
+                      const errorMessage = errors?.name || errors?.is_private || 'Gagal memperbarui album!';
+                      toast.error(errorMessage);
                   },
               })
             : post('/gallery-album', {
                   data,
                   onSuccess: () => {
-                      toast.success('Album created successfully!');
+                      toast.success('Album berhasil ditambahkan!');
                       onClose();
                       reset();
                   },
                   onError: (errors) => {
-                      toast.error('Failed to create album.');
+                      // Menampilkan pesan error spesifik jika ada
+                      const errorMessage = errors?.name || errors?.is_private || 'Gagal membuat album!';
+                      toast.error(errorMessage);
                   },
               });
     }

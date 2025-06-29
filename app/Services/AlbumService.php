@@ -9,15 +9,23 @@ class AlbumService
 {
     protected $albumRepository;
     protected $mediaRepository;
+        protected $mediaService;
 
-    public function __construct(
+    // public function __construct(
+    //     AlbumRepository $albumRepository,
+    //     MediaRepository $mediaRepository
+    // ) {
+    //     $this->albumRepository = $albumRepository;
+    //     $this->mediaRepository = $mediaRepository;
+    // }
+
+        public function __construct(
         AlbumRepository $albumRepository,
-        MediaRepository $mediaRepository
+        MediaService $mediaService // <--- Inject MediaService, BUKAN MediaRepository
     ) {
         $this->albumRepository = $albumRepository;
-        $this->mediaRepository = $mediaRepository;
+        $this->mediaService = $mediaService; // <--- Tetapkan MediaService
     }
-
     public function getAllAlbums()
     {
         return $this->albumRepository->getAll();
@@ -40,6 +48,19 @@ class AlbumService
 
     public function deleteAlbum($id)
     {
+        // return $this->albumRepository->delete($id);
+          $album = $this->albumRepository->findById($id); // Eager load media sudah di repositori
+
+        if (!$album) {
+            return false; // Album tidak ditemukan
+        }
+          // Hapus semua media yang terkait dengan album ini
+        // $album->media adalah koleksi media yang sudah di-eager load oleh findById
+        foreach ($album->media as $mediaItem) {
+            $this->mediaService->deleteMedia($mediaItem->id); // Panggil MediaService untuk hapus setiap media
+        }
+
+        // Setelah semua media dihapus, hapus album itu sendiri
         return $this->albumRepository->delete($id);
     }
 

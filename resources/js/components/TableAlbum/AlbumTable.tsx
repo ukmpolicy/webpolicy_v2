@@ -24,12 +24,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Inertia } from '@inertiajs/inertia';
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
-import { Album, Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
+import { Ellipsis, Image, List, Pencil, Search, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 export function AlbumTable({ data, onEdit }) {
+    // onEdit prop tetap ada
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState([]);
@@ -80,9 +81,18 @@ export function AlbumTable({ data, onEdit }) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
+                        <DropdownMenuItem
+                            onClick={() => {
+                                Inertia.visit(`/gallery-media?album_id=${row.original.id}`);
+                            }}
+                        >
+                            <Image className="mr-2 h-4 w-4" /> Lihat Media
+                        </DropdownMenuItem>
+
                         <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
+
                         <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
@@ -137,7 +147,7 @@ export function AlbumTable({ data, onEdit }) {
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Search albums..."
+                        placeholder="Cari album..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
@@ -145,7 +155,8 @@ export function AlbumTable({ data, onEdit }) {
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
 
-                <Select
+                {/* Filter Nama Album, aktifkan jika ingin gunakann */}
+                {/* <Select
                     value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
                     onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
                 >
@@ -164,7 +175,7 @@ export function AlbumTable({ data, onEdit }) {
                                 </SelectItem>
                             ))}
                     </SelectContent>
-                </Select>
+                </Select> */}
 
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
@@ -271,25 +282,33 @@ export function AlbumTable({ data, onEdit }) {
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Album?</AlertDialogTitle>
+                        <AlertDialogTitle>Hapus Album?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure you want to delete this album? All media inside will also be deleted.
+                            Apakah Anda yakin ingin menghapus album ini? Semua media di dalamnya juga akan dihapus. Tindakan ini tidak dapat
+                            dibatalkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setDeleteId(null)}>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel onClick={() => setDeleteId(null)}>Batal</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
                                     Inertia.delete(`/gallery-album/${deleteId}`, {
-                                        onSuccess: () => toast.success('Album deleted successfully!'),
-                                        onError: () => toast.error('Failed to delete album.'),
+                                        onSuccess: () => {
+                                            toast.success('Album berhasil dihapus, termasuk semua medianya!');
+                                            setDeleteId(null); // Tutup dialog
+                                        },
+                                        onError: (errors) => {
+                                            const errorMessage = errors?.default || 'Gagal menghapus album.';
+                                            toast.error(errorMessage);
+                                            setDeleteId(null); // Tutup dialog
+                                        },
+                                        preserveScroll: true, // Untuk menjaga posisi scroll setelah penghapusan
                                     });
-                                    setDeleteId(null);
                                 }
                             }}
                         >
-                            Delete
+                            Hapus
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
