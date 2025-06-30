@@ -38,22 +38,22 @@ export function DivisionPlansFormModal({ open, onClose, initialData, divisions }
             ? put(`/division-plans/${initialData.id}`, {
                   data,
                   onSuccess: () => {
-                      toast.success('Plan updated successfully!');
+                      toast.success('Daftar Proker berhasil diperbarui!');
                       onClose();
                   },
                   onError: (errors) => {
-                      toast.error('Failed to update plan.');
+                      toast.error('Gagal memperbarui daftar proker!');
                   },
               })
             : post('/division-plans', {
                   data,
                   onSuccess: () => {
-                      toast.success('Plan created successfully!');
+                      toast.success('Daftar Proker berhasil ditambahkan!');
                       onClose();
                       reset();
                   },
                   onError: (errors) => {
-                      toast.error('Failed to create plan.');
+                      toast.error('Gagal membuat daftar proker!');
                   },
               });
     }
@@ -62,17 +62,17 @@ export function DivisionPlansFormModal({ open, onClose, initialData, divisions }
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>{isEdit ? 'Edit Plan' : 'Add Plan'}</DialogTitle>
+                    <DialogTitle>{isEdit ? 'Edit Proker' : 'Tambah Proker'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="name">Plan Name</Label>
+                        <Label htmlFor="name">Nama Proker</Label>
                         <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
                         {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">Deskripsi</Label>
                         <Textarea
                             id="description"
                             value={data.description}
@@ -83,7 +83,7 @@ export function DivisionPlansFormModal({ open, onClose, initialData, divisions }
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="division_id">Division</Label>
+                        <Label htmlFor="division_id">Pilih Divisi</Label>
                         <Select value={data.division_id} onValueChange={(value) => setData('division_id', value)}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select division" />
@@ -101,7 +101,7 @@ export function DivisionPlansFormModal({ open, onClose, initialData, divisions }
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="scheduled_at">Scheduled At</Label>
+                        <Label htmlFor="scheduled_at">Jadwal Mulai</Label>
                         <div className="relative">
                             <Input
                                 id="scheduled_at"
@@ -116,11 +116,11 @@ export function DivisionPlansFormModal({ open, onClose, initialData, divisions }
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="secondary" onClick={onClose}>
-                                Cancel
+                                Batal
                             </Button>
                         </DialogClose>
                         <Button type="submit" disabled={processing}>
-                            {isEdit ? 'Update Plan' : 'Create Plan'}
+                            {isEdit ? 'Simpan Perubahan' : 'Tambah'}
                         </Button>
                     </DialogFooter>
                 </form>

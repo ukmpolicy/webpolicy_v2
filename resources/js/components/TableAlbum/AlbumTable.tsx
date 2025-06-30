@@ -24,20 +24,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Inertia } from '@inertiajs/inertia';
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
-import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
+import { Ellipsis, Image, List, Pencil, Search, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-export function DivisionTable({ data, onEdit }) {
+export function AlbumTable({ data, onEdit }) {
+    // onEdit prop tetap ada
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
-    // Unique division names for filter
-    const divisionNameOptions = useMemo(() => {
+    const albumNameOptions = useMemo(() => {
         const names = data?.map((d) => d.name).filter((name) => name) || [];
         return ['__all__', ...new Set(names)];
     }, [data]);
@@ -54,28 +54,47 @@ export function DivisionTable({ data, onEdit }) {
         },
         {
             accessorKey: 'name',
-            header: 'Nama Divisi',
+            header: 'Nama Album',
             filterFn: (row, _, filterValue) => {
                 if (!filterValue || filterValue === '__all__') return true;
                 return row.getValue('name') === filterValue;
             },
         },
         {
+            accessorKey: 'media_count',
+            header: 'Jumlah Media',
+            cell: ({ row }) => row.original.media_count || 0,
+        },
+        {
+            accessorKey: 'is_private',
+            header: 'Status',
+            cell: ({ row }) => (row.original.is_private ? 'Private' : 'Public'),
+        },
+        {
             id: 'actions',
-            header: 'Aksi',
+            header: 'Actions',
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" aria-label="Aksi">
+                        <Button size="icon" variant="ghost" aria-label="Actions">
                             <Ellipsis className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
+                        <DropdownMenuItem
+                            onClick={() => {
+                                Inertia.visit(`/gallery-media?album_id=${row.original.id}`);
+                            }}
+                        >
+                            <Image className="mr-2 h-4 w-4" /> Lihat Media
+                        </DropdownMenuItem>
+
                         <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
+
                         <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -124,12 +143,11 @@ export function DivisionTable({ data, onEdit }) {
 
     return (
         <>
-            {/* Filter & Search */}
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Cari divisi..."
+                        placeholder="Cari album..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
@@ -137,23 +155,22 @@ export function DivisionTable({ data, onEdit }) {
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
 
-                {/* Filter Nama Divisi */}
+                {/* Filter Nama Album, aktifkan jika ingin gunakann */}
                 {/* <Select
                     value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
                     onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
                 >
                     <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Semua Divisi" />
+                        <SelectValue placeholder="All Albums" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="__all__">
-                            <Layers className="mr-2 inline h-4 w-4" /> Semua Divisi
+                            <Album className="mr-2 inline h-4 w-4" /> All Albums
                         </SelectItem>
-                        {divisionNameOptions
+                        {albumNameOptions
                             .filter((opt) => opt !== '__all__')
                             .map((name) => (
                                 <SelectItem key={name} value={name}>
-                                    <Tag className="mr-2 inline h-4 w-4" />
                                     {name}
                                 </SelectItem>
                             ))}
@@ -175,7 +192,6 @@ export function DivisionTable({ data, onEdit }) {
                 </Select>
             </div>
 
-            {/* Table */}
             <Table className="divide-muted divide-y overflow-hidden rounded-lg border">
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -192,7 +208,7 @@ export function DivisionTable({ data, onEdit }) {
                     {table.getRowModel().rows.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={columns.length} className="text-center">
-                                Tidak ada data.
+                                No data available.
                             </TableCell>
                         </TableRow>
                     ) : (
@@ -209,7 +225,6 @@ export function DivisionTable({ data, onEdit }) {
                 </TableBody>
             </Table>
 
-            {/* Pagination */}
             <Pagination className="mt-4">
                 <PaginationContent>
                     <PaginationItem>
@@ -264,13 +279,13 @@ export function DivisionTable({ data, onEdit }) {
                 </PaginationContent>
             </Pagination>
 
-            {/* AlertDialog for delete */}
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Divisi?</AlertDialogTitle>
+                        <AlertDialogTitle>Hapus Album?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus divisi ini? Tindakan ini tidak dapat dibatalkan.
+                            Apakah Anda yakin ingin menghapus album ini? Semua media di dalamnya juga akan dihapus. Tindakan ini tidak dapat
+                            dibatalkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -278,11 +293,18 @@ export function DivisionTable({ data, onEdit }) {
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
-                                    Inertia.delete(`/divisions/${deleteId}`, {
-                                        onSuccess: () => toast.success('Divisi berhasil dihapus!'),
-                                        onError: () => toast.error('Gagal menghapus divisi.'),
+                                    Inertia.delete(`/gallery-album/${deleteId}`, {
+                                        onSuccess: () => {
+                                            toast.success('Album berhasil dihapus, termasuk semua medianya!');
+                                            setDeleteId(null); // Tutup dialog
+                                        },
+                                        onError: (errors) => {
+                                            const errorMessage = errors?.default || 'Gagal menghapus album.';
+                                            toast.error(errorMessage);
+                                            setDeleteId(null); // Tutup dialog
+                                        },
+                                        preserveScroll: true, // Untuk menjaga posisi scroll setelah penghapusan
                                     });
-                                    setDeleteId(null);
                                 }
                             }}
                         >

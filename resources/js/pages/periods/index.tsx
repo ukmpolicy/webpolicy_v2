@@ -22,7 +22,7 @@ export default function Index() {
             <Head title="Periods" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <h1 className="text-xl font-bold">Periode List</h1>
+                    <h1 className="text-xl font-bold">Daftar Periode</h1>
                     <div className="flex gap-2">
                         <Button
                             onClick={() => {

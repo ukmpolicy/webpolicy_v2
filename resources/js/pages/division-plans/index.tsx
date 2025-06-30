@@ -14,18 +14,25 @@ export default function DivisionPlansIndex() {
     const [editData, setEditData] = useState(null);
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Division Plans', href: '/division-plans' }]}>
+        <AppLayout
+            // navigasi
+            breadcrumbs={[
+                { title: 'Division', href: '#' },
+                { title: 'Division', href: '/divisions' },
+                { title: 'Division Plans', href: '/division-plans' },
+            ]}
+        >
             <Head title="Division Plans" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-4 flex items-center justify-between">
-                    <h1 className="text-xl font-bold">Division Plans List</h1>
+                    <h1 className="text-xl font-bold">Daftar Rencana Divisi</h1>
                     <Button
                         onClick={() => {
                             setEditData(null);
                             setOpen(true);
                         }}
                     >
-                        <Plus className="m-auto w-4" /> Add Plan
+                        <Plus className="m-auto w-4" /> Tambah Proker
                     </Button>
                 </div>
                 <DivisionPlansTable

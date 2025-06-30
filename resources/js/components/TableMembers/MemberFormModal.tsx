@@ -155,20 +155,14 @@ export function MemberFormModal({ open, onClose, initialData, periods, departmen
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="period_id">Periode</Label>
-                                <Select value={data.period_id} onValueChange={(value) => setData('period_id', value)}>
+                                <Select value={data.period_id ? String(data.period_id) : ''} onValueChange={(value) => setData('period_id', value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih Periode" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {/* {periods.map((period) => (
-                                            <SelectItem key={period.id} value={period.id}>
-                                                {period.name}
-                                            </SelectItem>
-                                        ))} */}
                                         {periods.map((period) => (
                                             <SelectItem key={period.id} value={String(period.id)}>
                                                 {' '}
-                                                {/* Pastikan value adalah string */}
                                                 {period.name}
                                             </SelectItem>
                                         ))}
