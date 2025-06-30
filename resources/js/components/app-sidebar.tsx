@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { CalendarRange, Layers, LayoutGrid, UserCog, Users } from 'lucide-react';
+import { Album, CalendarRange, Images, Layers, LayoutGrid, UserCog, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -32,25 +32,41 @@ const mainNavItems: NavItem[] = [
         href: '/members',
         icon: Users,
     },
+
     {
         title: 'Divisions',
-        href: '/divisions',
         icon: Layers,
+        children: [
+            {
+                title: 'Division',
+                href: '/divisions',
+                icon: Layers,
+            },
+            {
+                title: 'Division Plans',
+                href: '/division-plans',
+                icon: Layers,
+            },
+        ],
+    },
+
+    {
+        title: 'Gallery',
+        icon: Images,
+        children: [
+            // {
+            //     title: 'Media',
+            //     href: '/gallery-media',
+            //     icon: Image,
+            // },
+            {
+                title: 'Album',
+                href: '/gallery-album',
+                icon: Album,
+            },
+        ],
     },
 ];
-
-// const footerNavItems: NavItem[] = [
-//     {
-//         title: 'Repository',
-//         href: 'https://github.com/laravel/react-starter-kit',
-//         icon: Folder,
-//     },
-//     {
-//         title: 'Documentation',
-//         href: 'https://laravel.com/docs/starter-kits#react',
-//         icon: BookOpen,
-//     },
-// ];
 
 export function AppSidebar() {
     return (
@@ -72,7 +88,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

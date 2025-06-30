@@ -1,3 +1,4 @@
+// resources/js/components/TableDivisionPlans/DivisionPlansTable.jsx
 import {
     AlertDialog,
     AlertDialogAction,
@@ -5,7 +6,6 @@ import {
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
-    AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
@@ -26,25 +26,15 @@ import { Inertia } from '@inertiajs/inertia';
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
 import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
 import * as React from 'react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
-export function DivisionTable({ data, onEdit }) {
+export function DivisionPlansTable({ data, divisions, onEdit }) {
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
-
-    // Unique division names for filter
-    const divisionNameOptions = useMemo(() => {
-        const names = data?.map((d) => d.name).filter((name) => name) || [];
-        return ['__all__', ...new Set(names)];
-    }, [data]);
-
-    React.useEffect(() => {
-        setPageIndex(0);
-    }, [globalFilter, columnFilters]);
 
     const columns = [
         {
@@ -54,19 +44,29 @@ export function DivisionTable({ data, onEdit }) {
         },
         {
             accessorKey: 'name',
-            header: 'Nama Divisi',
+            header: 'Nama Proker',
+        },
+        {
+            accessorKey: 'division.name',
+            header: 'Divisi',
+            cell: ({ row }) => row.original.division?.name || '-',
             filterFn: (row, _, filterValue) => {
                 if (!filterValue || filterValue === '__all__') return true;
-                return row.getValue('name') === filterValue;
+                return row.original.division?.name === filterValue;
             },
         },
         {
+            accessorKey: 'scheduled_at',
+            header: 'Tanggal Dijadwalkan',
+            cell: ({ row }) => new Date(row.original.scheduled_at).toLocaleDateString(),
+        },
+        {
             id: 'actions',
-            header: 'Aksi',
+            header: 'Actions',
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" aria-label="Aksi">
+                        <Button size="icon" variant="ghost" aria-label="Actions">
                             <Ellipsis className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -75,7 +75,7 @@ export function DivisionTable({ data, onEdit }) {
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -129,7 +129,7 @@ export function DivisionTable({ data, onEdit }) {
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Cari divisi..."
+                        placeholder="Cari nama proker..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
@@ -137,26 +137,24 @@ export function DivisionTable({ data, onEdit }) {
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
 
-                {/* Filter Nama Divisi */}
+                {/* Filter by Division */}
                 {/* <Select
                     value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
                     onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
                 >
                     <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Semua Divisi" />
+                        <SelectValue placeholder="Semua Rencana" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="__all__">
-                            <Layers className="mr-2 inline h-4 w-4" /> Semua Divisi
+                            <Tag className="mr-2 inline h-4 w-4" /> Semua Proker
                         </SelectItem>
-                        {divisionNameOptions
-                            .filter((opt) => opt !== '__all__')
-                            .map((name) => (
-                                <SelectItem key={name} value={name}>
-                                    <Tag className="mr-2 inline h-4 w-4" />
-                                    {name}
-                                </SelectItem>
-                            ))}
+                        {data.map((plan) => (
+                            <SelectItem key={plan.id} value={plan.name}>
+                                <Tag className="mr-2 inline h-4 w-4" />
+                                {plan.name}
+                            </SelectItem>
+                        ))}
                     </SelectContent>
                 </Select> */}
 
@@ -267,26 +265,24 @@ export function DivisionTable({ data, onEdit }) {
             {/* AlertDialog for delete */}
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Divisi?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus divisi ini? Tindakan ini tidak dapat dibatalkan.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
+                    <AlertDialogTitle>Hapus Divisi Rencana?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Apakah Anda yakin ingin menghapus divisi rencana ini? Tindakan ini tidak dapat dibatalkan.
+                    </AlertDialogDescription>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setDeleteId(null)}>Batal</AlertDialogCancel>
+                        <AlertDialogCancel onClick={() => setDeleteId(null)}>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
-                                    Inertia.delete(`/divisions/${deleteId}`, {
-                                        onSuccess: () => toast.success('Divisi berhasil dihapus!'),
-                                        onError: () => toast.error('Gagal menghapus divisi.'),
+                                    Inertia.delete(`/division-plans/${deleteId}`, {
+                                        onSuccess: () => toast.success('Plan deleted successfully!'),
+                                        onError: () => toast.error('Failed to delete plan.'),
                                     });
                                     setDeleteId(null);
                                 }
                             }}
                         >
-                            Hapus
+                            Delete
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
