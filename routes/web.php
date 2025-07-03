@@ -18,10 +18,6 @@ Route::get('/', function () {
 })->name('home');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        // $user = auth()->user();
-        // if (!$user->role){
-        //     return Inertia::render('welcome');
-        // }
         return Inertia::render('dashboard');
         // })->name('dashboard')->middleware(['permission:dashboard']);
     })
