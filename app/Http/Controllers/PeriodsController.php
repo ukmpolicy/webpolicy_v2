@@ -18,7 +18,9 @@ class PeriodsController extends Controller
 
     public function index()
     {
-        $periods = $this->periodService->getAllPeriods();
+        // PERUBAHAN: Panggil metode service yang baru untuk mendapatkan data lengkap.
+        $periods = $this->periodService->getAllPeriodsWithRelations();
+
         return Inertia::render('periods/index', [
             'periods' => $periods,
         ]);
@@ -26,9 +28,8 @@ class PeriodsController extends Controller
 
     public function store(Request $request)
     {
-
         $data = $request->validate([
-            'name' => 'required|string|max:50',
+            'name' => 'required|string|max:50|unique:periods,name',
             'started_at' => 'required|date',
             'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',
@@ -36,14 +37,12 @@ class PeriodsController extends Controller
 
         $this->periodService->createPeriod($data);
         return redirect()->back()->with('success', 'Periode berhasil ditambahkan!');
-
-
     }
 
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => "required|string|max:50",
+            'name' => "required|string|max:50|unique:periods,name,{$id}",
             'started_at' => 'required|date',
             'ended_at' => 'required|date|after_or_equal:started_at',
             'is_active' => 'boolean',
@@ -51,8 +50,6 @@ class PeriodsController extends Controller
 
         $this->periodService->updatePeriod($id, $data);
         return redirect()->back()->with('success', 'Periode berhasil diperbarui!');
-
-
     }
 
     public function destroy($id)

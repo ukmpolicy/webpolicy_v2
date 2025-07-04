@@ -6,9 +6,22 @@ use App\Models\Period;
 
 class PeriodRepository
 {
+    /**
+     * Mengambil semua periode dasar.
+     */
     public function getAll()
     {
-        return Period::all();
+        return Period::orderBy('started_at', 'desc')->get();
+    }
+
+    /**
+     * PERUBAHAN: Mengambil semua periode dengan relasi Visi dan Misi.
+     * Ini akan menyelesaikan masalah tampilan data.
+     */
+    public function getAllWithRelations()
+    {
+        // Eager load relasi 'vissions' dan 'missions'
+        return Period::with(['vissions', 'missions'])->orderBy('started_at', 'desc')->get();
     }
 
     public function create(array $data)
