@@ -10,11 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('divisions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 50)->unique();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('divisions', function (Blueprint $table) {
+            $table->foreignId('period_id')->nullable()->after('name')->constrained('periods');
         });
     }
 
@@ -23,6 +20,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('divisions');
+        Schema::table('divisions', function (Blueprint $table) {
+            $table->dropForeign(['period_id']);
+            $table->dropColumn('period_id');
+        });
     }
 };

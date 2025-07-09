@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Division;
+use App\Models\Division; // Tetap ada karena DivisionController mengelola model Division
 use App\Services\DivisionService;
+use App\Services\PeriodService; // Import PeriodService
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -11,17 +12,26 @@ use Inertia\Inertia;
 class DivisionController extends Controller
 {
     protected $divisionService;
+    protected $periodService; // Deklarasikan properti untuk PeriodService
 
-    public function __construct(DivisionService $divisionService)
+    // Inject kedua service di konstruktor
+    public function __construct(DivisionService $divisionService, PeriodService $periodService)
     {
         $this->divisionService = $divisionService;
+        $this->periodService = $periodService; // Inisialisasi PeriodService
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $divisions = $this->divisionService->getAllDivisions();
+        $periodId = $request->query('period_id');
+        $divisions = $this->divisionService->getAllDivisions($periodId);
+        $periods = $this->periodService->getAllPeriods(); // Panggil PeriodService untuk mendapatkan semua periode
+        $activePeriod = $this->periodService->getActivePeriod();
         return inertia('divisions/index', [
             'divisions' => $divisions,
+            'periods' => $periods, // Kirim periods ke frontend
+            'selectedPeriod' => $periodId, // Kirim juga selectedPeriod untuk menjaga state filter
+            'activePeriod' => $activePeriod,
         ]);
     }
 
@@ -33,6 +43,7 @@ class DivisionController extends Controller
 
             $validated = $request->validate([
                 'name' => 'required|string|max:50',
+                'period_id' => 'required|exists:periods,id',
             ]);
 
             $this->divisionService->createDivision($validated);
@@ -54,6 +65,7 @@ class DivisionController extends Controller
 
             $validated = $request->validate([
                 'name' => 'required|string|max:50|',
+                'period_id' => 'required|exists:periods,id',
             ]);
 
             $this->divisionService->updateDivision($id, $validated);

@@ -13,9 +13,16 @@ class DivisionRepository
         $this->model = new Division();
     }
 
-    public function getAll()
+    public function getAll($periodId = null)
     {
-        return Division::all();
+        // return Division::all();
+
+        $query = Division::query();
+        if($periodId){
+            $query->where('period_id', $periodId);
+        }
+
+        return $query->get();
     }
 
     public function create(array $data)

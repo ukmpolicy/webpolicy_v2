@@ -12,10 +12,14 @@ class DivisionService
     {
         $this->divisionRepository = $divisionRepository;
     }
+    // public function __construct(DivisionRepository $divisionRepository)
+    // {
+    //     $this->divisionRepository = $divisionRepository;
+    // }
 
-    public function getAllDivisions()
+    public function getAllDivisions($periodId = null)
     {
-        return $this->divisionRepository->getAll();
+        return $this->divisionRepository->getAll($periodId);
     }
 
     public function createDivision(array $data)
