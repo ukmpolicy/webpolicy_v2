@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Album, CalendarRange, Images, Layers, LayoutGrid, UserCog, Users } from 'lucide-react';
+import { Album, BookOpenText, CalendarRange, ClipboardList, Images, Layers, LayoutGrid, User2, UserCog, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -20,54 +20,54 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Permission',
         href: '/permissions',
-        icon: UserCog,
+        icon: ClipboardList,
     },
     {
-        title: 'Periode',
-        href: '/periods',
-        icon: CalendarRange,
-    },
-    {
-        title: 'Members',
-        href: '/members',
+        title: 'Kepengurusan',
         icon: Users,
-    },
-
-    {
-        title: 'Divisions',
-        icon: Layers,
         children: [
+            {
+                title: 'Periode',
+                href: '/periods',
+                icon: CalendarRange,
+            },
+
             {
                 title: 'Division',
                 href: '/divisions',
                 icon: Layers,
             },
             {
-                title: 'Division Plans',
-                href: '/division-plans',
-                icon: Layers,
+                title: 'Members',
+                href: '/members',
+                icon: User2,
             },
         ],
     },
-
     {
-        title: 'Gallery',
+        title: 'Media',
         icon: Images,
         children: [
-            // {
-            //     title: 'Media',
-            //     href: '/gallery-media',
-            //     icon: Image,
-            // },
             {
                 title: 'Album',
                 href: '/gallery-album',
                 icon: Album,
+                children: [
+                    {
+                        title: 'Media',
+                        href: '/gallery-media',
+                        icon: Images,
+                    },
+                ],
+            },
+            {
+                title: 'Categories',
+                href: '/category-articles',
+                icon: BookOpenText,
             },
         ],
     },
 ];
-
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
