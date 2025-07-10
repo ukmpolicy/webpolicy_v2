@@ -16,14 +16,16 @@ class DivisionPlansController extends Controller
         $this->divisionPlansService = $divisionPlansService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $plans = $this->divisionPlansService->getAllPlansWithDivision();
+        $divisionId = $request->query('division_id');
+        $plans = $this->divisionPlansService->getPlansWithDivision($divisionId);
         $divisions = $this->divisionPlansService->getAllDivisions();
 
         return inertia('division-plans/index', [
             'division_plans' => $plans,
             'divisions' => $divisions,
+            'selected_division_id' => $divisionId,
         ]);
     }
 

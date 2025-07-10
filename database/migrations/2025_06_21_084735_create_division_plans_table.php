@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,14 +12,12 @@ return new class extends Migration
     {
         Schema::create('division_plans', function (Blueprint $table) {
             $table->id();
-            $table->string("name", 50);
-            $table->text("description")->nullable();
-            $table->dateTime("scheduled_at");
+            $table->string('name', 50);
+            $table->text('description')->nullable();
+            $table->dateTime('scheduled_at');
 
             // Foreign key to the divisions table
-            $table->foreignId('division_id')
-                ->constrained('divisions')
-                ->onDelete('cascade');
+            $table->foreignId('division_id')->constrained('divisions')->onDelete('cascade');
 
             $table->timestamps();
         });

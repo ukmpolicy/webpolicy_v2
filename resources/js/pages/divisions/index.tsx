@@ -7,7 +7,8 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function DivisionIndex() {
-    const { divisions = [] } = usePage().props;
+    // Tambahkan 'activePeriod' ke destructuring props
+    const { divisions = [], periods = [], selectedPeriod = '', activePeriod = null } = usePage().props;
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
 
@@ -32,12 +33,22 @@ export default function DivisionIndex() {
                         <Plus className="m-auto w-4" /> Tambah Divisi
                     </Button>
                 </div>
+
+                {activePeriod && (
+                    <div className="font-semibold text-green-600">
+                        Periode aktif saat ini: <strong>{activePeriod.name}</strong>
+                    </div>
+                )}
+                {/* Akhir blok periode aktif --> */}
+
                 <DivisionTable
                     data={divisions}
                     onEdit={(division) => {
                         setEditData(division);
                         setOpen(true);
                     }}
+                    periods={periods}
+                    selectedPeriod={selectedPeriod}
                 />
                 <DivisionFormModal
                     open={open}
@@ -46,6 +57,7 @@ export default function DivisionIndex() {
                         setEditData(null);
                     }}
                     initialData={editData}
+                    periods={periods}
                 />
             </div>
         </AppLayout>

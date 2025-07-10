@@ -1,3 +1,10 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Inertia } from '@inertiajs/inertia';
+import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
+import { Ellipsis, List, Newspaper, Pencil, Search, Trash2 } from 'lucide-react';
+import * as React from 'react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -7,10 +14,10 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
+} from '../ui/alert-dialog';
+import { Button } from '../ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Input } from '../ui/input';
 import {
     Pagination,
     PaginationContent,
@@ -19,61 +26,55 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from '@/components/ui/pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Inertia } from '@inertiajs/inertia';
-import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
-import { Ellipsis, Image, List, Pencil, Search, Trash2 } from 'lucide-react';
-import * as React from 'react';
-import { useMemo, useState } from 'react';
-import { toast } from 'sonner';
+} from '../ui/pagination';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
-export function AlbumTable({ data, onEdit }) {
-    // onEdit prop tetap ada
+export function CategoryTable({ data, onEdit }: any) {
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
-    const albumNameOptions = useMemo(() => {
+    const categoryNameOptions = useMemo(() => {
         const names = data?.map((d) => d.name).filter((name) => name) || [];
         return ['__all__', ...new Set(names)];
     }, [data]);
 
     React.useEffect(() => {
         setPageIndex(0);
-    }, [globalFilter, columnFilters]);
+    }, [globalFilter]);
 
     const columns = [
         {
             id: 'no',
             header: '#',
-            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
+            cell: ({ row }: any) => {
+                // Mencari index asli dari data original berdasarkan ID atau data unik
+                const originalData = data || [];
+                const currentItem = row.original;
+                const originalIndex = originalData.findIndex(
+                    (item: any) => item.id === currentItem.id || (item.name === currentItem.name && item.created_at === currentItem.created_at),
+                );
+                return originalIndex + 1;
+            },
         },
         {
             accessorKey: 'name',
-            header: 'Nama Album',
-            filterFn: (row, _, filterValue) => {
+            header: 'Nama Kategori',
+            filterFn: (row: any, _: any, filterValue: any) => {
                 if (!filterValue || filterValue === '__all__') return true;
                 return row.getValue('name') === filterValue;
             },
         },
         {
-            accessorKey: 'media_count',
-            header: 'Jumlah Media',
-            cell: ({ row }) => row.original.media_count || 0,
-        },
-        {
-            accessorKey: 'is_private',
-            header: 'Status',
-            cell: ({ row }) => (row.original.is_private ? 'Private' : 'Public'),
+            accessorKey: 'articles_count',
+            header: 'Jumlah Artikel',
+            cell: ({ row }: any) => row.original.articles_count || 0,
         },
         {
             id: 'actions',
             header: 'Aksi',
-            cell: ({ row }) => (
+            cell: ({ row }: any) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button size="icon" variant="ghost" aria-label="Actions">
@@ -83,16 +84,15 @@ export function AlbumTable({ data, onEdit }) {
                     <DropdownMenuContent>
                         <DropdownMenuItem
                             onClick={() => {
-                                Inertia.visit(`/gallery-media?album_id=${row.original.id}`);
+                                // Navigasi ke halaman artikel dengan filter kategori
+                                Inertia.visit(`/articles?category_id=${row.original.id}`);
                             }}
                         >
-                            <Image className="mr-2 h-4 w-4" /> Lihat Media
+                            <Newspaper className="mr-2 h-4 w-4" /> Lihat Artikel
                         </DropdownMenuItem>
-
                         <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-
                         <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
@@ -107,11 +107,9 @@ export function AlbumTable({ data, onEdit }) {
         columns,
         state: {
             globalFilter,
-            columnFilters,
             pagination: { pageIndex, pageSize },
         },
         onGlobalFilterChange: setGlobalFilter,
-        onColumnFiltersChange: setColumnFilters,
         onPaginationChange: (updater) => {
             if (typeof updater === 'function') {
                 const next = updater({ pageIndex, pageSize });
@@ -147,35 +145,13 @@ export function AlbumTable({ data, onEdit }) {
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Cari album..."
+                        placeholder="Cari kategori..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
                     />
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
-
-                {/* Filter Nama Album, aktifkan jika ingin gunakann */}
-                {/* <Select
-                    value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
-                    onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
-                >
-                    <SelectTrigger className="w-48">
-                        <SelectValue placeholder="All Albums" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="__all__">
-                            <Album className="mr-2 inline h-4 w-4" /> All Albums
-                        </SelectItem>
-                        {albumNameOptions
-                            .filter((opt) => opt !== '__all__')
-                            .map((name) => (
-                                <SelectItem key={name} value={name}>
-                                    {name}
-                                </SelectItem>
-                            ))}
-                    </SelectContent>
-                </Select> */}
 
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
@@ -208,7 +184,7 @@ export function AlbumTable({ data, onEdit }) {
                     {table.getRowModel().rows.length === 0 ? (
                         <TableRow>
                             <TableCell colSpan={columns.length} className="text-center">
-                                No data available.
+                                Tidak ada data kategori.
                             </TableCell>
                         </TableRow>
                     ) : (
@@ -282,10 +258,10 @@ export function AlbumTable({ data, onEdit }) {
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Album?</AlertDialogTitle>
+                        <AlertDialogTitle>Hapus Kategori?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus album ini? Semua media di dalamnya juga akan dihapus. Tindakan ini tidak dapat
-                            dibatalkan.
+                            Apakah Anda yakin ingin menghapus kategori ini? Kategori ini akan terhapus, namun artikel yang terkait tidak akan
+                            terhapus. Tindakan ini tidak dapat dibatalkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -293,17 +269,17 @@ export function AlbumTable({ data, onEdit }) {
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
-                                    Inertia.delete(`/gallery-album/${deleteId}`, {
+                                    Inertia.delete(`/category-articles/${deleteId}`, {
                                         onSuccess: () => {
-                                            toast.success('Album berhasil dihapus, termasuk semua medianya!');
-                                            setDeleteId(null); // Tutup dialog
+                                            toast.success('Kategori berhasil dihapus!');
+                                            setDeleteId(null);
                                         },
                                         onError: (errors) => {
-                                            const errorMessage = errors?.default || 'Gagal menghapus album.';
+                                            const errorMessage = errors?.default || 'Gagal menghapus kategori.';
                                             toast.error(errorMessage);
-                                            setDeleteId(null); // Tutup dialog
+                                            setDeleteId(null);
                                         },
-                                        preserveScroll: true, // Untuk menjaga posisi scroll setelah penghapusan
+                                        preserveScroll: true,
                                     });
                                 }
                             }}

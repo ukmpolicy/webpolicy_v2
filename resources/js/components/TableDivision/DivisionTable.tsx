@@ -29,13 +29,16 @@ import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-export function DivisionTable({ data, onEdit }) {
+export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' }) {
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
+    function handlePeriodFilter(value: string) {
+        window.location.href = value === '__all__' ? '/divisions' : `/divisions?period_id=${value}`;
+    }
     // Unique division names for filter
     const divisionNameOptions = useMemo(() => {
         const names = data?.map((d) => d.name).filter((name) => name) || [];
@@ -71,6 +74,13 @@ export function DivisionTable({ data, onEdit }) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
+                        <DropdownMenuItem
+                            onClick={() => {
+                                Inertia.visit(`/division-plans?division_id=${row.original.id}`);
+                            }}
+                        >
+                            <List className="mr-2 h-4 w-4" /> Lihat Daftar Proker Divisi
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
@@ -159,7 +169,19 @@ export function DivisionTable({ data, onEdit }) {
                             ))}
                     </SelectContent>
                 </Select> */}
-
+                <Select value={selectedPeriod || '__all__'} onValueChange={handlePeriodFilter}>
+                    <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Semua Periode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all__">Semua Periode</SelectItem>
+                        {periods.map((period) => (
+                            <SelectItem key={period.id} value={String(period.id)}>
+                                {period.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
                         <SelectValue />
