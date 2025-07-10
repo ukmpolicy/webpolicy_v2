@@ -9,13 +9,7 @@ class Division extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'period_id'];
-
-    // relasi ke periode
-    public function period()
-    {
-        return $this->belongsTo(Period::class, 'period_id');
-    }
+    protected $fillable = ['name'];
 
     // Mutator untuk memastikan format nama selalu benar
     public function setNameAttribute($value)

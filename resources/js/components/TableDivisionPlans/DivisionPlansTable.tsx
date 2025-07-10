@@ -46,15 +46,15 @@ export function DivisionPlansTable({ data, divisions, onEdit }) {
             accessorKey: 'name',
             header: 'Nama Proker',
         },
-        // {
-        //     accessorKey: 'division.name',
-        //     header: 'Divisi',
-        //     cell: ({ row }) => row.original.division?.name || '-',
-        //     filterFn: (row, _, filterValue) => {
-        //         if (!filterValue || filterValue === '__all__') return true;
-        //         return row.original.division?.name === filterValue;
-        //     },
-        // },
+        {
+            accessorKey: 'division.name',
+            header: 'Divisi',
+            cell: ({ row }) => row.original.division?.name || '-',
+            filterFn: (row, _, filterValue) => {
+                if (!filterValue || filterValue === '__all__') return true;
+                return row.original.division?.name === filterValue;
+            },
+        },
         {
             accessorKey: 'scheduled_at',
             header: 'Tanggal Dijadwalkan',

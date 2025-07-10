@@ -23,15 +23,6 @@ class DivisionPlansRepository
         return DivisionPlan::create($data);
     }
 
-    public function getWithDivision($divisionId = null)
-    {
-        $query = DivisionPlan::with('division');
-        if ($divisionId) {
-            $query->where('division_id', $divisionId);
-        }
-        return $query->get();
-    }
-
     public function update($id, array $data)
     {
         $plan = DivisionPlan::findOrFail($id);
