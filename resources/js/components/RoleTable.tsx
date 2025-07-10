@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useReactTable, getCoreRowModel, flexRender, ColumnDef, getFilteredRowModel, getPaginationRowModel } from '@tanstack/react-table';
+import { useReactTable, getCoreRowModel, flexRender, ColumnDef, getFilteredRowModel, getPaginationRowModel, ColumnFiltersState } from '@tanstack/react-table';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './ui/table';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './ui/select';
-import { Pencil, Trash2, User, CalendarDays, Ellipsis, Tag, Search, List } from 'lucide-react';
+import { Pencil, Trash2, Hash, User, CalendarDays, Ellipsis, Tag, Search, Layers, List } from 'lucide-react';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog';
 import {
     Pagination,
@@ -31,19 +31,24 @@ interface RoleTableProps {
     data: Role[];
     onEdit?: (role: Role) => void;
     onManagePermissions?: (role: Role) => void;
-    onManageUsers?: (role: Role) => void;
-    canManageUsers?: boolean;
+    onManageUsers?: (role: Role) => void; // <-- Tambahkan ini
+    canManageUsers?: boolean; // <-- Tambahkan ini untuk kontrol akses
 };
 
 export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, canManageUsers }: RoleTableProps) {
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [globalFilter, setGlobalFilter] = useState('');
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
     useEffect(() => {
         setPageIndex(0);
-    }, [globalFilter]);
+    }, [globalFilter, columnFilters]);
+
+    // Unique role names for filter
+    const nameOptions = useMemo(() => Array.from(new Set(data.map(r => r.name))), [data]);
+    const nameFilter = columnFilters.find(f => f.id === 'name')?.value as string ?? '';
 
     const columns: ColumnDef<Role>[] = [
         {
@@ -55,6 +60,10 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
             accessorKey: 'name',
             header: 'Nama Role',
             cell: info => info.getValue(),
+            filterFn: (row, columnId, filterValue) => {
+                if (!filterValue || filterValue === '__all__') return true;
+                return row.getValue(columnId) === filterValue;
+            },
         },
         {
             accessorKey: 'created_at',
@@ -106,9 +115,11 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
         columns,
         state: {
             globalFilter,
+            columnFilters,
             pagination: { pageIndex, pageSize },
         },
         onGlobalFilterChange: setGlobalFilter,
+        onColumnFiltersChange: setColumnFilters,
         onPaginationChange: updater => {
             if (typeof updater === 'function') {
                 const next = updater({ pageIndex, pageSize });
@@ -127,6 +138,7 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
     const pageCount = table.getPageCount();
     const currentPage = table.getState().pagination.pageIndex;
 
+    // Helper untuk menentukan halaman yang ditampilkan (tanpa duplikat)
     function getPaginationRange(current: number, total: number) {
         const delta = 2;
         let range: number[] = [];
@@ -152,6 +164,29 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                     />
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
+                <Select
+                    value={nameFilter || "__all__"}
+                    onValueChange={value =>
+                        setColumnFilters(old => [
+                            ...old.filter(f => f.id !== 'name'),
+                            value !== "__all__" ? { id: 'name', value } : undefined,
+                        ].filter(Boolean) as ColumnFiltersState)
+                    }
+                >
+                    <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Semua Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all__">
+                            <Layers className="w-4 h-4 mr-2 inline" /> Semua Role
+                        </SelectItem>
+                        {nameOptions.map(name => (
+                            <SelectItem key={name} value={name}>
+                                <Tag className="w-4 h-4 mr-2 inline" />{name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <Select
                     value={String(pageSize)}
                     onValueChange={v => setPageSize(Number(v))}

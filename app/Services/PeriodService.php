@@ -13,12 +13,9 @@ class PeriodService
         $this->periodRepository = $periodRepository;
     }
 
-    /**
-     * PERUBAHAN: Ganti pemanggilan ke metode baru.
-     */
-    public function getAllPeriodsWithRelations()
+    public function getAllPeriods()
     {
-        return $this->periodRepository->getAllWithRelations();
+        return $this->periodRepository->getAll();
     }
 
     public function createPeriod(array $data)
