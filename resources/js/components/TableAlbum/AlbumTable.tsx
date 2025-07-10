@@ -72,7 +72,7 @@ export function AlbumTable({ data, onEdit }) {
         },
         {
             id: 'actions',
-            header: 'Aksi',
+            header: 'Actions',
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

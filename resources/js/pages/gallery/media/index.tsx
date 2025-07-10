@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Inertia } from '@inertiajs/inertia';
 import { Head, usePage } from '@inertiajs/react';
-import { List, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
@@ -227,8 +227,7 @@ export default function MediaIndex() {
                             <SelectContent>
                                 {[5, 10, 20, 50].map((size) => (
                                     <SelectItem key={size} value={String(size)}>
-                                        <List className="mr-2 inline h-4 w-4" />
-                                        {size}
+                                        {size} per halaman
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -275,24 +274,23 @@ export default function MediaIndex() {
                                     <span className="absolute top-2 left-2 rounded bg-blue-600 px-2 py-0.5 text-xs text-white shadow">
                                         {item.album?.name || '-'}
                                     </span>
-                                    {/* PERUBAHAN DI SINI UNTUK IKON EDIT/PINDAH/HAPUS */}
-                                    <div className="absolute top-2 right-2 flex gap-2">
+                                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 transition group-hover:opacity-100">
                                         <Button
                                             size="icon"
-                                            // Hapus variant="outline"
-                                            className="bg-white/80 hover:bg-blue-100 dark:bg-zinc-800 dark:hover:bg-blue-700"
+                                            variant="outline"
+                                            className="bg-white/80 hover:bg-blue-100"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setEditData(item);
                                                 setOpen(true);
                                             }}
                                         >
-                                            <Pencil className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                            <Pencil className="h-4 w-4 text-blue-600" />
                                         </Button>
                                         <Button
                                             size="icon"
-                                            // Hapus variant="outline"
-                                            className="bg-white/80 hover:bg-yellow-100 dark:bg-zinc-800 dark:hover:bg-yellow-700"
+                                            variant="outline"
+                                            className="bg-white/80 hover:bg-yellow-100"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setMoveData({ id: item.id, album_id: String(item.album_id) });
@@ -302,26 +300,23 @@ export default function MediaIndex() {
                                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                                                 <path
                                                     d="M8 17l4 4 4-4m-4-5v9M20 12a8 8 0 11-16 0 8 8 0 0116 0z"
-                                                    // Atur warna stroke secara eksplisit untuk dark mode
-                                                    stroke="#eab308" // Warna default (light mode)
+                                                    stroke="#eab308"
                                                     strokeWidth="2"
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
-                                                    // Tambahkan atribut class untuk dark mode jika diperlukan secara spesifik
-                                                    // Jika #eab308 sudah cukup terlihat, tidak perlu dark:stroke
                                                 />
                                             </svg>
                                         </Button>
                                         <Button
                                             size="icon"
-                                            // Hapus variant="outline"
-                                            className="bg-white/80 hover:bg-red-100 dark:bg-zinc-800 dark:hover:bg-red-700"
+                                            variant="outline"
+                                            className="bg-white/80 hover:bg-red-100"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setDeleteId(item.id);
                                             }}
                                         >
-                                            <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                            <Trash2 className="h-4 w-4 text-red-600" />
                                         </Button>
                                     </div>
                                     <div className="p-4">
@@ -463,8 +458,7 @@ export default function MediaIndex() {
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih Album" />
                                     </SelectTrigger>
-                                    {/* Scroll bar ditambahkan di sini, max-h-48 dan overflow-y-auto */}
-                                    <SelectContent className="max-h-48 overflow-y-auto">
+                                    <SelectContent>
                                         {albums.map((album) => (
                                             <SelectItem key={album.id} value={String(album.id)}>
                                                 {album.name}

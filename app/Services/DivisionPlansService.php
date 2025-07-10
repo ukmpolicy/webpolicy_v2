@@ -16,15 +16,13 @@ class DivisionPlansService
         $this->divisionRepository = $divisionRepository;
     }
 
+
     public function getAllPlansWithDivision()
     {
         return $this->divisionPlansRepository->getAllWithDivision();
     }
 
-    public function getPlansWithDivision($divisionId = null)
-    {
-        return $this->divisionPlansRepository->getWithDivision($divisionId);
-    }
+
 
     public function getAllDivisions()
     {

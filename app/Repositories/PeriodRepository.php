@@ -29,11 +29,6 @@ class PeriodRepository
         return Period::create($data);
     }
 
-    public function findActivePeriod()
-    {
-        return Period::where('is_active', true)->first();
-    }
-
     public function update($id, array $data)
     {
         $period = Period::findOrFail($id);

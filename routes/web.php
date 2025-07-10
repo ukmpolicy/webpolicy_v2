@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\AlbumController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\CategoryArticleController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DivisionPlansController;
 use App\Http\Controllers\MediaController;
@@ -82,15 +80,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('gallery-media', MediaController::class)->middleware(['permission:gallery-media']);
     // Additional route for moving media
     Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])->name('gallery-media.move');
-
-    // Management Articel
-    Route::resource('category-articles', CategoryArticleController::class)->middleware(['permission:gallery-media']);
-    Route::resource('articles', ArticleController::class)->middleware(['permission:gallery-media']);
-
-    // // Rute profil
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__ . '/settings.php';
