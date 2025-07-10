@@ -1,7 +1,5 @@
 import { PeriodFormModal } from '@/components/TablePeriods/PeriodFormModal';
 import { PeriodTable } from '@/components/TablePeriods/PeriodTable';
-import { VissionManagementModal } from '@/components/VissionMissionModal/VissionManagementModal';
-import { MissionManagementModal } from '@/components/VissionMissionModal/MissionManagementModal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage } from '@inertiajs/react';
@@ -9,21 +7,13 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Index() {
-    // periods dari props akan selalu menjadi data yang paling segar setelah reload
     const { periods = [] } = usePage().props as { periods: any[] };
-
-    // State untuk modal form Periode (Tambah/Ubah)
-    const [openPeriodForm, setOpenPeriodForm] = useState(false);
+    const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState<any>(null);
+    const [search, setSearch] = useState(''); // State untuk filter
 
-    // --- PERUBAHAN: Simpan hanya ID, bukan seluruh objek ---
-    const [managedVissionPeriodId, setManagedVissionPeriodId] = useState<number | null>(null);
-    const [managedMissionPeriodId, setManagedMissionPeriodId] = useState<number | null>(null);
-
-    // --- PERUBAHAN: Cari objek periode dari props terbaru pada setiap render ---
-    // Ini memastikan modal selalu mendapatkan data yang paling segar.
-    const managedPeriodForVissions = periods.find(p => p.id === managedVissionPeriodId) || null;
-    const managedPeriodForMissions = periods.find(p => p.id === managedMissionPeriodId) || null;
+    // Filter periods berdasarkan nama
+    const filteredPeriods = periods.filter((period) => period.name.toLowerCase().includes(search.toLowerCase()));
 
     const activePeriod = periods.find((p) => p.is_active);
 
@@ -37,7 +27,7 @@ export default function Index() {
                         <Button
                             onClick={() => {
                                 setEditData(null);
-                                setOpenPeriodForm(true);
+                                setOpen(true);
                             }}
                         >
                             <Plus className="m-auto w-4" /> Tambah Periode
@@ -50,41 +40,21 @@ export default function Index() {
                     </div>
                 )}
                 <PeriodTable
-                    data={periods} // Berikan data periods yang selalu segar
+                    data={filteredPeriods}
                     onEdit={(period) => {
                         setEditData(period);
-                        setOpenPeriodForm(true);
+                        setOpen(true);
                     }}
-                    // --- PERUBAHAN: Set hanya ID saat tombol diklik ---
-                    onManageVisions={(period) => setManagedVissionPeriodId(period.id)}
-                    onManageMissions={(period) => setManagedMissionPeriodId(period.id)}
                 />
 
                 <PeriodFormModal
-                    open={openPeriodForm}
+                    open={open}
                     onClose={() => {
-                        setOpenPeriodForm(false);
+                        setOpen(false);
                         setEditData(null);
                     }}
-                    initialData={editData || { name: '', started_at: '', ended_at: '', is_active: false }}
+                    initialData={editData || { name: '', started_year: '', ended_year: '', is_active: false }}
                 />
-
-                {/* --- PERUBAHAN: Logika untuk membuka dan menutup modal --- */}
-                {managedPeriodForVissions && (
-                    <VissionManagementModal
-                        open={!!managedVissionPeriodId}
-                        onClose={() => setManagedVissionPeriodId(null)}
-                        period={managedPeriodForVissions}
-                    />
-                )}
-
-                {managedPeriodForMissions && (
-                    <MissionManagementModal
-                        open={!!managedMissionPeriodId}
-                        onClose={() => setManagedMissionPeriodId(null)}
-                        period={managedPeriodForMissions}
-                    />
-                )}
             </div>
         </AppLayout>
     );
