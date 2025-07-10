@@ -6,21 +6,17 @@ import { RoleFormModal } from "@/components/RoleFormModal";
 import { RolePermissionFormModal } from "@/components/RolePermissionFormModal";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-// import { Inertia } from "@inertiajs/inertia";
-import { RoleUserFormModal } from "@/components/RoleUserModal/RoleUserFormModal";
+import { Inertia } from "@inertiajs/inertia";
 
 export default function Role() {
-  const { roles = [], permissions = [], users = [], canManageUsers = false } = usePage().props as any;
+  const { roles = [], permissions = [] } = usePage().props as any;
   const [open, setOpen] = useState(false);
   const [openManage, setOpenManage] = useState(false);
   const [editData, setEditData] = useState<any>(null);
   const [manageRoleId, setManageRoleId] = useState<number | null>(null);
-  const [ openManageUsers, setOpenManageUsers ] = useState(false);
-  const [manageRoleUsersId, setManageRoleUsersId] = useState<number | null>(null);
 
-
+  
   const manageRole = roles.find((r: any) => r.id === manageRoleId) || null;
-  const manageRoleUsers = roles.find((r: any) => r.id === manageRoleUsersId) || null;
 
   return (
     <AppLayout breadcrumbs={[{ title: "Role", href: "/roles" }]}>
@@ -36,14 +32,6 @@ export default function Role() {
           data={roles}
           onEdit={role => { setEditData(role); setOpen(true); }}
           onManagePermissions={role => { setManageRoleId(role.id); setOpenManage(true); }}
-          onManageUsers={role => { setManageRoleUsersId(role.id); setOpenManageUsers(true); }}
-          canManageUsers={canManageUsers}
-        />
-        <RoleUserFormModal
-          open={openManageUsers}
-          onClose={() => { setOpenManageUsers(false); setManageRoleUsersId(null); }}
-          role={manageRoleUsers}
-          allUsers={users}
         />
         <RoleFormModal
           open={open}

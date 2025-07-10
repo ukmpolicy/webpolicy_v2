@@ -32,12 +32,11 @@ class RoleRepository
 
     public function getAllWithPermissions()
     {
-        return Role::with('permissions', 'users')->get();
+        return Role::with('permissions')->get();
     }
 
     public function find($id)
     {
         return Role::findOrFail($id);
     }
-    
 }
