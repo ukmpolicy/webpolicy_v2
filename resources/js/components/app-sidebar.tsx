@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Album, CalendarRange, Images, Layers, LayoutGrid, UserCog, Users } from 'lucide-react';
+import { Building2, Album, CalendarRange, Images, Layers, LayoutGrid, UserCog, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -32,7 +32,17 @@ const mainNavItems: NavItem[] = [
         href: '/members',
         icon: Users,
     },
-
+    {
+        title: 'Structures',
+        icon: Building2,
+        children: [
+            {
+                title: 'Structure',
+                href: '/structures',
+                icon: Building2,
+            },
+        ],
+    },
     {
         title: 'Divisions',
         icon: Layers,
