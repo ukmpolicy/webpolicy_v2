@@ -18,11 +18,13 @@ class DatabaseSeeder extends Seeder
         $this->call(PermissionSeeder::class);
         $this->call(AdminRoleSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Administrator',
-            'email' => 'admin@gmail.com',
-            'password' => bcrypt('admin123'), // Use a secure password
-            'role_id' => 1,
-        ]);
+        if (!User::where('email', 'admin@gmail.com')->first()) {
+            User::factory()->create([
+                'name' => 'Administrator',
+                'email' => 'admin@gmail.com',
+                'password' => bcrypt('admin123'), // Use a secure password
+                'role_id' => 1,
+            ]);
+        }
     }
 }
