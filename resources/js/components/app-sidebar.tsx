@@ -1,31 +1,34 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { NavGroup, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Album, BookOpenText, CalendarRange, ClipboardList, Images, Layers, LayoutGrid, User2, UserCog, Users } from 'lucide-react';
+import { Album, BookOpenText, CalendarRange, ClipboardList, DotIcon, Images, Layers, LayoutGrid, User2, UserCog, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+const mainNavItems: NavGroup[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Roles',
-        href: '/roles',
-        icon: UserCog,
-    },
-    {
-        title: 'Permission',
-        href: '/permissions',
-        icon: ClipboardList,
-    },
-    {
-        title: 'Kepengurusan',
-        icon: Users,
-        children: [
+        title: "Platform",
+        items: [
+            {
+                title: 'Dashboard',
+                href: '/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Roles',
+                href: '/roles',
+                icon: UserCog,
+            },
+            {
+                title: 'Permission',
+                href: '/permissions',
+                icon: ClipboardList,
+            },
+        ]
+    }, {
+        title: "Kepengurusan",
+        items: [
             {
                 title: 'Periode',
                 href: '/periods',
@@ -42,31 +45,29 @@ const mainNavItems: NavItem[] = [
                 href: '/members',
                 icon: User2,
             },
-        ],
-    },
-    {
-        title: 'Media',
-        icon: Images,
-        children: [
+        ]
+    }, {
+        title: "Media",
+        items: [
             {
-                title: 'Album',
+                title: 'Galery',
                 href: '/gallery-album',
                 icon: Album,
+            },
+            {
+                title: 'Blog',
+                href: '/gallery-album',
+                icon: BookOpenText,
                 children: [
                     {
-                        title: 'Media',
-                        href: '/gallery-media',
-                        icon: Images,
+                        title: 'Article',
+                        href: '/category-articles',
+                        icon: DotIcon,
                     },
                 ],
             },
-            {
-                title: 'Categories',
-                href: '/category-articles',
-                icon: BookOpenText,
-            },
-        ],
-    },
+        ]
+    }
 ];
 export function AppSidebar() {
     return (
@@ -84,7 +85,9 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {mainNavItems.map((data, i) => (
+                    <NavMain key={i} items={data.items} title={data.title} />
+                ))}
             </SidebarContent>
 
             <SidebarFooter>

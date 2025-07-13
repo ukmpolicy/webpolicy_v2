@@ -4,7 +4,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-export function NavMain({ items = [] }: { items: NavItem[] }) {
+export function NavMain({ items = [], title }: { items: NavItem[], title: string }) {
     const page = usePage();
     const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
 
@@ -30,7 +30,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
 
     return (
         <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>{title}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
                     <SidebarMenuItem key={item.title}>
@@ -46,7 +46,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     }`}
                                 >
                                     <span className="flex items-center gap-2">
-                                        {item.icon && <item.icon />}
+                                        {item.icon && <item.icon className='w-4' />}
                                         <span>{item.title}</span>
                                     </span>
                                     <span>{openMenus[item.title] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
