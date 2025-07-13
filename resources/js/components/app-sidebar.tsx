@@ -60,7 +60,7 @@ const mainNavItems: NavGroup[] = [
                 icon: BookOpenText,
                 children: [
                     {
-                        title: 'Article',
+                        title: 'Category',
                         href: '/category-articles',
                         icon: DotIcon,
                     },
