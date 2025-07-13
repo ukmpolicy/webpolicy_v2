@@ -27,6 +27,24 @@ class Period extends Model
         return $this->belongsToMany(Division::class, 'period_divisions');
     }
 
+    /**
+     * Mendapatkan semua visi untuk periode ini.
+     * Nama method harus jamak: vissions()
+     */
+    public function vissions()
+    {
+        return $this->hasMany(Vission::class);
+    }
+
+    /**
+     * Mendapatkan semua misi untuk periode ini.
+     * Nama method harus jamak: missions()
+     */
+    public function missions()
+    {
+        return $this->hasMany(Mission::class);
+    }
+
 
      /**
      * Hanya satu periode yang bisa aktif dalam satu waktu

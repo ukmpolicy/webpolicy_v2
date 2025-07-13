@@ -1,57 +1,79 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { NavGroup, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { CalendarRange, Layers, LayoutGrid, UserCog, Users } from 'lucide-react';
+import { Building2, Album, CalendarRange, Layers, LayoutGrid, UserCog, Users, ClipboardList, DotIcon, User2, BookOpenText } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+const mainNavItems: NavGroup[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Roles',
-        href: '/roles',
-        icon: UserCog,
-    },
-    {
-        title: 'Permission',
-        href: '/permissions',
-        icon: UserCog,
-    },
-    {
-        title: 'Periode',
-        href: '/periods',
-        icon: CalendarRange,
-    },
-    {
-        title: 'Members',
-        href: '/members',
-        icon: Users,
-    },
-    {
-        title: 'Divisions',
-        href: '/divisions',
-        icon: Layers,
-    },
+        title: "Platform",
+        items: [
+            {
+                title: 'Dashboard',
+                href: '/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Roles',
+                href: '/roles',
+                icon: UserCog,
+            },
+            {
+                title: 'Permission',
+                href: '/permissions',
+                icon: ClipboardList,
+            },
+        ]
+    }, {
+        title: "Kepengurusan",
+        items: [
+            {
+                title: 'Periode',
+                href: '/periods',
+                icon: CalendarRange,
+            },
+
+            {
+                title: 'Division',
+                href: '/divisions',
+                icon: Layers,
+            },
+            {
+                title: 'Members',
+                href: '/members',
+                icon: User2,
+            },
+            {
+                title: 'Structure',
+                href: '/structures',
+                icon: Building2,
+            },
+        ]
+    }, {
+        title: "Media",
+        items: [
+            {
+                title: 'Galery',
+                href: '/gallery-album',
+                icon: Album,
+            },
+            {
+                title: 'Blog',
+                href: '/gallery-album',
+                icon: BookOpenText,
+                children: [
+                    {
+                        title: 'Category',
+                        href: '/category-articles',
+                        icon: DotIcon,
+                    },
+                ],
+            },
+        ]
+    }
 ];
-
-// const footerNavItems: NavItem[] = [
-//     {
-//         title: 'Repository',
-//         href: 'https://github.com/laravel/react-starter-kit',
-//         icon: Folder,
-//     },
-//     {
-//         title: 'Documentation',
-//         href: 'https://laravel.com/docs/starter-kits#react',
-//         icon: BookOpen,
-//     },
-// ];
-
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -68,11 +90,12 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                {mainNavItems.map((data, i) => (
+                    <NavMain key={i} items={data.items} title={data.title} />
+                ))}
             </SidebarContent>
 
             <SidebarFooter>
-                {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

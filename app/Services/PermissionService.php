@@ -25,11 +25,21 @@ class PermissionService
 
     public function createPermission(array $data)
     {
+        /// Pastikan Data masuk tanpa ada spasi di awal atau akhir
+        /// dan huruf kecil semua
+        if (isset($data['key'])) {
+            $data['key'] = trim(strtolower($data['key']));
+        }
         return $this->permissionRepository->create($data);
     }
 
     public function updatePermission($id, array $data)
     {
+        /// Pastikan Data di update tanpa ada spasi di awal atau akhir
+        /// dan huruf kecil semua
+        if (isset($data['key'])) {
+            $data['key'] = trim(strtolower($data['key']));
+        }
         return $this->permissionRepository->update($id, $data);
     }
 

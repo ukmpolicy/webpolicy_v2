@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use App\Repositories\RoleRepository;
+use App\Repositories\UserRepository;
 
 class RoleService
 {
     protected $roleRepository;
+    protected $userRepository;
 
-    public function __construct(RoleRepository $roleRepository)
+    public function __construct(RoleRepository $roleRepository, UserRepository $userRepository)
     {
         $this->roleRepository = $roleRepository;
+        $this->userRepository = $userRepository; // <-- tambahkan ini
     }
 
     public function getAllRoles()
@@ -31,5 +34,37 @@ class RoleService
     public function deleteRole($id)
     {
         return $this->roleRepository->delete($id);
+    }
+
+    public function syncPermissions($roleId, array $permissionIds)
+    {
+        $role = $this->roleRepository->find($roleId);
+        $role->permissions()->sync($permissionIds);
+    }
+
+    public function assignOrInviteUserByEmail($roleId, $email)
+    {
+        $user = $this->userRepository->findByEmail($email);
+        if ($user) {
+            if ($user->role_id == $roleId) {
+                throw new \Exception("User sudah ada di role ini.");
+            }
+            $this->userRepository->assignRole($user->id, $roleId);
+        } else {
+            $user = $this->userRepository->create([
+                'email' => $email,
+                'name' => $email,
+                'password' => bcrypt(\Str::random(12)),
+                'role_id' => $roleId,
+            ]);
+        }
+    }
+
+    public function removeUserFromRole($roleId, $userId)
+    {
+        $user = $this->userRepository->find($userId);
+        if ($user->role_id == $roleId) {
+            $this->userRepository->assignRole($userId, null);
+        }
     }
 }
