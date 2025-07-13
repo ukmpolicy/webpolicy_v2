@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { NavGroup, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Album, BookOpenText, CalendarRange, ClipboardList, DotIcon, Images, Layers, LayoutGrid, User2, UserCog, Users } from 'lucide-react';
+import { Building2, Album, CalendarRange, Layers, LayoutGrid, UserCog, Users, ClipboardList, DotIcon, User2, BookOpenText } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavGroup[] = [
@@ -44,6 +44,11 @@ const mainNavItems: NavGroup[] = [
                 title: 'Members',
                 href: '/members',
                 icon: User2,
+            },
+            {
+                title: 'Structure',
+                href: '/structures',
+                icon: Building2,
             },
         ]
     }, {
