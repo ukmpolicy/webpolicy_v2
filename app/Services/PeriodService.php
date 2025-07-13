@@ -13,9 +13,12 @@ class PeriodService
         $this->periodRepository = $periodRepository;
     }
 
-    public function getAllPeriods()
+    /**
+     * PERUBAHAN: Ganti pemanggilan ke metode baru.
+     */
+    public function getAllPeriodsWithRelations()
     {
-        return $this->periodRepository->getAll();
+        return $this->periodRepository->getAllWithRelations();
     }
 
     // <-- Tambahkan method ini

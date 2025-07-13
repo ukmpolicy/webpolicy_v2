@@ -12,6 +12,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VissionController;
+use App\Http\Controllers\MissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -20,10 +22,6 @@ Route::get('/', function () {
 })->name('home');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        // $user = auth()->user();
-        // if (!$user->role){
-        //     return Inertia::render('welcome');
-        // }
         return Inertia::render('dashboard');
         // })->name('dashboard')->middleware(['permission:dashboard']);
     })
@@ -33,6 +31,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Role roles management
     Route::resource('roles', RoleController::class)->middleware(['permission:roles']);
     // middleware(['permission:roles']);
+
+    // --- TAMBAHKAN DUA ROUTE INI ---
+    Route::post('/roles/{role}/invite-user', [RoleController::class, 'inviteUser'])->name('roles.inviteUser')->middleware(['permission:roles']);
+    Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.removeUser')->middleware(['permission:roles']);
+    // --- AKHIR TAMBAHAN ---
+
 
     // Permissions management
     Route::resource('permissions', PermissionController::class)->middleware(['permission:permissions']);
@@ -45,6 +49,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Periods management
     Route::resource('periods', PeriodsController::class)->middleware(['permission:periods']);
     // ->middleware(['permission:periods']);
+
+    // --- TAMBAHAN BARU: Route untuk Visi & Misi ---
+    // Middleware 'permission:periods' digunakan karena mengelola Visi/Misi adalah bagian dari mengelola Periode.
+    Route::middleware(['permission:periods'])->group(function () {
+        // Vission Management
+        Route::post('/periods/{period}/vissions', [VissionController::class, 'store'])->name('vissions.store');
+        Route::put('/vissions/{vission}', [VissionController::class, 'update'])->name('vissions.update');
+        Route::delete('/vissions/{vission}', [VissionController::class, 'destroy'])->name('vissions.destroy');
+
+        // Mission Management
+        Route::post('/periods/{period}/missions', [MissionController::class, 'store'])->name('missions.store');
+        Route::put('/missions/{mission}', [MissionController::class, 'update'])->name('missions.update');
+        Route::delete('/missions/{mission}', [MissionController::class, 'destroy'])->name('missions.destroy');
+    });
+    // --- AKHIR TAMBAHAN BARU ---
 
     // Member management
     Route::resource('members', MemberController::class)->middleware(['permission:members']);

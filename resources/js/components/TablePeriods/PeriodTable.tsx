@@ -8,7 +8,8 @@ import {
     getPaginationRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
+// --- TAMBAHAN: Import ikon baru ---
+import { Ellipsis, List, Pencil, Search, Trash2, Eye, Shield } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -22,7 +23,7 @@ import {
     AlertDialogTitle,
 } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Input } from '../ui/input';
 import {
     Pagination,
@@ -36,21 +37,26 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
+// Tipe data yang lebih lengkap
 type Period = {
     id: number;
     name: string;
-    started_at: string; // Tambahkan ini
-    ended_at: string; // Tambahkan ini
+    started_at: string;
+    ended_at: string;
+    is_active: boolean; // Pastikan ini ada
     created_at: string;
     updated_at: string;
 };
 
+// --- TAMBAHAN: Props baru untuk handle Visi & Misi ---
 interface PeriodTableProps {
     data: Period[];
     onEdit?: (period: Period) => void;
+    onManageVisions?: (period: Period) => void;
+    onManageMissions?: (period: Period) => void;
 }
 
-export function PeriodTable({ data, onEdit }: PeriodTableProps) {
+export function PeriodTable({ data, onEdit, onManageVisions, onManageMissions }: PeriodTableProps) {
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -61,11 +67,8 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
         setPageIndex(0);
     }, [globalFilter, columnFilters]);
 
-    // Unique role names for filter
     const nameOptions = useMemo(() => Array.from(new Set(data.map((p) => p.name))), [data]);
-    const nameFilter = (columnFilters.find((f) => f.id === 'name')?.value as string) ?? '';
 
-    // Inisialisasi Coloumn Form
     const columns: ColumnDef<Period>[] = [
         {
             id: 'rowNumber',
@@ -75,33 +78,26 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
         {
             accessorKey: 'name',
             header: 'Nama Periode',
-            cell: (info) => info.getValue(),
-            filterFn: (row, columnId, filterValue) => {
-                if (!filterValue || filterValue === '__all__') return true;
-                return row.getValue(columnId) === filterValue;
-            },
         },
         {
             accessorKey: 'started_at',
             header: 'Tanggal Mulai',
-            cell: (info) => {
-                const date = new Date(info.getValue() as string);
-                return date.toLocaleDateString('id-ID'); // Output: 31/12/2024
-            },
+            cell: (info) => new Date(info.getValue() as string).toLocaleDateString('id-ID'),
         },
         {
             accessorKey: 'ended_at',
             header: 'Tanggal Selesai',
-            cell: (info) => {
-                const date = new Date(info.getValue() as string);
-                return date.toLocaleDateString('id-ID');
-            },
+            cell: (info) => new Date(info.getValue() as string).toLocaleDateString('id-ID'),
         },
         {
             accessorKey: 'is_active',
-            header: 'Status Aktif',
+            header: 'Status',
             cell: (info) => (
-                <span className={`text-bold ${info.getValue() ? 'text-green-500' : 'text-red-500'}`}>
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    info.getValue()
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
                     {info.getValue() ? 'Aktif' : 'Tidak Aktif'}
                 </span>
             ),
@@ -117,11 +113,20 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
+                        {/* --- TAMBAHAN BARU: Menu Kelola Visi & Misi --- */}
+                        <DropdownMenuItem onClick={() => onManageVisions?.(row.original)}>
+                            <Eye className="mr-2 h-4 w-4" /> Kelola Visi
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onManageMissions?.(row.original)}>
+                            <Shield className="mr-2 h-4 w-4" /> Kelola Misi
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        {/* --- AKHIR TAMBAHAN BARU --- */}
                         <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit
+                            <Pencil className="mr-2 h-4 w-4" /> Edit Periode
                         </DropdownMenuItem>
                         <DropdownMenuItem variant="destructive" onClick={() => setDeleteId(row.original.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                            <Trash2 className="mr-2 h-4 w-4" /> Hapus Periode
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -157,7 +162,6 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
     const pageCount = table.getPageCount();
     const currentPage = table.getState().pagination.pageIndex;
 
-    // Helper untuk menentukan halaman yang ditampilkan (tanpa duplikat)
     function getPaginationRange(current: number, total: number) {
         const delta = 2;
         let range: number[] = [];
@@ -168,11 +172,11 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
         if (range[range.length - 1] < total - 1) range = [...range, total - 1];
         return Array.from(new Set(range));
     }
+
     return (
         <>
-            {/* Filter & Search */}
             <div className="mb-4 flex flex-wrap items-center gap-2">
-                <div className="relative w-48">
+                <div className="relative w-full sm:w-48">
                     <Input
                         type="search"
                         placeholder="Cari Periode..."
@@ -182,141 +186,101 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                     />
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
-                {/* <Select
-                    value={nameFilter || '__all__'}
-                    onValueChange={(value) =>
-                        setColumnFilters(
-                            (old) =>
-                                [...old.filter((f) => f.id !== 'name'), value !== '__all__' ? { id: 'name', value } : undefined].filter(
-                                    Boolean,
-                                ) as ColumnFiltersState,
-                        )
-                    }
-                >
-                    <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Semua Periode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="__all__">
-                            <Layers className="mr-2 inline h-4 w-4" /> Semua Periode
-                        </SelectItem>
-                        {nameOptions.map((name) => (
-                            <SelectItem key={name} value={name}>
-                                <Tag className="mr-2 inline h-4 w-4" />
-                                {name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select> */}
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         {[5, 10, 20, 50].map((size) => (
                             <SelectItem key={size} value={String(size)}>
                                 <List className="mr-2 inline h-4 w-4" />
-                                {size}
+                                {size} Data
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
             </div>
 
-            {/* Table */}
-            <Table className="divide-muted divide-y overflow-hidden rounded-lg border">
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id} className="bg-muted dark:bg-zinc-900">
-                            {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id} className="font-bold">
-                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="text-center">
-                                Tidak ada data.
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        table.getRowModel().rows.map((row, idx) => (
-                            <TableRow key={row.id} className={idx % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-800'}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </TableCell>
+            <div className="rounded-lg border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id} className="bg-muted hover:bg-muted/80">
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id} className="font-bold">
+                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                    </TableHead>
                                 ))}
                             </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
-            {/* Pagination */}
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    Tidak ada data.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow key={row.id}>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
             <Pagination className="mt-4">
                 <PaginationContent>
                     <PaginationItem>
                         <PaginationPrevious
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (currentPage > 0) table.previousPage();
-                            }}
+                            onClick={(e) => { e.preventDefault(); table.previousPage(); }}
                             href="#"
-                            aria-disabled={currentPage === 0}
+                            aria-disabled={!table.getCanPreviousPage()}
+                            className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
                         />
                     </PaginationItem>
-                    {(() => {
-                        const range = getPaginationRange(currentPage, pageCount);
-                        let last = -1;
-                        return range.map((i) => {
-                            const showEllipsis = last !== -1 && i - last > 1;
-                            last = i;
-                            return (
-                                <React.Fragment key={i}>
-                                    {showEllipsis && (
-                                        <PaginationItem>
-                                            <PaginationEllipsis />
-                                        </PaginationItem>
-                                    )}
-                                    <PaginationItem>
-                                        <PaginationLink
-                                            isActive={i === currentPage}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                table.setPageIndex(i);
-                                            }}
-                                            href="#"
-                                        >
-                                            {i + 1}
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                </React.Fragment>
-                            );
-                        });
-                    })()}
+                    {getPaginationRange(currentPage, pageCount).map((i, idx, arr) => (
+                        <React.Fragment key={i}>
+                            {idx > 0 && arr[idx-1] !== i-1 && (
+                                <PaginationItem>
+                                    <PaginationEllipsis />
+                                </PaginationItem>
+                            )}
+                            <PaginationItem>
+                                <PaginationLink
+                                    isActive={i === currentPage}
+                                    onClick={(e) => { e.preventDefault(); table.setPageIndex(i); }}
+                                    href="#"
+                                >
+                                    {i + 1}
+                                </PaginationLink>
+                            </PaginationItem>
+                        </React.Fragment>
+                    ))}
                     <PaginationItem>
                         <PaginationNext
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (currentPage < pageCount - 1) table.nextPage();
-                            }}
+                            onClick={(e) => { e.preventDefault(); table.nextPage(); }}
                             href="#"
-                            aria-disabled={currentPage === pageCount - 1}
+                            aria-disabled={!table.getCanNextPage()}
+                            className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
                         />
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>
-            {/* AlertDialog for delete */}
+
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Periode?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus periode ini? Tindakan ini tidak dapat dibatalkan.
+                            Tindakan ini tidak dapat dibatalkan. Ini akan menghapus periode secara permanen.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -327,6 +291,7 @@ export function PeriodTable({ data, onEdit }: PeriodTableProps) {
                                     Inertia.delete(`/periods/${deleteId}`, {
                                         onSuccess: () => toast.success('Periode berhasil dihapus!'),
                                         onError: () => toast.error('Gagal menghapus periode.'),
+                                        preserveScroll: true,
                                     });
                                     setDeleteId(null);
                                 }
