@@ -19,7 +19,7 @@ class PeriodsController extends Controller
     public function index()
     {
         // PERUBAHAN: Panggil metode service yang baru untuk mendapatkan data lengkap.
-        $periods = $this->periodService->getAllPeriodsWithRelations();
+        $periods = $this->periodService->getAllPeriods();
 
         return Inertia::render('periods/index', [
             'periods' => $periods,
