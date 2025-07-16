@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\RoleService;
 use Illuminate\Http\Request;
 
 class RolePermissionController extends Controller
 {
+    protected $roleService;
+
+    public function __construct(RoleService $roleService)
+    {
+        $this->roleService = $roleService;
+    }
     public function updatePermissions(Request $request, $roleId)
     {
-        $role = \App\Models\Role::findOrFail($roleId);
         $permissionIds = $request->input('permissions', []);
-        $role->permissions()->sync($permissionIds);
+        $this->roleService->syncPermissions($roleId, $permissionIds);
         return back()->with('success', 'Permissions updated!');
     }
 }

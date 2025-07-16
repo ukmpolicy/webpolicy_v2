@@ -9,7 +9,8 @@ use Exception;
  * boleh ada logic use case di dalam repository.
  */
 
-class UserRepository {
+class UserRepository
+{
 
     public function sayHello($name = null)
     {
@@ -19,6 +20,31 @@ class UserRepository {
         return "Hello, " . $name;
     }
 
+    public function getAll()
+    {
+        return User::all();
+    }
 
-    // list, single, create, update, delete 
+    public function findByEmail($email)
+    {
+        return User::where('email', $email)->first();
+    }
+
+    public function assignRole($userId, $roleId)
+    {
+        $user = $this->find($userId);
+        $user->role_id = $roleId;
+        $user->save();
+        return $user;
+    }
+
+    public function create(array $data)
+    {
+        return User::create($data);
+    }
+
+    public function find($id)
+    {
+        return User::findOrFail($id);
+    }
 }

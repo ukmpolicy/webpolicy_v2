@@ -8,7 +8,8 @@ use App\Repositories\UserRepository;
  * diperuntuk untuk menangani http request maupun response.
  */
 
-class UserService {
+class UserService
+{
     protected $userRepository;
 
     public function __construct(UserRepository $userRepository)
@@ -19,5 +20,24 @@ class UserService {
     public function sayHello($name)
     {
         return $this->userRepository->sayHello($name);
+    }
+
+    public function getAllUsers()
+    {
+        return $this->userRepository->getAll();
+    }
+
+    public function hasPermission($user, $key)
+    {
+        if (!$user->role)
+            return false;
+        return $user->role->permissions->contains('key', $key);
+    }
+
+    public function assignRole($user, $roleId)
+    {
+        $user->role_id = $roleId;
+        $user->save();
+        return $user;
     }
 }

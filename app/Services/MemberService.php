@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Repositories\MemberRepository;
@@ -26,10 +25,21 @@ class MemberService
 
     public function createMember(array $data)
     {
-        // Handle upload file terlebih dahulu
-        if (isset($data['picture']) && $data['picture'] instanceof \Illuminate\Http\UploadedFile) {
-            $path = $data['picture']->store('member_pictures', 'public');
-            $data['picture'] = $path;
+        // Validasi unik email/nim
+        $existing = $this->memberRepository->checkUnique($data['email'], $data['nim']);
+
+        if ($existing) {
+            if ($existing->email === $data['email']) {
+                throw new \Exception('Email sudah terdaftar');
+            }
+            if ($existing->nim === $data['nim']) {
+                throw new \Exception('NIM sudah terdaftar');
+            }
+        }
+
+        // Handle gambar
+        if (isset($data['picture'])) {
+            $data['picture'] = $this->storeImage($data['picture']);
         }
 
         return $this->memberRepository->create($data);
@@ -39,19 +49,50 @@ class MemberService
     {
         $member = $this->memberRepository->find($id);
 
-        if (isset($data['picture']) && $data['picture'] instanceof \Illuminate\Http\UploadedFile) {
-            if ($member->picture) {
-                Storage::disk('public')->delete($member->picture); // Hapus foto lama
+        // Validasi unik email/nim
+        $existing = $this->memberRepository->checkUnique($data['email'], $data['nim'], $id);
+
+        if ($existing) {
+            if ($existing->email === $data['email']) {
+                throw new \Exception('Email sudah terdaftar');
             }
-            $path = $data['picture']->store('member_pictures', 'public');
-            $data['picture'] = $path;
+            if ($existing->nim === $data['nim']) {
+                throw new \Exception('NIM sudah terdaftar');
+            }
+        }
+
+        // Handle gambar
+        if (isset($data['picture'])) {
+            if ($data['picture'] instanceof \Illuminate\Http\UploadedFile) {
+                if ($member->picture) {
+                    Storage::delete($member->picture);
+                }
+                $data['picture'] = $this->storeImage($data['picture']);
+            } elseif ($data['picture'] === null || $data['picture'] === '') {
+                if ($member->picture) {
+                    Storage::delete($member->picture);
+                }
+                $data['picture'] = null;
+            }
+        } else {
+            unset($data['picture']);
         }
 
         return $this->memberRepository->update($id, $data);
     }
+    protected function storeImage($image)
+    {
+        return $image->store('member_pictures', 'public');
+    }
 
     public function deleteMember($id)
     {
+        $member = $this->memberRepository->find($id);
+
+        if ($member->picture) {
+            Storage::delete($member->picture);
+        }
+
         return $this->memberRepository->delete($id);
     }
 }

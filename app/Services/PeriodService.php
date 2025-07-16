@@ -15,7 +15,13 @@ class PeriodService
 
     public function getAllPeriods()
     {
-        return $this->periodRepository->getAll();
+        return $this->periodRepository->getAllWithRelations();
+    }
+
+    // <-- Tambahkan method ini
+    public function getActivePeriod()
+    {
+        return $this->periodRepository->findActivePeriod();
     }
 
     public function createPeriod(array $data)

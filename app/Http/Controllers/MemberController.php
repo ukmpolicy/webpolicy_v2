@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Services\MemberService;
@@ -23,66 +22,94 @@ class MemberController extends Controller
         $members = $this->memberService->getAllMembers();
         $periods = Period::all();
 
+        $departments = ['Teknologi Informasi dan Komputer', 'Bisnis', 'Teknik Elektro', 'Teknik Mesin', 'Teknik Sipil', 'Teknik Kimia'];
+
         return Inertia::render('members/index', [
             'members' => $members,
             'periods' => $periods,
-            'oldInput' => session('errors') ? (object) session('errors')->getBag('default')->getMessages() : null,
+            'departments' => $departments,
         ]);
     }
+
 
     public function store(Request $request)
     {
         try {
-            $data = $request->validate([
+            $validated = $request->validate([
                 'period_id' => 'required|exists:periods,id',
-                'picture' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                'picture' => 'required|image|max:2048',
                 'name' => 'required|string|max:50',
                 'nim' => 'required|string|max:50|unique:members,nim',
                 'address' => 'required|string|max:255',
                 'email' => 'required|email|max:50|unique:members,email',
-                'department' => 'required|string|max:255',
+                'department' => 'required|string',
                 'study_program' => 'required|string|max:255',
                 'joined_college_on' => 'required|integer',
                 'graduated_college_on' => 'nullable|integer',
-                'born_at' => 'nullable|string|max:50',
-                'birth_date_at' => 'nullable|date',
+                'born_at' => 'required|string|max:50',
+                'birth_date_at' => 'required|date',
             ]);
 
-            $this->memberService->createMember($data);
-            return redirect()->back()->with('success', 'Member created!');
+            $this->memberService->createMember($validated);
+            return redirect()->back()->with('success', 'Member created successfully!');
         } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput($request->except('picture'));
+            return back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
         }
     }
 
     public function update(Request $request, $id)
     {
+
         try {
-            $data = $request->validate([
+
+
+            $validated = $request->validate([
                 'period_id' => 'required|exists:periods,id',
-                'picture' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                'picture' => 'nullable|image|max:2048',
                 'name' => 'required|string|max:50',
-                'nim' => ['required', 'string', 'max:50', Rule::unique('members', 'nim')->ignore($id)],
+                'nim' => 'required|numeric|unique:members,nim,' . $id,
                 'address' => 'required|string|max:255',
-                'email' => ['required', 'email', 'max:50', Rule::unique('members', 'email')->ignore($id)],
-                'department' => 'required|string|max:255',
+                'email' => 'required|email|max:50|unique:members,email,' . $id,
+                'department' => 'required|string',
                 'study_program' => 'required|string|max:255',
                 'joined_college_on' => 'required|integer',
                 'graduated_college_on' => 'nullable|integer',
-                'born_at' => 'nullable|string|max:50',
-                'birth_date_at' => 'nullable|date',
+                'born_at' => 'required|string|max:50',
+                'birth_date_at' => 'required|date',
             ]);
 
-            $this->memberService->updateMember($id, $data);
-            return redirect()->back()->with('success', 'Member updated!');
+            $this->memberService->updateMember($id, $validated);
+
+            return redirect()->back()->with('success', 'Member updated successfully!');
         } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            return back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return back()
+                ->withErrors([
+                    'email' => str_contains($e->getMessage(), 'Email') ? $e->getMessage() : null,
+                    'nim' => str_contains($e->getMessage(), 'NIM') ? $e->getMessage() : null,
+                    'error' => $e->getMessage(),
+                ])
+                ->withInput();
         }
     }
+
 
     public function destroy($id)
     {
         $this->memberService->deleteMember($id);
-        return redirect()->back()->with('success', 'Member deleted!');
+        return redirect()->back()->with('success', 'Member deleted successfully!');
+    }
+
+    public function show($id)
+    {
+        $member = $this->memberService->getMember($id);
+        return Inertia::render('members/show', [
+            'member' => $member,
+        ]);
     }
 }
