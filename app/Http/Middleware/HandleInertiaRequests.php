@@ -52,6 +52,9 @@ class HandleInertiaRequests extends Middleware
             // Tambahkan baris berikut agar flash message dikirim ke frontend
             'success' => fn() => $request->session()->get('success'),
             'error' => fn() => $request->session()->get('error'),
+
+             // --- TAMBAHAN PENTING: BAGIKAN CSRF TOKEN KE FRONTEND ---
+            'csrf_token' => csrf_token(), // Ini akan membuat token tersedia di props.csrf_token
         ];
     }
 }

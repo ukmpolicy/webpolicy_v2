@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Inertia } from '@inertiajs/inertia';
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
-import { Ellipsis, List, Newspaper, Pencil, Search, Trash2 } from 'lucide-react';
+import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -82,14 +82,14 @@ export function CategoryTable({ data, onEdit }: any) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                             onClick={() => {
                                 // Navigasi ke halaman artikel dengan filter kategori
                                 Inertia.visit(`/articles?category_id=${row.original.id}`);
                             }}
                         >
                             <Newspaper className="mr-2 h-4 w-4" /> Lihat Artikel
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>

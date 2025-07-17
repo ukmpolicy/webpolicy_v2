@@ -1,4 +1,3 @@
-import TuiEditor from '@/components/tui-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,62 +5,75 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
+import { Inertia } from '@inertiajs/inertia';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import MDEditor from '@uiw/react-md-editor';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-export default function ArticleEdit({ article, categories }) {
+export default function ArticleEdit({ article, categories }: any) {
     const { data, setData, post, processing, errors } = useForm({
         title: article.title || '',
-        picture: null,
+        picture: null as File | null,
         summary: article.summary || '',
         content: article.content || '',
         status: article.status || 'draft',
-        category_ids: article.categories?.map((cat) => cat.id) || [],
+        category_ids: article.categories?.map((cat: any) => cat.id) || [],
         _method: 'PUT',
         remove_picture: false,
     });
 
     const page = usePage();
 
-    const [previewPicture, setPreviewPicture] = useState(article.picture ? `/storage/${article.picture}` : null);
-    const [selectedCategories, setSelectedCategories] = useState(article.categories?.map((cat) => ({ value: cat.id, label: cat.name })) || []);
+    const [previewPicture, setPreviewPicture] = useState<string | null>(article.picture ? `/storage/${article.picture}` : null);
+    const [selectedCategories, setSelectedCategories] = useState<any[]>(
+        article.categories?.map((cat: any) => ({ value: cat.id, label: cat.name })) || [],
+    );
 
     useEffect(() => {
         setData(
             'category_ids',
-            selectedCategories.map((cat) => cat.value),
+            selectedCategories.map((cat: any) => cat.value),
         );
     }, [selectedCategories]);
 
+    // --- BAGIAN YANG DIPERBAIKI/DITAMBAHKAN ---
     useEffect(() => {
+        // Memastikan `errors` ada dan memiliki properti yang valid sebelum mengulanginya
         if (errors && Object.keys(errors).length > 0) {
+            // Prioritaskan pesan error gambar jika ada
             if (errors.picture) {
+                // Pastikan errors.picture adalah string atau array of strings
                 if (typeof errors.picture === 'string') {
                     toast.error(errors.picture);
                 } else if (Array.isArray(errors.picture)) {
-                    errors.picture.forEach((msg) => toast.error(msg));
+                    errors.picture.forEach((msg: string) => toast.error(msg));
                 }
             } else {
+                // Tampilkan error lain jika ada
                 Object.values(errors).forEach((errorMessage) => {
                     if (typeof errorMessage === 'string') {
                         toast.error(errorMessage);
                     } else if (Array.isArray(errorMessage)) {
-                        errorMessage.forEach((msg) => toast.error(msg));
+                        errorMessage.forEach((msg: string) => toast.error(msg));
                     }
                 });
             }
         }
-    }, [errors]);
+    }, [errors]); // Dependency array harus mencakup 'errors'
+    // --- AKHIR BAGIAN YANG DIPERBAIKI/DITAMBAHKAN ---
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
 
         const formData = new FormData();
         for (const key in data) {
-            if (key !== 'picture' && key !== 'category_ids' && key !== '_method' && data[key] !== null) {
-                formData.append(key, String(data[key]));
+            // Kita tidak menyertakan 'picture' di loop ini karena akan ditambahkan secara kondisional
+            // dan kita juga mengecualikan '_method' karena akan ditambahkan terpisah.
+            // Memastikan data[key] bukan null sebelum append
+            if (key !== 'picture' && key !== 'category_ids' && key !== '_method' && data[key as keyof typeof data] !== null) {
+                formData.append(key, String(data[key as keyof typeof data])); // Konversi ke string secara eksplisit
             }
         }
 
@@ -72,7 +84,8 @@ export default function ArticleEdit({ article, categories }) {
             formData.append('remove_picture', '1');
         }
 
-        selectedCategories.forEach((cat) => {
+        // Pastikan category_ids terisi sebelum melakukan foreach
+        selectedCategories.forEach((cat: any) => {
             formData.append('category_ids[]', cat.value);
         });
 
@@ -80,21 +93,28 @@ export default function ArticleEdit({ article, categories }) {
 
         post(`/articles/${article.id}`, {
             body: formData,
-            onSuccess: () => {
+            onSuccess: (response: any) => {
                 toast.success('Artikel berhasil diperbarui!');
-                // Hapus Inertia.visit, biarkan backend yang mengatur redirect
+                // Pastikan 'response?.props?.article?.id' ini benar-benar ada jika Anda ingin menggunakannya
+                const articleId = response?.props?.article?.id || response?.props?.flash?.article_id; // Menambahkan fallback untuk flash data
+                if (articleId) {
+                    Inertia.visit(`/articles/${articleId}`);
+                } else {
+                    Inertia.visit('/articles');
+                }
             },
             onError: (formErrors) => {
                 console.error(formErrors);
+                // Pesan toast akan dihandle oleh useEffect di atas, tidak perlu di sini lagi
             },
         });
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setData('picture', file);
-            setData('remove_picture', false);
+            setData('remove_picture', false); // Jika mengupload baru, pastikan flag hapus mati
             setPreviewPicture(URL.createObjectURL(file));
         } else {
             setData('picture', null);
@@ -108,7 +128,7 @@ export default function ArticleEdit({ article, categories }) {
         setPreviewPicture(null);
     };
 
-    const categoryOptions = categories.map((cat) => ({ value: cat.id, label: cat.name }));
+    const categoryOptions = categories.map((cat: any) => ({ value: cat.id, label: cat.name }));
 
     return (
         <AppLayout
@@ -118,7 +138,7 @@ export default function ArticleEdit({ article, categories }) {
                 { title: 'Edit Artikel', href: `/articles/${article.id}/edit` },
             ]}
         >
-            <Head title="Edit Artikel" />
+            <Head title={`Edit: ${article.title}`} />
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Header Page Title dan Tombol Kembali */}
@@ -128,7 +148,7 @@ export default function ArticleEdit({ article, categories }) {
                     </Button>
                     <div>
                         <h1 className="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Artikel</h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Edit Artikel Anda.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Perbarui artikel: {article.title}</p>
                     </div>
                 </div>
 
@@ -136,7 +156,7 @@ export default function ArticleEdit({ article, categories }) {
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Left Column (2/3 width) - Konten Utama (Gambar, Judul, Ringkasan, Konten) */}
                         <div className="space-y-6 lg:col-span-2">
-                            {/* 1. Gambar Artikel (Upload Gambar) */}
+                            {/* 1. Gambar Artikel (Upload Gambar) - Dipindahkan ke sini */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Gambar Artikel</h2>
                                 <div>
@@ -206,15 +226,21 @@ export default function ArticleEdit({ article, categories }) {
                                 </div>
                             </div>
 
-                            {/* 5. Konten (Menggunakan Toast UI Editor) */}
+                            {/* 5. Konten */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Konten Artikel</h2>
                                 <div>
                                     <Label className="mb-2 block">
-                                        Konten <span className="text-red-500">*</span>
+                                        Konten (MDX) <span className="text-red-500">*</span>
                                     </Label>
-                                    <div className="mt-3">
-                                        <TuiEditor initialValue={data.content} onChange={(val) => setData('content', val)} height="500px" />
+                                    <div className="mt-3" data-color-mode="light">
+                                        <MDEditor
+                                            value={data.content}
+                                            onChange={(val) => setData('content', val || '')}
+                                            preview="edit"
+                                            height={500}
+                                            className="md-editor-custom"
+                                        />
                                     </div>
                                     {errors.content && <p className="mt-2 text-sm text-red-500">{errors.content}</p>}
                                 </div>
