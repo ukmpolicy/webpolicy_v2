@@ -44,7 +44,7 @@ export default function AppBidang({ divisions }: { divisions: Division[] }) {
                       <span className="text-white font-semibold">
                         {item.name ?? "bidang yang belum terdefinisi"}
                       </span>
-                      , yang memainkan peran penting dalam menjalankan visi dan misi organisasi.
+                      , yang memainkan peran penting dalam menjalankan visi dan misi organisasi
                     </div>
 
                   </div>
