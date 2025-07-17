@@ -1,58 +1,58 @@
-import React, { useState, useEffect } from "react";
-import { Head } from "@inertiajs/react";
+import { Head } from '@inertiajs/react';
+import React, { useEffect, useState } from 'react';
 
-import AppHeader from "@/components/homepage/app-header";
-import AppHero from "@/components/homepage/app-hero";
-import AppLoading from "@/components/homepage/app-loading";
-import AppFooter from "@/components/homepage/app-footer";
-import AppVisiMisi from "@/components/homepage/app-visi-misi";
-import AppLabel from "@/components/homepage/app-label";
-import AppBidang from "@/components/homepage/app-bidang";
-import AppStruktural from "@/components/homepage/app-struktural";
+import AppBidang from '@/components/homepage/app-bidang';
+import AppFooter from '@/components/homepage/app-footer';
+import AppHeader from '@/components/homepage/app-header';
+import AppHero from '@/components/homepage/app-hero';
+import AppLabel from '@/components/homepage/app-label';
+import AppLoading from '@/components/homepage/app-loading';
+import AppStruktural from '@/components/homepage/app-struktural';
+import AppVisiMisi from '@/components/homepage/app-visi-misi';
 
 interface Division {
-  id: number;
-  name: string;
-  description?: string;
+    id: number;
+    name: string;
+    description?: string;
 }
 
 interface StructureMember {
-  id: number;
-  name: string;
-  position: string;
-  picture?: string | null;
+    id: number;
+    name: string;
+    position: string;
+    picture?: string | null;
 }
 
 interface HomePageProps {
-  divisions: Division[];
-  structureMembers: StructureMember[];
+    divisions: Division[];
+    structureMembers: StructureMember[];
 }
 
 const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
-  const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
-  if (isLoading) return <AppLoading />;
+    if (isLoading) return <AppLoading />;
 
-  return (
-    <>
-      <Head title="Home - UKM POLICY" />
-      <AppHeader />
-      <main className="pt-18 bg-black">
-        <AppHero />
-        <AppLabel />
-        <AppVisiMisi />
-        <AppLabel />
-        <AppBidang divisions={divisions} />
-        <AppStruktural strukturalList={structureMembers} />
-      </main>
-      <AppFooter />
-    </>
-  );
+    return (
+        <>
+            <Head title="Home - UKM POLICY" />
+            <AppHeader />
+            <main className="bg-black pt-18">
+                <AppHero />
+                <AppLabel />
+                <AppVisiMisi />
+                <AppLabel />
+                <AppBidang divisions={divisions} />
+                <AppStruktural strukturalList={structureMembers} />
+            </main>
+            <AppFooter />
+        </>
+    );
 };
 
 export default HomePage;
