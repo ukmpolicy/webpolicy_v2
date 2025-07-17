@@ -5,7 +5,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategoryArticleController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DivisionPlansController;
-use App\Http\Controllers\HomepageController;
+use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PeriodsController;
@@ -20,7 +20,7 @@ use App\Http\Controllers\MissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [HomepageController::class, 'index'])->name('home');
+Route::get('/', [HomePageController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
@@ -109,12 +109,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware(['permission:structure-members']);
 });
-    
+
     //about
     Route::get('/about', function () {
     return Inertia::render('homepage/about/index');
 
-}); 
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
