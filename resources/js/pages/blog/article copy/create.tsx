@@ -1,4 +1,3 @@
-import TuiEditor from '@/components/tui-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,119 +5,116 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
+import { Inertia } from '@inertiajs/inertia';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import MDEditor from '@uiw/react-md-editor';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-export default function ArticleEdit({ article, categories }) {
-    const { data, setData, post, processing, errors } = useForm({
-        title: article.title || '',
-        picture: null,
-        summary: article.summary || '',
-        content: article.content || '',
-        status: article.status || 'draft',
-        category_ids: article.categories?.map((cat) => cat.id) || [],
-        _method: 'PUT',
-        remove_picture: false,
+export default function ArticleCreate({ categories }: any) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        title: '',
+        picture: null as File | null,
+        summary: '',
+        content: '',
+        status: 'draft',
+        category_ids: [] as number[],
     });
 
     const page = usePage();
 
-    const [previewPicture, setPreviewPicture] = useState(article.picture ? `/storage/${article.picture}` : null);
-    const [selectedCategories, setSelectedCategories] = useState(article.categories?.map((cat) => ({ value: cat.id, label: cat.name })) || []);
+    const [previewPicture, setPreviewPicture] = useState<string | null>(null);
+    const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
 
     useEffect(() => {
         setData(
             'category_ids',
-            selectedCategories.map((cat) => cat.value),
+            selectedCategories.map((cat: any) => cat.value),
         );
     }, [selectedCategories]);
 
     useEffect(() => {
-        if (errors && Object.keys(errors).length > 0) {
+        if (Object.keys(errors).length > 0) {
             if (errors.picture) {
                 if (typeof errors.picture === 'string') {
                     toast.error(errors.picture);
                 } else if (Array.isArray(errors.picture)) {
-                    errors.picture.forEach((msg) => toast.error(msg));
+                    errors.picture.forEach((msg: string) => toast.error(msg));
                 }
             } else {
                 Object.values(errors).forEach((errorMessage) => {
                     if (typeof errorMessage === 'string') {
                         toast.error(errorMessage);
                     } else if (Array.isArray(errorMessage)) {
-                        errorMessage.forEach((msg) => toast.error(msg));
+                        errorMessage.forEach((msg: string) => toast.error(msg));
                     }
                 });
             }
         }
     }, [errors]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
 
         const formData = new FormData();
-        for (const key in data) {
-            if (key !== 'picture' && key !== 'category_ids' && key !== '_method' && data[key] !== null) {
-                formData.append(key, String(data[key]));
-            }
-        }
-
+        formData.append('title', data.title);
+        formData.append('summary', data.summary);
+        formData.append('content', data.content);
+        formData.append('status', data.status);
         if (data.picture) {
             formData.append('picture', data.picture);
         }
-        if (data.remove_picture) {
-            formData.append('remove_picture', '1');
-        }
-
-        selectedCategories.forEach((cat) => {
+        selectedCategories.forEach((cat: any) => {
             formData.append('category_ids[]', cat.value);
         });
 
-        formData.append('_method', 'PUT');
-
-        post(`/articles/${article.id}`, {
+        post('/articles', {
             body: formData,
-            onSuccess: () => {
-                toast.success('Artikel berhasil diperbarui!');
-                // Hapus Inertia.visit, biarkan backend yang mengatur redirect
+            onSuccess: (response: any) => {
+                toast.success('Artikel berhasil ditambahkan!');
+                const articleId = response?.props?.article?.id || response?.props?.flash?.article?.id;
+                if (articleId) {
+                    Inertia.visit(`/articles/${articleId}`);
+                } else {
+                    Inertia.visit('/articles');
+                }
+                reset();
             },
             onError: (formErrors) => {
                 console.error(formErrors);
+                // Pesan toast akan dihandle oleh useEffect di atas
             },
         });
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setData('picture', file);
-            setData('remove_picture', false);
             setPreviewPicture(URL.createObjectURL(file));
         } else {
             setData('picture', null);
-            setPreviewPicture(article.picture && !data.remove_picture ? `/storage/${article.picture}` : null);
+            setPreviewPicture(null);
         }
     };
 
     const removeImage = () => {
         setData('picture', null);
-        setData('remove_picture', true);
         setPreviewPicture(null);
     };
 
-    const categoryOptions = categories.map((cat) => ({ value: cat.id, label: cat.name }));
+    const categoryOptions = categories.map((cat: any) => ({ value: cat.id, label: cat.name }));
 
     return (
         <AppLayout
             breadcrumbs={[
                 { title: 'Blog', href: '#' },
                 { title: 'Artikel', href: '/articles' },
-                { title: 'Edit Artikel', href: `/articles/${article.id}/edit` },
+                { title: 'Tambah Artikel', href: '/articles/create' },
             ]}
         >
-            <Head title="Edit Artikel" />
+            <Head title="Tambah Artikel" />
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Header Page Title dan Tombol Kembali */}
@@ -127,8 +123,8 @@ export default function ArticleEdit({ article, categories }) {
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Artikel</h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Edit Artikel Anda.</p>
+                        <h1 className="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100">Tambah Artikel Baru</h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Buat artikel baru untuk blog Anda.</p>
                     </div>
                 </div>
 
@@ -136,7 +132,7 @@ export default function ArticleEdit({ article, categories }) {
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Left Column (2/3 width) - Konten Utama (Gambar, Judul, Ringkasan, Konten) */}
                         <div className="space-y-6 lg:col-span-2">
-                            {/* 1. Gambar Artikel (Upload Gambar) */}
+                            {/* 1. Gambar Artikel (Upload Gambar) - Dipindahkan ke sini */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Gambar Artikel</h2>
                                 <div>
@@ -169,7 +165,7 @@ export default function ArticleEdit({ article, categories }) {
                                 </div>
                             </div>
 
-                            {/* 2. Judul & 3. Ringkasan (digabung dalam Informasi Dasar) */}
+                            {/* 2. Informasi Dasar (Judul) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Informasi Dasar</h2>
                                 <div className="space-y-5">
@@ -187,34 +183,43 @@ export default function ArticleEdit({ article, categories }) {
                                         />
                                         {errors.title && <p className="mt-2 text-sm text-red-500">{errors.title}</p>}
                                     </div>
-
-                                    {/* Ringkasan */}
-                                    <div>
-                                        <Label htmlFor="summary" className="mb-2 block">
-                                            Ringkasan
-                                        </Label>
-                                        <Textarea
-                                            id="summary"
-                                            value={data.summary}
-                                            onChange={(e) => setData('summary', e.target.value)}
-                                            placeholder="Ringkasan singkat yang menggambarkan isi artikel..."
-                                            rows={4}
-                                            className="w-full"
-                                        />
-                                        {errors.summary && <p className="mt-2 text-sm text-red-500">{errors.summary}</p>}
-                                    </div>
                                 </div>
                             </div>
 
-                            {/* 5. Konten (Menggunakan Toast UI Editor) */}
+                            {/* 3. Ringkasan */}
+                            <div className="bg-card rounded-lg border p-6 shadow-md">
+                                <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Ringkasan Artikel</h2>
+                                <div>
+                                    <Label htmlFor="summary" className="mb-2 block">
+                                        Ringkasan
+                                    </Label>
+                                    <Textarea
+                                        id="summary"
+                                        value={data.summary}
+                                        onChange={(e) => setData('summary', e.target.value)}
+                                        placeholder="Ringkasan singkat yang menggambarkan isi artikel..."
+                                        rows={4}
+                                        className="w-full"
+                                    />
+                                    {errors.summary && <p className="mt-2 text-sm text-red-500">{errors.summary}</p>}
+                                </div>
+                            </div>
+
+                            {/* 4. Konten (Menggunakan MDEditor) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Konten Artikel</h2>
                                 <div>
                                     <Label className="mb-2 block">
-                                        Konten <span className="text-red-500">*</span>
+                                        Konten (MDX) <span className="text-red-500">*</span>
                                     </Label>
-                                    <div className="mt-3">
-                                        <TuiEditor initialValue={data.content} onChange={(val) => setData('content', val)} height="500px" />
+                                    <div className="mt-3" data-color-mode="light">
+                                        <MDEditor
+                                            value={data.content}
+                                            onChange={(val) => setData('content', val || '')}
+                                            preview="edit"
+                                            height={500}
+                                            className="md-editor-custom"
+                                        />
                                     </div>
                                     {errors.content && <p className="mt-2 text-sm text-red-500">{errors.content}</p>}
                                 </div>
@@ -223,7 +228,7 @@ export default function ArticleEdit({ article, categories }) {
 
                         {/* Right Column (1/3 width) - Pengaturan Tambahan (Kategori, Status) */}
                         <div className="space-y-6 lg:col-span-1">
-                            {/* 4. Kategori */}
+                            {/* 5. Kategori */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Kategori Artikel</h2>
                                 <div>
@@ -269,7 +274,7 @@ export default function ArticleEdit({ article, categories }) {
                         </Button>
                         <Button type="submit" disabled={processing}>
                             <Save className="mr-2 h-4 w-4" />
-                            {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                            {processing ? 'Menyimpan...' : 'Simpan Artikel'}
                         </Button>
                     </div>
                 </form>
