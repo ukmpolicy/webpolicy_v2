@@ -5,6 +5,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategoryArticleController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DivisionPlansController;
+use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PeriodsController;
@@ -19,14 +20,14 @@ use App\Http\Controllers\MissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', [HomePageController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
-    })->name('dashboard')->middleware(['permission:dashboard']);
+    })
+        ->name('dashboard')
+        ->middleware(['permission:dashboard']);
 
     // Roles Management
     Route::resource('roles', RoleController::class)->middleware(['permission:roles']);
@@ -35,10 +36,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(['permission:roles']);
 
     // --- TAMBAHKAN DUA ROUTE INI ---
-    Route::post('/roles/{role}/invite-user', [RoleController::class, 'inviteUser'])->name('roles.inviteUser')->middleware(['permission:roles']);
-    Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.removeUser')->middleware(['permission:roles']);
+    Route::post('/roles/{role}/invite-user', [RoleController::class, 'inviteUser'])
+        ->name('roles.inviteUser')
+        ->middleware(['permission:roles']);
+    Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])
+        ->name('roles.removeUser')
+        ->middleware(['permission:roles']);
     // --- AKHIR TAMBAHAN ---
-
 
     // Permissions management
     Route::resource('permissions', PermissionController::class)->middleware(['permission:permissions']);
@@ -75,26 +79,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('gallery-album', AlbumController::class)->middleware(['permission:gallery-album']);
     Route::resource('gallery-media', MediaController::class)->middleware(['permission:gallery-media']);
     // Additional route for moving media
-    Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])->name('gallery-media.move');
-
-    // Management Articel
-    Route::resource('category-articles', CategoryArticleController::class)->middleware(['permission:gallery-media']);
-    Route::resource('articles', ArticleController::class)->middleware(['permission:gallery-media']);
-
-    // // Rute profil
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])
         ->name('gallery-media.move')
         ->middleware(['permission:gallery-media']);
 
+        // Management Articel
+    Route::resource('category-articles', CategoryArticleController::class)->middleware(['permission:gallery-media']);
+    Route::resource('articles', ArticleController::class)->middleware(['permission:gallery-media']);
+    // ROUTE BARU UNTUK UPLOAD GAMBAR EDITOR
+    // Penting: Tambahkan middleware permission yang sama seperti resource articles
+    Route::post('/articles/upload-image', [ArticleController::class, 'uploadImage'])
+        ->name('articles.uploadImage')
+        ->middleware(['permission:gallery-media']);
+
     // Structure Management
-    Route::get('/structures/next-level', [StructureController::class, 'getNextLevel'])
-        ->middleware(['permission:structures']);
+    Route::get('/structures/next-level', [StructureController::class, 'getNextLevel'])->middleware(['permission:structures']);
     Route::resource('structures', StructureController::class)->middleware(['permission:structures']);
 
-    // Structure Member Management 
+    // Structure Member Management
     Route::get('/structure-members', [StructureMemberController::class, 'index'])
         ->name('structure-members.index')
         ->middleware(['permission:structure-members']);
@@ -103,11 +105,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('structure-members.store')
         ->middleware(['permission:structure-members']);
 
-    Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])
-        ->middleware(['permission:structure-members']);
+    Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])->middleware(['permission:structure-members']);
 
-    Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])
-        ->middleware(['permission:structure-members']);
+    Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware(['permission:structure-members']);
+});
+
+    //about
+    Route::get('/about', function () {
+    return Inertia::render('homepage/about/index');
+
 });
 
 require __DIR__ . '/settings.php';

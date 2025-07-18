@@ -1,14 +1,14 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { NavGroup, type NavItem } from '@/types';
+import { NavGroup } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Building2, Album, CalendarRange, Layers, LayoutGrid, UserCog, Users, ClipboardList, DotIcon, User2, BookOpenText } from 'lucide-react';
+import { Album, BookOpenText, Building2, CalendarRange, ClipboardList, FileText, Folder, Layers, LayoutGrid, User2, UserCog } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavGroup[] = [
     {
-        title: "Platform",
+        title: 'Platform',
         items: [
             {
                 title: 'Dashboard',
@@ -25,9 +25,10 @@ const mainNavItems: NavGroup[] = [
                 href: '/permissions',
                 icon: ClipboardList,
             },
-        ]
-    }, {
-        title: "Kepengurusan",
+        ],
+    },
+    {
+        title: 'Kepengurusan',
         items: [
             {
                 title: 'Periode',
@@ -50,9 +51,10 @@ const mainNavItems: NavGroup[] = [
                 href: '/structures',
                 icon: Building2,
             },
-        ]
-    }, {
-        title: "Media",
+        ],
+    },
+    {
+        title: 'Media',
         items: [
             {
                 title: 'Galery',
@@ -67,12 +69,17 @@ const mainNavItems: NavGroup[] = [
                     {
                         title: 'Category',
                         href: '/category-articles',
-                        icon: DotIcon,
+                        icon: Folder,
+                    },
+                    {
+                        title: 'Articles',
+                        href: '/articles',
+                        icon: FileText,
                     },
                 ],
             },
-        ]
-    }
+        ],
+    },
 ];
 export function AppSidebar() {
     return (

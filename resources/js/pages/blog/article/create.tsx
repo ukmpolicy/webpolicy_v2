@@ -1,3 +1,4 @@
+import TuiEditor from '@/components/tui-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -5,32 +6,30 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { Inertia } from '@inertiajs/inertia';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import MDEditor from '@uiw/react-md-editor';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-export default function ArticleCreate({ categories }: any) {
+export default function ArticleCreate({ categories }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         title: '',
-        picture: null as File | null,
+        picture: null,
         summary: '',
         content: '',
         status: 'draft',
-        category_ids: [] as number[],
+        category_ids: [],
     });
 
     const page = usePage();
 
-    const [previewPicture, setPreviewPicture] = useState<string | null>(null);
-    const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
+    const [previewPicture, setPreviewPicture] = useState(null);
+    const [selectedCategories, setSelectedCategories] = useState([]);
 
     useEffect(() => {
         setData(
             'category_ids',
-            selectedCategories.map((cat: any) => cat.value),
+            selectedCategories.map((cat) => cat.value),
         );
     }, [selectedCategories]);
 
@@ -40,21 +39,21 @@ export default function ArticleCreate({ categories }: any) {
                 if (typeof errors.picture === 'string') {
                     toast.error(errors.picture);
                 } else if (Array.isArray(errors.picture)) {
-                    errors.picture.forEach((msg: string) => toast.error(msg));
+                    errors.picture.forEach((msg) => toast.error(msg));
                 }
             } else {
                 Object.values(errors).forEach((errorMessage) => {
                     if (typeof errorMessage === 'string') {
                         toast.error(errorMessage);
                     } else if (Array.isArray(errorMessage)) {
-                        errorMessage.forEach((msg: string) => toast.error(msg));
+                        errorMessage.forEach((msg) => toast.error(msg));
                     }
                 });
             }
         }
     }, [errors]);
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         const formData = new FormData();
@@ -65,30 +64,24 @@ export default function ArticleCreate({ categories }: any) {
         if (data.picture) {
             formData.append('picture', data.picture);
         }
-        selectedCategories.forEach((cat: any) => {
+        selectedCategories.forEach((cat) => {
             formData.append('category_ids[]', cat.value);
         });
 
         post('/articles', {
             body: formData,
-            onSuccess: (response: any) => {
+            onSuccess: () => {
                 toast.success('Artikel berhasil ditambahkan!');
-                const articleId = response?.props?.article?.id || response?.props?.flash?.article?.id;
-                if (articleId) {
-                    Inertia.visit(`/articles/${articleId}`);
-                } else {
-                    Inertia.visit('/articles');
-                }
                 reset();
+                // Hapus Inertia.visit, biarkan backend yang mengatur redirect
             },
             onError: (formErrors) => {
                 console.error(formErrors);
-                // Pesan toast akan dihandle oleh useEffect di atas
             },
         });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
             setData('picture', file);
@@ -104,7 +97,7 @@ export default function ArticleCreate({ categories }: any) {
         setPreviewPicture(null);
     };
 
-    const categoryOptions = categories.map((cat: any) => ({ value: cat.id, label: cat.name }));
+    const categoryOptions = categories.map((cat) => ({ value: cat.id, label: cat.name }));
 
     return (
         <AppLayout
@@ -132,7 +125,7 @@ export default function ArticleCreate({ categories }: any) {
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Left Column (2/3 width) - Konten Utama (Gambar, Judul, Ringkasan, Konten) */}
                         <div className="space-y-6 lg:col-span-2">
-                            {/* 1. Gambar Artikel (Upload Gambar) - Dipindahkan ke sini */}
+                            {/* 1. Gambar Artikel (Upload Gambar) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Gambar Artikel</h2>
                                 <div>
@@ -205,21 +198,15 @@ export default function ArticleCreate({ categories }: any) {
                                 </div>
                             </div>
 
-                            {/* 4. Konten (Menggunakan MDEditor) */}
+                            {/* 4. Konten (Menggunakan Toast UI Editor) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Konten Artikel</h2>
                                 <div>
                                     <Label className="mb-2 block">
-                                        Konten (MDX) <span className="text-red-500">*</span>
+                                        Konten <span className="text-red-500">*</span>
                                     </Label>
-                                    <div className="mt-3" data-color-mode="light">
-                                        <MDEditor
-                                            value={data.content}
-                                            onChange={(val) => setData('content', val || '')}
-                                            preview="edit"
-                                            height={500}
-                                            className="md-editor-custom"
-                                        />
+                                    <div className="mt-3">
+                                        <TuiEditor initialValue={data.content} onChange={(val) => setData('content', val)} height="500px" />
                                     </div>
                                     {errors.content && <p className="mt-2 text-sm text-red-500">{errors.content}</p>}
                                 </div>
