@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Inertia } from '@inertiajs/inertia';
 import { Head, usePage } from '@inertiajs/react';
-import { Eye, List, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
+import { Eye, List, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
@@ -14,9 +14,9 @@ export default function ArticleIndex() {
     const { articles = {}, categories = [], selected_category_id, success, error, errors, search: searchQuery, per_page } = usePage().props;
 
     const [deleteId, setDeleteId] = useState(null);
-    const [previewArticle, setPreviewArticle] = useState(null);
+    const [previewArticle, setPreviewArticle] = useState(null); // Ini bisa dihapus jika modal preview sepenuhnya dihapus
 
-    const [selectedCategoryId, setSelectedCategoryId] = useState<string>(selected_category_id ? String(selected_category_id) : 'all');
+    const [selectedCategoryId, setSelectedCategoryId] = useState(selected_category_id ? String(selected_category_id) : 'all');
     const [globalFilter, setGlobalFilter] = useState(searchQuery || '');
     const [perPage, setPerPage] = useState(per_page || 10);
 
@@ -29,13 +29,10 @@ export default function ArticleIndex() {
         setPerPage(per_page || 10);
     }, [selected_category_id, searchQuery, per_page]);
 
-    // --- BAGIAN YANG DIPERBAIKI/DITAMBAHKAN ---
     useEffect(() => {
         if (success) toast.success(success);
         if (error) toast.error(error);
         if (errors) {
-            // Iterasi semua error dari backend dan tampilkan sebagai toast
-            // Ini akan menangkap pesan kustom 'Dimensi gambar tidak masuk akal...'
             for (const key in errors) {
                 const errorMessage = errors[key];
                 if (typeof errorMessage === 'string') {
@@ -46,10 +43,9 @@ export default function ArticleIndex() {
             }
         }
     }, [success, error, errors]);
-    // --- AKHIR BAGIAN YANG DIPERBAIKI/DITAMBAHKAN ---
 
     const buildQueryParams = (pageUrl = null) => {
-        const params: Record<string, any> = {};
+        const params = {};
 
         if (pageUrl) {
             const url = new URL(pageUrl);
@@ -74,14 +70,14 @@ export default function ArticleIndex() {
         return params;
     };
 
-    const goToPage = (url: string) => {
+    const goToPage = (url) => {
         if (url) {
             const params = buildQueryParams(url);
             Inertia.get('/articles', params, { preserveScroll: true, replace: true });
         }
     };
 
-    const handleFilterChange = (filterName: string, value: any) => {
+    const handleFilterChange = (filterName, value) => {
         let newSelectedCategoryId = selectedCategoryId;
         let newGlobalFilter = globalFilter;
         let newPerPage = perPage;
@@ -101,7 +97,7 @@ export default function ArticleIndex() {
             debouncedSearch.cancel();
             debouncedSearch(newGlobalFilter);
         } else {
-            const params: Record<string, any> = {
+            const params = {
                 page: 1,
             };
             if (newSelectedCategoryId !== 'all') params.category_id = newSelectedCategoryId;
@@ -112,8 +108,8 @@ export default function ArticleIndex() {
         }
     };
 
-    const debouncedSearch = useDebouncedCallback((value: string) => {
-        const params: Record<string, any> = {
+    const debouncedSearch = useDebouncedCallback((value) => {
+        const params = {
             page: 1,
         };
         if (selectedCategoryId !== 'all') params.category_id = selectedCategoryId;
@@ -122,42 +118,6 @@ export default function ArticleIndex() {
 
         Inertia.get('/articles', params, { preserveScroll: true, replace: true });
     }, 500);
-
-    const PreviewArticleModal = previewArticle && (
-        <Dialog open={!!previewArticle} onOpenChange={() => setPreviewArticle(null)}>
-            <DialogContent className="max-w-4xl p-0">
-                <DialogHeader className="relative p-6 pb-0">
-                    <DialogTitle className="text-2xl font-bold">{previewArticle.title}</DialogTitle>
-                    <Button variant="ghost" size="icon" onClick={() => setPreviewArticle(null)} className="absolute top-2 right-2">
-                        <X className="h-5 w-5" />
-                    </Button>
-                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        Penulis: {previewArticle.author?.name || 'N/A'} | Kategori:{' '}
-                        {previewArticle.categories && previewArticle.categories.length > 0
-                            ? previewArticle.categories.map((cat) => cat.name).join(', ')
-                            : '-'}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-500">
-                        Status: {previewArticle.status === 'published' ? 'Terbit' : 'Draf'} | Dibuat:{' '}
-                        {new Date(previewArticle.created_at).toLocaleString()}
-                    </div>
-                </DialogHeader>
-                <div className="max-h-[70vh] overflow-y-auto p-6">
-                    {previewArticle.picture && (
-                        <img src={`/storage/${previewArticle.picture}`} alt={previewArticle.title} className="mb-6 w-full rounded-lg object-cover" />
-                    )}
-                    <div className="mb-4 text-lg font-semibold text-gray-700 dark:text-gray-300">{previewArticle.summary}</div>
-                    {/* <MDXViewer content={previewArticle.content} /> */}
-                    {/* Jika Anda tidak lagi menggunakan modal preview, Anda bisa menghapus kode ini */}
-                </div>
-                <DialogFooter className="p-6 pt-0">
-                    <Button variant="secondary" onClick={() => setPreviewArticle(null)}>
-                        Tutup
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
 
     return (
         <AppLayout
@@ -202,7 +162,6 @@ export default function ArticleIndex() {
                                     <SelectItem key="all-cat" value="all">
                                         Semua Kategori
                                     </SelectItem>{' '}
-                                    {/* Menambahkan key unik */}
                                     {categories.map((category) => (
                                         <SelectItem key={category.id} value={String(category.id)}>
                                             {category.name}
@@ -272,7 +231,7 @@ export default function ArticleIndex() {
                                             className="bg-white/80 hover:bg-blue-100 dark:bg-zinc-800 dark:hover:bg-blue-700"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                Inertia.visit(`/articles/${article.id}`);
+                                                Inertia.visit(`/articles/${article.id}`); // Perubahan di sini!
                                             }}
                                             title="Lihat Artikel"
                                         >
@@ -350,11 +309,8 @@ export default function ArticleIndex() {
                     )}
                 </div>
 
-                {/* Preview Article Modal */}
-                {/* <MDXViewer /> kompenen ini saya comment, karena kamu tidak ada memberi code nya */}
-                {/* if `previewArticle` is null, this won't render anyway */}
-                {/* If you are not using this modal, you can completely remove this block */}
-                {previewArticle && (
+                {/* Hapus bagian Preview Article Modal jika tidak ingin ada popup sama sekali */}
+                {/* {previewArticle && (
                     <Dialog open={!!previewArticle} onOpenChange={() => setPreviewArticle(null)}>
                         <DialogContent className="max-w-4xl p-0">
                             <DialogHeader className="relative p-6 pb-0">
@@ -382,8 +338,7 @@ export default function ArticleIndex() {
                                     />
                                 )}
                                 <div className="mb-4 text-lg font-semibold text-gray-700 dark:text-gray-300">{previewArticle.summary}</div>
-                                {/* <MDXViewer content={previewArticle.content} /> */}
-                                <p>MDXViewer content placeholder for modal preview.</p>
+                                <TuiViewer content={previewArticle.content} />
                             </div>
                             <DialogFooter className="p-6 pt-0">
                                 <Button variant="secondary" onClick={() => setPreviewArticle(null)}>
@@ -392,7 +347,7 @@ export default function ArticleIndex() {
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
-                )}
+                )} */}
 
                 {/* Delete Confirmation Dialog */}
                 <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

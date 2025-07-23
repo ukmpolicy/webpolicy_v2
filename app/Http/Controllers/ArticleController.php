@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Intervention\Image\Image;
 
 class ArticleController extends Controller
 {
@@ -20,6 +21,11 @@ class ArticleController extends Controller
     {
         $this->articleService = $articleService;
         $this->categoryService = $categoryService;
+
+        // Pastikan direktori publik untuk gambar konten editor ada
+        if (!Storage::disk('public')->exists('blog_content_images')) {
+            Storage::disk('public')->makeDirectory('blog_content_images');
+        }
     }
 
     /**
@@ -55,17 +61,20 @@ class ArticleController extends Controller
         ]);
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $messages = [
-            'picture.dimensions' => 'Dimensi gambar tidak masuk akal. Lebar atau tinggi gambar terlalu besar.',
+            'picture.dimensions' => 'Dimensi gambar tidak masuk akal. Lebar atau tinggi gambar sampul terlalu besar.',
         ];
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'picture' => 'required|image|max:2048|dimensions:max_width=4000,max_height=4000',
+            'picture' => 'required|image|max:2048|dimensions:max_width=4000,max_height=4000', // Validasi gambar sampul
             'summary' => 'required|string|max:1000',
-            'content' => 'required|string',
+            'content' => 'required|string', // Konten dari editor (Markdown)
             'status' => 'required|string|in:draft,published',
             'category_ids' => 'required|array',
             'category_ids.*' => 'exists:blog_categories,id',
@@ -80,20 +89,19 @@ class ArticleController extends Controller
             'title' => $validated['title'],
             'picture' => $picturePath,
             'summary' => $validated['summary'],
-            'content' => $validated['content'] ?? '',
+            'content' => $validated['content'],
             'author_id' => Auth::id(),
             'status' => $validated['status'],
         ];
 
         try {
             $article = $this->articleService->createArticle($articleData, $validated['category_ids'] ?? []);
+            // Redirect ke halaman index setelah sukses
             return redirect()
-                ->route('articles.index', $article->id)
-                ->with([
-                    'success' => 'Artikel berhasil ditambahkan.',
-                    'article_id' => $article->id,
-                ]);
+                ->route('articles.index')
+                ->with('success', 'Artikel berhasil ditambahkan.');
         } catch (\Exception $e) {
+            // Hapus gambar jika ada error saat menyimpan artikel
             if ($picturePath) {
                 Storage::disk('public')->delete($picturePath);
             }
@@ -128,54 +136,56 @@ class ArticleController extends Controller
         ]);
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, $id)
     {
         $article = $this->articleService->getArticleById($id);
 
         $messages = [
-            'picture.dimensions' => 'Dimensi gambar tidak masuk akal. Lebar atau tinggi gambar terlalu besar.',
-            'picture.required_if' => 'Anda harus mengunggah gambar baru jika menghapus gambar yang sudah ada.', // **PESAN BARU**
+            'picture.dimensions' => 'Dimensi gambar tidak masuk akal. Lebar atau tinggi gambar sampul terlalu besar.',
+            'picture.required_if' => 'Anda harus mengunggah gambar sampul baru jika menghapus yang sudah ada.',
         ];
 
-        // --- BAGIAN YANG DIPERBAIKI/DITAMBAHKAN ---
         $pictureRules = 'nullable|image|max:2048|dimensions:max_width=4000,max_height=4000';
 
-        // Jika ada remove_picture flag DAN tidak ada gambar yang diupload
-        if ($request->boolean('remove_picture') && !$request->hasFile('picture')) {
-             $pictureRules = 'required|image|max:2048|dimensions:max_width=4000,max_height=4000';
-             // Atau bisa juga: $pictureRules = ['required', 'image', 'max:2048', 'dimensions:max_width=4000,max_height=4000'];
-             // Jika pakai 'required_if' lebih simpel di rule, tapi perlu pastikan boolean 'remove_picture' terkirim
-             // Alternatif: 'picture' => 'required_if:remove_picture,1|nullable|image|max:2048|dimensions:max_width=4000,max_height=4000',
-             // Tapi 'required_if' ini bisa sedikit membingungkan jika gambar lama sudah ada.
-             // Pendekatan if-else ini lebih eksplisit untuk kondisi Anda.
+        // Logika validasi gambar sampul saat update
+        if ($request->boolean('remove_picture')) { // Jika flag remove_picture dikirim (true)
+             if (!$request->hasFile('picture')) { // Dan tidak ada gambar baru yang diupload
+                 // Maka gambar baru wajib ada
+                 $pictureRules = 'required|image|max:2048|dimensions:max_width=4000,max_height=4000';
+             }
         }
+
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'picture' => $pictureRules, // Gunakan rule yang sudah ditentukan kondisional
             'summary' => 'required|string|max:1000',
-            'content' => 'required|string',
+            'content' => 'required|string', // Konten dari editor (Markdown)
             'status' => 'required|string|in:draft,published',
             'category_ids' => 'required|array',
             'category_ids.*' => 'exists:blog_categories,id',
-            'remove_picture' => 'boolean',
+            'remove_picture' => 'boolean', // Flag ini akan menentukan apakah gambar lama dihapus
         ], $messages);
-        // --- AKHIR BAGIAN YANG DIPERBAIKI/DITAMBAHKAN ---
 
         $articleData = [
             'title' => $validated['title'],
             'summary' => $validated['summary'],
-            'content' => $validated['content'] ?? '',
+            'content' => $validated['content'],
             'status' => $validated['status'],
         ];
 
-        // Handle picture update
-        // Logika ini tetap sama, hanya validasinya yang berubah di atas
+        // Handle picture update logic
         if ($request->boolean('remove_picture') && $article->picture) {
+            // Hapus gambar lama jika ada flag remove_picture dan gambar lama memang ada
             Storage::disk('public')->delete($article->picture);
-            $articleData['picture'] = null;
+            $articleData['picture'] = null; // Set field picture di DB menjadi null
         } elseif ($request->hasFile('picture')) {
+            // Jika ada gambar baru diupload
             if ($article->picture) {
+                // Hapus gambar lama jika ada
                 Storage::disk('public')->delete($article->picture);
             }
             $articleData['picture'] = $request->file('picture')->store('blog_pictures', 'public');
@@ -183,17 +193,16 @@ class ArticleController extends Controller
 
         try {
             $this->articleService->updateArticle($id, $articleData, $validated['category_ids'] ?? []);
+            // Redirect ke halaman index setelah sukses
             return redirect()
-                ->route('articles.index', $id)
-                ->with([
-                    'success' => 'Artikel berhasil diperbarui.',
-                    'article_id' => $id,
-                ]);
+                ->route('articles.index')
+                ->with('success', 'Artikel berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Error updating article ' . $id . ': ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal memperbarui artikel. Silakan coba lagi.');
         }
     }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -205,6 +214,43 @@ class ArticleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error deleting article ' . $id . ': ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menghapus artikel. Silakan coba lagi.');
+        }
+    }
+
+    /**
+     * Handle image uploads from the Toast UI Editor.
+     * This method will receive the image, save it, and return its URL.
+     */
+    public function uploadImage(Request $request)
+    {
+        $messages = [
+            'image.max' => 'File gambar terlalu besar, tidak boleh lebih dari 1MB.',
+            'image.dimensions' => 'File gambar (lebar/tinggi) terlalu besar, maksimal 600x600 piksel.',
+            'image.image' => 'File yang diunggah harus berupa gambar.',
+            'image.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif.',
+        ];
+
+        try {
+            $request->validate([
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024|dimensions:max_width=600,max_height=600', // Batas ukuran file 1MB dan validasi dimensi
+            ], $messages);
+
+            $image = $request->file('image');
+            $imageName = Str::uuid() . '.' . $image->getClientOriginalExtension();
+
+            // Simpan gambar ke disk 'public' di dalam folder 'blog_content_images'
+            $path = $image->storeAs('blog_content_images', $imageName, 'public');
+
+            // Dapatkan URL publik untuk gambar tersebut
+            $url = Storage::disk('public')->url($path);
+
+            return response()->json(['url' => $url]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error('Image Upload Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server error during image upload.'], 500);
         }
     }
 }
