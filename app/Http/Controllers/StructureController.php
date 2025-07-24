@@ -23,7 +23,7 @@ class StructureController extends Controller
         $periodId = $request->query('period_id');
 
         if (!$periodId) {
-            $defaultPeriod = Period::where('name', '2024-2025')->first();
+            $defaultPeriod = Period::where('is_active', 1)->first();
             $periodId = $defaultPeriod?->id;
         }
 

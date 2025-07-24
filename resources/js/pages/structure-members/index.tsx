@@ -7,6 +7,7 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function StructureMemberIndex() {
+
   const {
     data = [],
     periods = [],
@@ -14,6 +15,11 @@ export default function StructureMemberIndex() {
     selectedPeriodId = null,
     selectedStructureId = null,
   } = usePage().props;
+
+  // Cari nama struktur yang dipilih
+  const selectedStructureName = selectedStructureId
+    ? (structures.find((s: any) => String(s.id) === String(selectedStructureId))?.name || '')
+    : '';
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
@@ -57,7 +63,12 @@ export default function StructureMemberIndex() {
       <Head title="Anggota Struktur" />
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-xl font-bold">Daftar Anggota Struktur</h1>
+          <h1 className="text-xl font-bold">
+            Daftar Anggota Struktur
+            {selectedStructureName && (
+              <span className="ml-2 text-4lg font-semibold text-gray-500">( {selectedStructureName} )</span>
+            )}
+          </h1>
 
           <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
 

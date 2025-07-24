@@ -100,37 +100,50 @@ useEffect(() => {
     {
       id: 'actions',
       header: 'Aksi',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <Ellipsis className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => onEdit(row.original)}>
-              <Pencil className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => Inertia.get(`/structure-members`, { structure_id: row.original.id })}>
-              <List className="mr-2 h-4 w-4" /> Lihat Struktur
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
-              <Trash2 className="mr-2 h-4 w-4" /> Hapus
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-              setSortDirection(newDirection);
-              sortByLevel(newDirection);
-            }}>
-              {sortDirection === 'asc' ? (
-                <><ArrowDown className="mr-2 h-4 w-4" /> Urutkan Level</>
-              ) : (
-                <><ArrowUp className="mr-2 h-4 w-4" /> Urutkan Level</>
+      cell: ({ row }) => {
+        // Cek apakah baris ini adalah paling atas atau paling bawah
+        const rowIndex = row.index;
+        const totalRows = table.getRowModel().rows.length;
+        const isFirst = rowIndex === 0;
+        const isLast = rowIndex === totalRows - 1;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <Ellipsis className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => onEdit(row.original)}>
+                <Pencil className="mr-2 h-4 w-4" /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => Inertia.get(`/structure-members`, { structure_id: row.original.id })}>
+                <List className="mr-2 h-4 w-4" /> Lihat Struktur
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
+                <Trash2 className="mr-2 h-4 w-4" /> Hapus
+              </DropdownMenuItem>
+              {/* Tampilkan aksi urutkan level hanya jika bukan paling atas/bawah */}
+              {!isFirst && sortDirection === 'asc' && (
+                <DropdownMenuItem onClick={() => {
+                  setSortDirection('desc');
+                  sortByLevel('desc');
+                }}>
+                  <ArrowUp className="mr-2 h-4 w-4" /> Urutkan Level ke Atas
+                </DropdownMenuItem>
               )}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+              {!isLast && sortDirection === 'desc' && (
+                <DropdownMenuItem onClick={() => {
+                  setSortDirection('asc');
+                  sortByLevel('asc');
+                }}>
+                  <ArrowDown className="mr-2 h-4 w-4" /> Urutkan Level ke Bawah
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      }
     }
   ];
 

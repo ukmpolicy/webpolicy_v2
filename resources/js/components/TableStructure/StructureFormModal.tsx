@@ -106,6 +106,7 @@ export function StructureFormModal({ open, onClose, initialData, divisions = [],
                         {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                     </div>
 
+                    {/*
                     <div className="space-y-2">
                         <Label htmlFor="level">Level</Label>
                         <Input
@@ -118,6 +119,7 @@ export function StructureFormModal({ open, onClose, initialData, divisions = [],
                         />
                         {errors.level && <p className="text-sm text-red-500">{errors.level}</p>}
                     </div>
+                    */}
 
                     <div className="space-y-2">
                         <Label htmlFor="division_id">Divisi</Label>
