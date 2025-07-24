@@ -22,6 +22,7 @@ use App\Http\Controllers\MissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('/', [HomePageController::class, 'index'])->name('home');
 
 /*
 |--------------------------------------------------------------------------
@@ -135,6 +136,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])->middleware(['permission:structure-members']);
 
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware(['permission:structure-members']);
+});
+
+    //about
+Route::get('/about', function () {
+    return Inertia::render('homepage/about/index');
 });
 
 require __DIR__ . '/settings.php';
