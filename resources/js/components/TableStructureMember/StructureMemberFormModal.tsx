@@ -210,29 +210,6 @@ export function StructureMemberFormModal({
           )}
         </div>
 
-        {/* Struktur */}
-        <div>
-          <Label htmlFor="structure_id">Struktur</Label>
-          <Select
-            value={data.structure_id}
-            onValueChange={(value) => setData('structure_id', value)}
-            disabled={!isEdit && !!selectedStructureId}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih Struktur" />
-            </SelectTrigger>
-            <SelectContent>
-              {structures.map((structure) => (
-                <SelectItem key={structure.id} value={String(structure.id)}>
-                  {structure.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.structure_id && (
-            <p className="text-sm text-red-500">{errors.structure_id}</p>
-          )}
-        </div>
       </div>
     </div>
 

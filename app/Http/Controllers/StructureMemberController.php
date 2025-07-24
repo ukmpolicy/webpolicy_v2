@@ -29,7 +29,7 @@ class StructureMemberController extends Controller
         }
 
         if (!$periodId && $periods->count() > 0) {
-            $periodId = $periods->where('name', '2024-2025')->first()?->id ?? $periods->first()->id;
+            $periodId = $periods->where('is_active', 1)->first()?->id ?? $periods->first()->id;
         }
 
         $structures = $this->structureMemberService->getAllStructures($periodId);
@@ -61,7 +61,9 @@ class StructureMemberController extends Controller
 
             $this->structureMemberService->createMember($validated);
 
-            return redirect()->route('structure-members.index')->with('success', 'Structure Member created successfully!');
+            // Redirect ke halaman structure-members dengan structure_id yang dipilih
+            return redirect()->route('structure-members.index', ['structure_id' => $validated['structure_id']])
+                ->with('success', 'Structure Member created successfully!');
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
@@ -116,16 +118,16 @@ class StructureMemberController extends Controller
     }
     public function show($id)
     {
-    $member = $this->structureMemberService->getByIdWithRelations($id);
+        $member = $this->structureMemberService->getByIdWithRelations($id);
 
-    if (!$member) {
-        abort(404);
+        if (!$member) {
+            abort(404);
+        }
+
+        return Inertia::render('structure-members/show', [
+            'structureMember' => $member,
+        ]);
+
     }
-
-    return Inertia::render('structure-members/show', [
-        'structureMember' => $member,
-    ]);
-
-}
 
 }

@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Services\DivisionService;
 use App\Services\StructureMemberService;
 use Illuminate\Http\Request;
+use App\Models\Period;
 use Inertia\Inertia;
+use App\Models\Vission;
+use App\Models\Mission;
 
 class HomePageController extends Controller
 {
@@ -27,31 +30,37 @@ class HomePageController extends Controller
 
         // Ambil periode default (jika tidak disediakan)
         if (!$periodId) {
-            $periodId = \App\Models\Period::where('name', '2024-2025')->first()?->id ??
-                        \App\Models\Period::latest()->first()?->id;
+            $periodId = Period::where('is_active', 1)->first()?->id ??
+                Period::latest()->first()?->id;
         }
 
-// Ambil anggota struktural berdasarkan period ID
-$structureMembersRaw = $this->structureMemberService->getMembersByPeriod($periodId);
+        // Ambil anggota struktural berdasarkan period ID
+        $structureMembersRaw = $this->structureMemberService->getMembersByPeriod($periodId);
 
-// Format ulang data anggota struktural
-$structureMembers = $structureMembersRaw->map(function ($member) {
-    return [
-        'id' => $member->id,
-        'name' => $member->name,
-        'position' => $member->structure->name ?? '-',
-        // 'department' => $member->department ?? '-',
-        // 'study_program' => $member->study_program ?? '-',
-        'picture' => $member->picture
-            ? asset('storage/' . $member->picture)
-            : null,
-    ];
-});
+        // Format ulang data anggota struktural
+        $structureMembers = $structureMembersRaw->map(function ($member) {
+            return [
+                'id' => $member->id,
+                'name' => $member->name,
+                'position' => $member->structure->name ?? '-',
+                // 'department' => $member->department ?? '-',
+                // 'study_program' => $member->study_program ?? '-',
+                'picture' => $member->picture
+                    ? asset('storage/' . $member->picture)
+                    : null,
+            ];
+        });
 
+
+        // Ambil visi dan misi berdasarkan period_id aktif
+        $visi = Vission::where('period_id', $periodId)->pluck('content')->first() ?? '';
+        $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
 
         return Inertia::render('homepage/home/index', [
             'divisions' => $divisions,
             'structureMembers' => $structureMembers,
+            'visi' => $visi,
+            'misi' => $misi,
         ]);
     }
 }
