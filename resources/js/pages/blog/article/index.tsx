@@ -309,46 +309,6 @@ export default function ArticleIndex() {
                     )}
                 </div>
 
-                {/* Hapus bagian Preview Article Modal jika tidak ingin ada popup sama sekali */}
-                {/* {previewArticle && (
-                    <Dialog open={!!previewArticle} onOpenChange={() => setPreviewArticle(null)}>
-                        <DialogContent className="max-w-4xl p-0">
-                            <DialogHeader className="relative p-6 pb-0">
-                                <DialogTitle className="text-2xl font-bold">{previewArticle.title}</DialogTitle>
-                                <Button variant="ghost" size="icon" onClick={() => setPreviewArticle(null)} className="absolute top-2 right-2">
-                                    <X className="h-5 w-5" />
-                                </Button>
-                                <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                    Penulis: {previewArticle.author?.name || 'N/A'} | Kategori:{' '}
-                                    {previewArticle.categories && previewArticle.categories.length > 0
-                                        ? previewArticle.categories.map((cat) => cat.name).join(', ')
-                                        : '-'}
-                                </div>
-                                <div className="text-xs text-gray-500 dark:text-gray-500">
-                                    Status: {previewArticle.status === 'published' ? 'Terbit' : 'Draf'} | Dibuat:{' '}
-                                    {new Date(previewArticle.created_at).toLocaleString()}
-                                </div>
-                            </DialogHeader>
-                            <div className="max-h-[70vh] overflow-y-auto p-6">
-                                {previewArticle.picture && (
-                                    <img
-                                        src={`/storage/${previewArticle.picture}`}
-                                        alt={previewArticle.title}
-                                        className="mb-6 w-full rounded-lg object-cover"
-                                    />
-                                )}
-                                <div className="mb-4 text-lg font-semibold text-gray-700 dark:text-gray-300">{previewArticle.summary}</div>
-                                <TuiViewer content={previewArticle.content} />
-                            </div>
-                            <DialogFooter className="p-6 pt-0">
-                                <Button variant="secondary" onClick={() => setPreviewArticle(null)}>
-                                    Tutup
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                )} */}
-
                 {/* Delete Confirmation Dialog */}
                 <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                     <DialogContent className="max-w-md">

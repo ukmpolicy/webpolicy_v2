@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\BlogPageController;
 use App\Http\Controllers\CategoryArticleController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DivisionPlansController;
@@ -20,7 +21,21 @@ use App\Http\Controllers\MissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Home page route
+
+// home page
 Route::get('/', [HomePageController::class, 'index'])->name('home');
+
+//about page
+Route::get('/about', function () {
+    return Inertia::render('homepage/about/index');
+});
+
+// blog page
+Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
+Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
+
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
@@ -83,7 +98,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('gallery-media.move')
         ->middleware(['permission:gallery-media']);
 
-        // Management Articel
+    // Management Articel
     Route::resource('category-articles', CategoryArticleController::class)->middleware(['permission:gallery-media']);
     Route::resource('articles', ArticleController::class)->middleware(['permission:gallery-media']);
     // ROUTE BARU UNTUK UPLOAD GAMBAR EDITOR
@@ -110,11 +125,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware(['permission:structure-members']);
 });
 
-    //about
-    Route::get('/about', function () {
-    return Inertia::render('homepage/about/index');
 
-});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

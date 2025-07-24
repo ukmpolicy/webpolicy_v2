@@ -1,16 +1,18 @@
-import { usePage } from '@inertiajs/react'; // Pastikan ini diimport
+import { usePage } from '@inertiajs/react';
 import codeSyntaxHighlight from '@toast-ui/editor-plugin-code-syntax-highlight';
 import '@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight.css';
-import '@toast-ui/editor/dist/theme/toastui-editor-dark.css';
+import '@toast-ui/editor/dist/theme/toastui-editor-dark.css'; // TETAPKAN BARIS INI
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Editor } from '@toast-ui/react-editor';
 import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner'; // 1. Impor toast
+import { toast } from 'sonner';
 
 const TuiEditor = ({ initialValue = '', onChange, height = '500px' }) => {
-    const editorRef = useRef();
+    const editorRef = useRef(null); // Tipe ref bisa lebih spesifik jika Anda menggunakan TypeScript
     const [isMobile, setIsMobile] = useState(false);
-    const { props } = usePage(); // Ambil semua props dari Inertia
+    const { props } = usePage();
+    // Mendeteksi mode tema dari elemen html. Ini mengasumsikan Anda memiliki mekanisme untuk menambah/menghapus kelas 'dark' di <html>
+    const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
 
     useEffect(() => {
         const handleResize = () => {
@@ -20,36 +22,52 @@ const TuiEditor = ({ initialValue = '', onChange, height = '500px' }) => {
         window.addEventListener('resize', handleResize);
         handleResize();
 
-        return () => window.removeEventListener('resize', handleResize);
+        // Listener untuk perubahan tema (jika Anda memiliki toggle tema)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    setIsDarkMode(document.documentElement.classList.contains('dark'));
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true });
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            observer.disconnect();
+        };
     }, []);
 
     useEffect(() => {
         if (editorRef.current) {
             const instance = editorRef.current.getInstance();
-            if (instance.getMarkdown() !== initialValue) {
+            if (instance && instance.getMarkdown() !== initialValue) {
                 instance.setMarkdown(initialValue);
             }
         }
     }, [initialValue]);
 
     const handleChange = () => {
-        if (editorRef.current && onChange) {
-            const markdown = editorRef.current.getInstance().getMarkdown();
-            onChange(markdown);
+        if (editorRef.current) {
+            const instance = editorRef.current.getInstance();
+            if (instance && onChange) {
+                const markdown = instance.getMarkdown();
+                onChange(markdown);
+            }
         }
     };
 
     const onUploadImage = async (blob, callback) => {
+        // Perbaiki tipe jika menggunakan TypeScript
         const formData = new FormData();
         formData.append('image', blob);
 
-        // validasi ukuran file di sini
-        const maxSizeInMB = 1;
+        const maxSizeInMB = 2;
         const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
         if (blob.size > maxSizeInBytes) {
             toast.error(`File gambar terlalu besar, tidak boleh lebih dari ${maxSizeInMB}MB.`);
-            return; // Hentikan proses unggah
+            return;
         }
 
         try {
@@ -66,10 +84,8 @@ const TuiEditor = ({ initialValue = '', onChange, height = '500px' }) => {
                 },
             });
 
-            // 2. Perbaiki logika untuk menangkap error dari backend
             if (!response.ok) {
                 const errorData = await response.json();
-                // Ambil pesan error spesifik dari validasi Laravel
                 const message = errorData.errors?.image?.[0] || 'Terjadi kesalahan saat mengunggah gambar.';
                 throw new Error(message);
             }
@@ -77,8 +93,8 @@ const TuiEditor = ({ initialValue = '', onChange, height = '500px' }) => {
             const data = await response.json();
             callback(data.url, blob.name);
         } catch (error) {
+            // Perbaiki tipe jika menggunakan TypeScript
             console.error('Error uploading image to server:', error);
-            // 3. Ganti alert dengan toast.error
             toast.error(error.message);
         }
     };
@@ -101,7 +117,9 @@ const TuiEditor = ({ initialValue = '', onChange, height = '500px' }) => {
     ];
 
     return (
-        <div className="tui-editor-wrapper">
+        <div className={`tui-editor-wrapper ${isDarkMode ? 'toastui-editor-dark' : ''}`}>
+            {' '}
+            {/* Tambahkan kelas tema gelap secara kondisional */}
             <Editor
                 ref={editorRef}
                 initialValue={initialValue}

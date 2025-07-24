@@ -16,11 +16,10 @@ class BlogArticleRepository
 
     public function getAllPaginated($perPage = 10, $search = null, $categoryId = null)
     {
-        $query = $this->model->with(['author', 'categories']);
-
+        // $query = $this->model->with(['author', 'categories']);
+        $query = $this->model->with(['author.role', 'categories']);
         if ($search) {
-            $query->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('summary', 'like', '%' . $search . '%');
+            $query->where('title', 'like', '%' . $search . '%')->orWhere('summary', 'like', '%' . $search . '%');
         }
 
         if ($categoryId) {
@@ -32,9 +31,53 @@ class BlogArticleRepository
         return $query->latest()->paginate($perPage);
     }
 
+    public function getPublishedArticlesPaginated($perPage = 10, $search = null, $categoryId = null)
+    {
+        // $query = $this->model->with(['author', 'categories'])->where('status', 'published'); // Hanya artikel berstatus 'published'
+
+        $query = $this->model->with(['author.role', 'categories'])->where('status', 'published');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')->orWhere('summary', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($categoryId) {
+            $query->whereHas('categories', function ($q) use ($categoryId) {
+                $q->where('blog_categories.id', $categoryId);
+            });
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
+
+    public function getLatestPublishedArticles($limit = 5, $excludeArticleId = null)
+    {
+        $query = $this->model
+            ->with(['author.role', 'categories'])
+            ->where('status', 'published')
+            ->latest(); // Urutkan berdasarkan yang terbaru
+
+        if ($excludeArticleId) {
+            $query->where('id', '!=', $excludeArticleId); // Kecualikan artikel yang sedang dilihat
+        }
+
+        return $query->limit($limit)->get(); // Ambil sejumlah artikel sesuai limit
+    }
+
+    public function findBySlug($slug)
+    {
+        return $this->model
+            ->with(['author.role', 'categories'])
+            ->where('slug', $slug)
+            ->first();
+    }
+
     public function findById($id)
     {
-        return $this->model->with(['author', 'categories'])->findOrFail($id);
+        // return $this->model->with(['author', 'categories'])->findOrFail($id);
+        return $this->model->with(['author.role', 'categories'])->findOrFail($id);
     }
 
     public function create(array $data, array $categoryIds = [])

@@ -22,6 +22,21 @@ class BlogArticleService
         return $this->articleRepository->getAllPaginated($perPage, $search, $categoryId);
     }
 
+    public function getPublishedArticlesForHomepage($perPage = 6, $search = null, $categoryId = null)
+    {
+        return $this->articleRepository->getPublishedArticlesPaginated($perPage, $search, $categoryId);
+    }
+
+    public function getLatestRecommendedArticles($limit = 5, $excludeArticleId = null)
+    {
+        return $this->articleRepository->getLatestPublishedArticles($limit, $excludeArticleId);
+    }
+
+    public function getArticleBySlug($slug)
+    {
+        return $this->articleRepository->findBySlug($slug);
+    }
+
     public function getArticleById($id)
     {
         $article = $this->articleRepository->findById($id);
