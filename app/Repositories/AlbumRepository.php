@@ -16,9 +16,22 @@ class AlbumRepository
 
     public function getAll()
     {
-        // return $this->model->withCount('media')->latest()->get();
-        // Urutkan ASC agar album baru muncul di bawah
         return $this->model->withCount('media')->orderBy('created_at', 'asc')->get();
+    }
+
+    /**
+     * PERUBAHAN: Tambahkan metode baru untuk mengambil album publik.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getPublicAlbums()
+    {
+        return $this->model
+            ->where('is_private', false) // Filter hanya album yang tidak privat
+            ->withCount('media') // Tetap hitung jumlah media
+            ->with('media') // Eager load media untuk mengambil gambar sampul
+            ->latest() // Urutkan dari yang terbaru
+            ->get();
     }
 
     public function findById($id)

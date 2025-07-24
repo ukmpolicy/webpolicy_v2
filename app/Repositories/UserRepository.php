@@ -1,28 +1,14 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\User;
-use Exception;
-
-/**
- * Repository hanya diprogram untuk query resource ke model. tidak
- * boleh ada logic use case di dalam repository.
- */
 
 class UserRepository
 {
-
-    public function sayHello($name = null)
+    public function find($id)
     {
-        if (!$name) {
-            throw new Exception("User not found");
-        }
-        return "Hello, " . $name;
-    }
-
-    public function getAll()
-    {
-        return User::all();
+        return User::findOrFail($id);
     }
 
     public function findByEmail($email)
@@ -30,12 +16,9 @@ class UserRepository
         return User::where('email', $email)->first();
     }
 
-    public function assignRole($userId, $roleId)
+    public function getAll()
     {
-        $user = $this->find($userId);
-        $user->role_id = $roleId;
-        $user->save();
-        return $user;
+        return User::all();
     }
 
     public function create(array $data)
@@ -43,8 +26,10 @@ class UserRepository
         return User::create($data);
     }
 
-    public function find($id)
+    public function assignRole($userId, $roleId)
     {
-        return User::findOrFail($id);
+        $user = $this->find($userId);
+        $user->role_id = $roleId;
+        return $user->save();
     }
 }

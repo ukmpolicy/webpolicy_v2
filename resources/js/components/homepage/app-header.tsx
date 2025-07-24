@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Link, usePage } from '@inertiajs/react'; // Import usePage
+import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutGrid, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -10,9 +10,8 @@ export default function AppHeader() {
     const [isOpen, setIsOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    const { url, props } = usePage(); // Destructure props dari usePage()
-
-    const { auth } = props; // Ambil object auth dari props. auth.user akan ada jika sudah login.
+    const { url, props } = usePage(); // Ambil props dari usePage()
+    const { auth } = props;
 
     const toggleMenu = () => setIsOpen(!isOpen);
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -29,18 +28,18 @@ export default function AppHeader() {
         { label: 'Home', href: '/' },
         { label: 'About', href: '/about' },
         { label: 'Berita', href: '/berita' },
+        { label: 'Dokumentasi', href: '/gallery' },
+        { label: 'Contact', href: '/contact' },
     ];
 
     const isActive = (href: string) => url === href || (href !== '/' && url.startsWith(href));
 
-    // Fungsi untuk mendapatkan inisial dari nama
-    const getUserInitials = (name) => {
+    const getUserInitials = (name: string) => {
         if (!name) return '';
-        const parts = name.split(' ').filter((part) => part.length > 0); // Filter bagian kosong
+        const parts = name.split(' ').filter((part) => part.length > 0);
         if (parts.length === 1) {
-            return parts[0].substring(0, 2).toUpperCase(); // Ambil 2 huruf pertama jika hanya 1 kata
+            return parts[0].substring(0, 2).toUpperCase();
         }
-        // Ambil huruf pertama dari dua kata pertama
         return (parts[0][0] + parts[1][0]).toUpperCase();
     };
 
@@ -86,16 +85,13 @@ export default function AppHeader() {
 
                         {/* DESKTOP ACTIONS */}
                         <div className="hidden items-center gap-4 lg:flex">
-                            {auth.user ? ( // Kondisional rendering: Jika user login
+                            {auth.user ? (
                                 <Link href={route('dashboard')}>
-                                    {' '}
-                                    {/* Arahkan ke dashboard atau profile */}
                                     <Button className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 p-0 text-base font-semibold text-white transition hover:bg-red-700">
                                         {userInitials}
                                     </Button>
                                 </Link>
                             ) : (
-                                // Jika user belum login
                                 <Link href="/login">
                                     <Button className="bg-red-600 font-semibold text-white transition hover:bg-red-700">LOGIN</Button>
                                 </Link>
@@ -110,7 +106,7 @@ export default function AppHeader() {
                             <Button onClick={toggleMenu} variant="ghost" size="icon" className="text-white" aria-label="Toggle menu">
                                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                             </Button>
-                            {auth.user ? ( // Kondisional rendering untuk mobile juga
+                            {auth.user ? (
                                 <Link href={route('dashboard')}>
                                     <Button className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600 p-0 text-sm font-semibold text-white transition hover:bg-red-700">
                                         {userInitials}
@@ -157,12 +153,10 @@ export default function AppHeader() {
                             ))}
                         </nav>
 
-                        {/* Tombol Login/Inisial di menu mobile (opsional, bisa juga dihilangkan jika sudah di header) */}
                         <div className="mt-6">
                             {auth.user ? (
                                 <Link href={route('dashboard')}>
-                                    <Button className="w-full bg-red-600 font-semibold text-white hover:bg-red-700">Dashboard</Button>{' '}
-                                    {/* Atau Profile */}
+                                    <Button className="w-full bg-red-600 font-semibold text-white hover:bg-red-700">Dashboard</Button>
                                 </Link>
                             ) : (
                                 <Link href="/login">
@@ -175,7 +169,9 @@ export default function AppHeader() {
             </AnimatePresence>
 
             {/* SIDEBAR */}
-            <AnimatePresence>{sidebarOpen && <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}</AnimatePresence>
+            <AnimatePresence>
+                {sidebarOpen && <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
+            </AnimatePresence>
         </>
     );
 }
