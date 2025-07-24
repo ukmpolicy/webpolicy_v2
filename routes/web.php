@@ -9,6 +9,7 @@ use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PeriodsController;
+use App\Http\Controllers\PublicGalleryController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
@@ -17,11 +18,38 @@ use App\Http\Controllers\StructureMemberController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VissionController;
 use App\Http\Controllers\MissionController;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [HomePageController::class, 'index'])->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| Halaman Publik
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [HomePageController::class, 'index'])->name('home');
+
+Route::get('/about', function () {
+    return Inertia::render('homepage/about/index');
+})->name('about');
+
+// --- PERBAIKAN: Gunakan controller untuk route ini ---
+Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('public.gallery');
+Route::get('/gallery/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.gallery.album.show');
+
+Route::get('/contact', function () {
+    return Inertia::render('homepage/contact/index');
+})->name('contact');
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Halaman Admin (Butuh Login)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -111,9 +139,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
     //about
-    Route::get('/about', function () {
+Route::get('/about', function () {
     return Inertia::render('homepage/about/index');
-
 });
 
 require __DIR__ . '/settings.php';

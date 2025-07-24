@@ -10,7 +10,7 @@ export default function AppHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { url } = usePage(); 
+  const { url } = usePage();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -23,9 +23,12 @@ export default function AppHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // --- PERUBAHAN: Sesuaikan href untuk Dokumentasi ---
   const navItems = [
     { label: 'Home', href: '/' },
     { label: 'About', href: '/about' },
+    { label: 'Dokumentasi', href: '/gallery' }, // <-- Diubah dari /documentation menjadi /gallery
+    { label: 'Contact', href: '/contact' },
   ];
 
   const isActive = (href: string) =>
