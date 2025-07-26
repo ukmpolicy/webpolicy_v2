@@ -10,8 +10,10 @@ export default function AppHeader() {
     const [isOpen, setIsOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    const { url, props } = usePage(); // Ambil props dari usePage
-    const { auth } = props;
+    const { url, props } = usePage(); // Destructure props dari usePage()
+>>>>>>>>> Temporary merge branch 2
+
+    const { auth } = props; // Ambil object auth dari props. auth.user akan ada jika sudah login.
 
     const toggleMenu = () => setIsOpen(!isOpen);
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -34,6 +36,7 @@ export default function AppHeader() {
 
     const isActive = (href: string) => url === href || (href !== '/' && url.startsWith(href));
 
+    // Fungsi untuk mendapatkan inisial dari nama
     const getUserInitials = (name) => {
         if (!name) return '';
         const parts = name.split(' ').filter((part) => part.length > 0);
@@ -163,6 +166,7 @@ export default function AppHeader() {
                 )}
             </AnimatePresence>
 
+            {/* SIDEBAR */}
             <AnimatePresence>{sidebarOpen && <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}</AnimatePresence>
         </>
     );

@@ -27,15 +27,17 @@ class HomePageController extends Controller
 
         // Jika tidak ada period_id dikirim, gunakan periode aktif atau terbaru
         if (!$periodId) {
-            $latestPeriod = Period::latest('id')->first(); // Sesuaikan dengan field yang menandakan 'terbaru'
-            $periodId = $latestPeriod?->id;
+<<<<<<<<< Temporary merge branch 1
+            $periodId = Period::where('is_active', 1)->first()?->id ??
+                Period::latest()->first()?->id;
+=========
+            $periodId = \App\Models\Period::where('name', '2024-2025')->first()?->id ?? \App\Models\Period::latest()->first()?->id;
+>>>>>>>>> Temporary merge branch 2
         }
-
-        // Ambil divisi berdasarkan periode
-        $divisions = $this->divisionService->getAllDivisions($periodId);
 
         // Ambil anggota struktural berdasarkan period ID
         $structureMembersRaw = $this->structureMemberService->getMembersByPeriod($periodId);
+<<<<<<<<< Temporary merge branch 1
 
         // Format ulang data anggota struktural
         $structureMembers = $structureMembersRaw->map(function ($member) {
@@ -43,6 +45,24 @@ class HomePageController extends Controller
                 'id' => $member->id,
                 'name' => $member->name,
                 'position' => $member->structure->name ?? '-',
+                // 'department' => $member->department ?? '-',
+                // 'study_program' => $member->study_program ?? '-',
+                'picture' => $member->picture
+                    ? asset('storage/' . $member->picture)
+                    : null,
+            ];
+        });
+=========
+>>>>>>>>> Temporary merge branch 2
+
+        // Format ulang data anggota struktural
+        $structureMembers = $structureMembersRaw->map(function ($member) {
+            return [
+                'id' => $member->id,
+                'name' => $member->name,
+                'position' => $member->structure->name ?? '-',
+                // 'department' => $member->department ?? '-',
+                // 'study_program' => $member->study_program ?? '-',
                 'picture' => $member->picture ? asset('storage/' . $member->picture) : null,
             ];
         });

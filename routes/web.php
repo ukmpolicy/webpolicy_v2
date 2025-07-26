@@ -25,9 +25,10 @@ use Inertia\Inertia;
 
 // Home page route
 
-// home page
+// Beranda
 Route::get('/', [HomePageController::class, 'index'])->name('home');
 
+<<<<<<<<< Temporary merge branch 1
 /*
 |--------------------------------------------------------------------------
 | Halaman Publik
@@ -39,23 +40,39 @@ Route::get('/about', function () {
     return Inertia::render('homepage/about/index');
 })->name('about');
 
-// --- PERBAIKAN: Gunakan controller untuk route ini ---
+// Berita (Blog)
+Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
+Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
+
+// Galeri
 Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('public.gallery');
 Route::get('/gallery/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.gallery.album.show');
 
+// Kontak
 Route::get('/contact', function () {
     return Inertia::render('homepage/contact/index');
 })->name('contact');
 
-Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
-Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
+
 
 /*
 |--------------------------------------------------------------------------
 | Halaman Admin (Butuh Login)
 |--------------------------------------------------------------------------
 */
+=========
+//about page
+Route::get('/about', function () {
+    return Inertia::render('homepage/about/index');
+});
 
+// blog page
+Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
+Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
+
+
+
+>>>>>>>>> Temporary merge branch 2
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -144,7 +161,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware(['permission:structure-members']);
 });
 
+<<<<<<<<< Temporary merge branch 1
+    //about
+Route::get('/about', function () {
+    return Inertia::render('homepage/about/index');
+});
+=========
 
+>>>>>>>>> Temporary merge branch 2
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
