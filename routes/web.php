@@ -10,6 +10,7 @@ use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PeriodsController;
+use App\Http\Controllers\PublicGalleryController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\StructureMemberController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VissionController;
 use App\Http\Controllers\MissionController;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,16 +28,33 @@ use Inertia\Inertia;
 // home page
 Route::get('/', [HomePageController::class, 'index'])->name('home');
 
-//about page
+/*
+|--------------------------------------------------------------------------
+| Halaman Publik
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [HomePageController::class, 'index'])->name('home');
+
 Route::get('/about', function () {
     return Inertia::render('homepage/about/index');
-});
+})->name('about');
 
-// blog page
+// --- PERBAIKAN: Gunakan controller untuk route ini ---
+Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('public.gallery');
+Route::get('/gallery/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.gallery.album.show');
+
+Route::get('/contact', function () {
+    return Inertia::render('homepage/contact/index');
+})->name('contact');
+
 Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
 Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
 
-
+/*
+|--------------------------------------------------------------------------
+| Halaman Admin (Butuh Login)
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {

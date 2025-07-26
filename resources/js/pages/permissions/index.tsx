@@ -25,7 +25,7 @@ export default function Permission() {
             <Head title="Permission" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-xl font-bold">Permission List</h1>
+                    <h1 className="text-xl font-bold">Daftar Permission</h1>
                     <Button onClick={() => {
                             setEditData(null);
                             setOpen(true);

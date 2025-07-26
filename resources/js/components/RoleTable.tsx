@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useReactTable, getCoreRowModel, flexRender, ColumnDef, getFilteredRowModel, getPaginationRowModel } from '@tanstack/react-table';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './ui/table';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './ui/select';
@@ -16,10 +16,11 @@ import {
     PaginationNext,
     PaginationEllipsis,
 } from './ui/pagination';
-import { Inertia } from '@inertiajs/inertia';
+import { router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import React from 'react';
 
+// Tipe data disesuaikan dengan skema final (tanpa key)
 type Role = {
     id: number;
     name: string;
@@ -47,56 +48,52 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
 
     const columns: ColumnDef<Role>[] = [
         {
-            accessorKey: 'id',
+            id: 'rowNumber',
             header: '#',
-            cell: info => info.getValue(),
+            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
         },
         {
             accessorKey: 'name',
             header: 'Nama Role',
-            cell: info => info.getValue(),
         },
         {
             accessorKey: 'created_at',
-            header: () => (
-                <span className="flex items-center gap-1">
-                    <CalendarDays className="w-4 h-4" /> Dibuat
-                </span>
-            ),
+            header: 'Dibuat',
             cell: info => new Date(info.getValue() as string).toLocaleDateString('id-ID'),
         },
         {
             id: 'actions',
-            header: 'Aksi',
+            header: () => <div className="text-center">Aksi</div>,
             cell: ({ row }) => (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" aria-label="Aksi">
-                            <Ellipsis className="w-4 h-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
-                            <Pencil className="w-4 h-4 mr-2" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onManagePermissions?.(row.original)}>
-                            <Tag className="w-4 h-4 mr-2" /> Manage Permissions
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={() => onManageUsers?.(row.original)}
-                            disabled={!canManageUsers}
-                            style={{ display: canManageUsers ? undefined : "none" }}
-                        >
-                            <User className="w-4 h-4 mr-2" /> Manage Users
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            variant="destructive"
-                            onClick={() => setDeleteId(row.original.id)}
-                        >
-                            <Trash2 className="w-4 h-4 mr-2" /> Hapus
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="text-center">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" aria-label="Aksi">
+                                <Ellipsis className="w-4 h-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
+                                <Pencil className="w-4 h-4 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onManagePermissions?.(row.original)}>
+                                <Tag className="w-4 h-4 mr-2" /> Manage Permissions
+                            </DropdownMenuItem>
+                            {canManageUsers && (
+                                <DropdownMenuItem onClick={() => onManageUsers?.(row.original)}>
+                                    <User className="w-4 h-4 mr-2" /> Manage Users
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => setDeleteId(row.original.id)}
+                            >
+                                <Trash2 className="w-4 h-4 mr-2" /> Hapus
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             ),
         },
     ];
@@ -139,16 +136,17 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
     }
 
     return (
-        <>
+        // --- PERUBAHAN: Ganti 'shadow-sm' menjadi 'shadow-lg' untuk efek yang lebih kuat ---
+        <div className="bg-white dark:bg-zinc-900/50 p-4 sm:p-6 rounded-xl border-4 shadow-lg">
             {/* Filter & Search */}
             <div className="flex flex-wrap gap-2 mb-4 items-center">
-                <div className="relative w-48">
+                <div className="relative w-full sm:w-48">
                     <Input
                         type="search"
                         placeholder="Cari role..."
                         value={globalFilter}
                         onChange={e => setGlobalFilter(e.target.value)}
-                        className="pl-9"
+                        className="pl-9 border-2 shadow-lg focus:border-secondary focus:ring-0 focus:shadow-lg transition-all duration-200"
                     />
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -156,115 +154,97 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                     value={String(pageSize)}
                     onValueChange={v => setPageSize(Number(v))}
                 >
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32 border-2 shadow-md">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         {[5, 10, 20, 50].map(size => (
                             <SelectItem key={size} value={String(size)}>
-                                <List className="w-4 h-4 mr-2 inline" />{size}
+                                <List className="w-4 h-4 mr-2 inline focus:border-secondary focus:ring-0 focus:shadow-lg transition-all duration-200" />{size} Data
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
             </div>
-            {/* Table */}
-            <Table className="border rounded-lg overflow-hidden divide-y divide-muted">
-                <TableHeader>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <TableRow key={headerGroup.id} className="bg-muted dark:bg-zinc-900">
-                            {headerGroup.headers.map(header => (
-                                <TableHead key={header.id} className="font-bold">
-                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="text-center">
-                                Tidak ada data.
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        table.getRowModel().rows.map((row, idx) => (
-                            <TableRow
-                                key={row.id}
-                                className={
-                                    idx % 2 === 0
-                                        ? "bg-white dark:bg-zinc-900"
-                                        : "bg-gray-50 dark:bg-zinc-800"
-                                }
-                            >
-                                {row.getVisibleCells().map(cell => (
-                                    <TableCell
-                                        key={cell.id}
-                                        className="border-l border-r dark:border-zinc-800 dark:text-zinc-100"
-                                    >
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </TableCell>
+
+            {/* Table Container */}
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map(headerGroup => (
+                            <TableRow key={headerGroup.id} className="bg-muted/50 hover:bg-muted/80">
+                                {headerGroup.headers.map(header => (
+                                    <TableHead key={header.id}>
+                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                    </TableHead>
                                 ))}
                             </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="text-center h-24">
+                                    Tidak ada data.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                                    {row.getVisibleCells().map(cell => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
             {/* Pagination */}
-            <Pagination className="mt-4">
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious
-                            onClick={e => {
-                                e.preventDefault();
-                                if (currentPage > 0) table.previousPage();
-                            }}
-                            href="#"
-                            aria-disabled={currentPage === 0}
-                        />
-                    </PaginationItem>
-                    {(() => {
-                        const range = getPaginationRange(currentPage, pageCount);
-                        let last = -1;
-                        return range.map((i) => {
-                            const showEllipsis = last !== -1 && i - last > 1;
-                            last = i;
-                            return (
-                                <React.Fragment key={i}>
-                                    {showEllipsis && (
-                                        <PaginationItem>
-                                            <PaginationEllipsis />
-                                        </PaginationItem>
-                                    )}
+            <div className="flex items-center justify-end space-x-2 py-4">
+                 <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                onClick={e => { e.preventDefault(); table.previousPage(); }}
+                                href="#"
+                                aria-disabled={!table.getCanPreviousPage()}
+                                className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
+                            />
+                        </PaginationItem>
+                        {getPaginationRange(currentPage, pageCount).map((i, idx, arr) => (
+                            <React.Fragment key={i}>
+                                {idx > 0 && arr[idx-1] !== i-1 && (
                                     <PaginationItem>
-                                        <PaginationLink
-                                            isActive={i === currentPage}
-                                            onClick={e => {
-                                                e.preventDefault();
-                                                table.setPageIndex(i);
-                                            }}
-                                            href="#"
-                                        >
-                                            {i + 1}
-                                        </PaginationLink>
+                                        <PaginationEllipsis />
                                     </PaginationItem>
-                                </React.Fragment>
-                            );
-                        });
-                    })()}
-                    <PaginationItem>
-                        <PaginationNext
-                            onClick={e => {
-                                e.preventDefault();
-                                if (currentPage < pageCount - 1) table.nextPage();
-                            }}
-                            href="#"
-                            aria-disabled={currentPage === pageCount - 1}
-                        />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
+                                )}
+                                <PaginationItem>
+                                    <PaginationLink
+                                        isActive={i === currentPage}
+                                        onClick={e => { e.preventDefault(); table.setPageIndex(i); }}
+                                        href="#"
+                                    >
+                                        {i + 1}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            </React.Fragment>
+                        ))}
+                        <PaginationItem>
+                            <PaginationNext
+                                onClick={e => { e.preventDefault(); table.nextPage(); }}
+                                href="#"
+                                aria-disabled={!table.getCanNextPage()}
+                                className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            </div>
+
             {/* AlertDialog for delete */}
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
@@ -279,9 +259,10 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
-                                    Inertia.delete(`/roles/${deleteId}`, {
+                                    router.delete(`/roles/${deleteId}`, {
                                         onSuccess: () => toast.success('Role berhasil dihapus!'),
-                                        onError: () => toast.error('Gagal menghapus role.'),
+                                        onError: (errors: any) => toast.error(errors.general || 'Gagal menghapus role.'),
+                                        preserveScroll: true,
                                     });
                                     setDeleteId(null);
                                 }
@@ -292,6 +273,6 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </>
+        </div>
     );
 }

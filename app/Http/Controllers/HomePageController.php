@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Services\DivisionService;
 use App\Services\StructureMemberService;
 use Illuminate\Http\Request;
+use App\Models\Period;
 use Inertia\Inertia;
+use App\Models\Vission;
+use App\Models\Mission;
 
 class HomePageController extends Controller
 {
@@ -22,13 +25,14 @@ class HomePageController extends Controller
     {
         $periodId = $request->query('period_id');
 
-        // Ambil divisi berdasarkan periode (jika diperlukan)
-        $divisions = $this->divisionService->getAllDivisions($periodId);
-
-        // Ambil periode default (jika tidak disediakan)
+        // Jika tidak ada period_id dikirim, gunakan periode aktif atau terbaru
         if (!$periodId) {
-            $periodId = \App\Models\Period::where('name', '2024-2025')->first()?->id ?? \App\Models\Period::latest()->first()?->id;
+            $latestPeriod = Period::latest('id')->first(); // Sesuaikan dengan field yang menandakan 'terbaru'
+            $periodId = $latestPeriod?->id;
         }
+
+        // Ambil divisi berdasarkan periode
+        $divisions = $this->divisionService->getAllDivisions($periodId);
 
         // Ambil anggota struktural berdasarkan period ID
         $structureMembersRaw = $this->structureMemberService->getMembersByPeriod($periodId);
@@ -39,15 +43,19 @@ class HomePageController extends Controller
                 'id' => $member->id,
                 'name' => $member->name,
                 'position' => $member->structure->name ?? '-',
-                // 'department' => $member->department ?? '-',
-                // 'study_program' => $member->study_program ?? '-',
                 'picture' => $member->picture ? asset('storage/' . $member->picture) : null,
             ];
         });
 
+        // Ambil visi dan misi berdasarkan period_id
+        $visi = Vission::where('period_id', $periodId)->pluck('content')->first() ?? '';
+        $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
+
         return Inertia::render('homepage/home/index', [
             'divisions' => $divisions,
             'structureMembers' => $structureMembers,
+            'visi' => $visi,
+            'misi' => $misi,
         ]);
     }
 }

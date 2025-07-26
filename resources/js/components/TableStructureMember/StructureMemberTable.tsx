@@ -185,37 +185,6 @@ const handlePeriodChange = (value) => {
           <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         </div>
 
-        <Select value={String(selectedPeriodId || '')} onValueChange={handlePeriodChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Pilih Periode" />
-          </SelectTrigger>
-          <SelectContent>
-            {periods.map((period) => (
-              <SelectItem key={period.id} value={String(period.id)}>
-                {period.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-      <Select
-        value={String(selectedStructureId || '')}
-        onValueChange={handleStructureChange}
-        disabled={structures.length === 0}
-      >
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder={structures.length === 0 ? "Pilih Periode terlebih dahulu" : "Pilih Struktur"} />
-        </SelectTrigger>
-        <SelectContent>
-          {structures.map((structure) => (
-            <SelectItem key={structure.id} value={String(structure.id)}>
-              {structure.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-
         <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
           <SelectTrigger className="w-32">
             <SelectValue />
