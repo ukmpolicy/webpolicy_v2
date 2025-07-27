@@ -6,7 +6,7 @@ import React from 'react';
 const AppLoading: React.FC = () => {
     return (
         <>
-            <Head title="Home - UKM POLICY" />
+            <Head title="UKM POLICY - KBMPNL" />
             <motion.div
                 className="fixed inset-0 z-50 flex items-center justify-center bg-black"
                 initial={{ opacity: 0 }}

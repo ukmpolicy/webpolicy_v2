@@ -40,7 +40,7 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
 
     return (
         <>
-            <Head title="Home - UKM POLICY" />
+            <Head title="UKM POLICY - KBMPNL" />
             <AppHeader />
             <main className="bg-black pt-18">
                 <AppHero />

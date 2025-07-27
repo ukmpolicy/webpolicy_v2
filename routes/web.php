@@ -23,19 +23,16 @@ use App\Http\Controllers\MissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Home page route
-
-// Beranda
-Route::get('/', [HomePageController::class, 'index'])->name('home');
-
-<<<<<<<<< Temporary merge branch 1
 /*
 |--------------------------------------------------------------------------
 | Halaman Publik
 |--------------------------------------------------------------------------
 */
+
+// Home page route (Beranda)
 Route::get('/', [HomePageController::class, 'index'])->name('home');
 
+// About
 Route::get('/about', function () {
     return Inertia::render('homepage/about/index');
 })->name('about');
@@ -54,25 +51,12 @@ Route::get('/contact', function () {
 })->name('contact');
 
 
-
 /*
 |--------------------------------------------------------------------------
 | Halaman Admin (Butuh Login)
 |--------------------------------------------------------------------------
 */
-=========
-//about page
-Route::get('/about', function () {
-    return Inertia::render('homepage/about/index');
-});
 
-// blog page
-Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
-Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
-
-
-
->>>>>>>>> Temporary merge branch 2
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -86,14 +70,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('roles.permissions.update')
         ->middleware(['permission:roles']);
 
-    // --- TAMBAHKAN DUA ROUTE INI ---
+    // Invite/Remove User from Role
     Route::post('/roles/{role}/invite-user', [RoleController::class, 'inviteUser'])
         ->name('roles.inviteUser')
         ->middleware(['permission:roles']);
     Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])
         ->name('roles.removeUser')
         ->middleware(['permission:roles']);
-    // --- AKHIR TAMBAHAN ---
 
     // Permissions management
     Route::resource('permissions', PermissionController::class)->middleware(['permission:permissions']);
@@ -101,8 +84,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Periods Management
     Route::resource('periods', PeriodsController::class)->middleware(['permission:periods']);
 
-    // --- TAMBAHAN BARU: Route untuk Visi & Misi ---
-    // Middleware 'permission:periods' digunakan karena mengelola Visi/Misi adalah bagian dari mengelola Periode.
+    // Visi & Misi Management (nested under periods permission)
     Route::middleware(['permission:periods'])->group(function () {
         // Vission Management
         Route::post('/periods/{period}/vissions', [VissionController::class, 'store'])->name('vissions.store');
@@ -114,7 +96,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/missions/{mission}', [MissionController::class, 'update'])->name('missions.update');
         Route::delete('/missions/{mission}', [MissionController::class, 'destroy'])->name('missions.destroy');
     });
-    // --- AKHIR TAMBAHAN BARU ---
 
     // Member management
     Route::resource('members', MemberController::class)->middleware(['permission:members']);
@@ -134,14 +115,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('gallery-media.move')
         ->middleware(['permission:gallery-media']);
 
-    // Management Articel
+    // Management Article
     Route::resource('category-articles', CategoryArticleController::class)->middleware(['permission:gallery-media']);
-    Route::resource('articles', ArticleController::class)->middleware(['permission:gallery-media']);
+    Route::resource('articles', ArticleController::class)->middleware(['permission:articles']);
     // ROUTE BARU UNTUK UPLOAD GAMBAR EDITOR
     // Penting: Tambahkan middleware permission yang sama seperti resource articles
     Route::post('/articles/upload-image', [ArticleController::class, 'uploadImage'])
         ->name('articles.uploadImage')
-        ->middleware(['permission:gallery-media']);
+        ->middleware(['permission:articles']);
 
     // Structure Management
     Route::get('/structures/next-level', [StructureController::class, 'getNextLevel'])->middleware(['permission:structures']);
@@ -160,15 +141,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware(['permission:structure-members']);
 });
-
-<<<<<<<<< Temporary merge branch 1
-    //about
-Route::get('/about', function () {
-    return Inertia::render('homepage/about/index');
-});
-=========
-
->>>>>>>>> Temporary merge branch 2
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -19,7 +19,7 @@ const AboutPage: React.FC = () => {
     if (isLoading) return <AppLoading />;
     return (
         <>
-            <Head title="About - UKM POLICY" />
+            <Head title="About - UKM POLICY - KBMPNL" />
             <AppHeader />
             <main className="bg-black pt-18 text-white">
                 <SectionLabel />
