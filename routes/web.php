@@ -116,7 +116,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(['permission:gallery-media']);
 
     // Management Article
-    Route::resource('category-articles', CategoryArticleController::class)->middleware(['permission:gallery-media']);
+    Route::resource('category-articles', CategoryArticleController::class)->middleware(['permission:category-articles']);
     Route::resource('articles', ArticleController::class)->middleware(['permission:articles']);
     // ROUTE BARU UNTUK UPLOAD GAMBAR EDITOR
     // Penting: Tambahkan middleware permission yang sama seperti resource articles

@@ -1,6 +1,6 @@
-// src/components/blog/RelatedArticleCard.jsx
+// src/components/blog/RelatedArticleCard.tsx
 import { Link } from '@inertiajs/react';
-import { Calendar, UserRound } from 'lucide-react';
+import { Calendar } from 'lucide-react'; // Import UserRound dihapus
 
 interface Category {
     id: number;
@@ -8,9 +8,8 @@ interface Category {
 }
 
 interface Author {
-    role?: {
-        name?: string;
-    };
+    // Properti role dihapus karena tidak lagi digunakan
+    name?: string;
 }
 
 interface Article {
@@ -28,7 +27,7 @@ export default function RelatedArticleCard({ article }: { article: Article }) {
     }
 
     const getImageUrl: GetImageUrl = (path) => {
-        return path ? `/storage/${path}` : '/images/default-blog-cover.jpg';
+        return path ? `/storage/${path}` : '/images/penguin.png';
     };
 
     return (
@@ -60,16 +59,10 @@ export default function RelatedArticleCard({ article }: { article: Article }) {
                 <h3 className="line-clamp-2 text-base font-semibold text-white transition-colors duration-200 group-hover:text-red-400">
                     {article.title}
                 </h3>
-                {/* Meta Info */}
-                <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                        <UserRound className="h-3 w-3 text-red-400" />
-                        {article.author.role?.name || 'Divisi'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 text-red-400" />
-                        {new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                    </span>
+                {/* Meta Info: Hanya menampilkan tanggal */}
+                <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+                    <Calendar className="h-3 w-3 text-red-400" />
+                    {new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                 </div>
             </div>
         </Link>

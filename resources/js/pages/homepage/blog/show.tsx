@@ -1,6 +1,6 @@
 import { Link, PageProps } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Calendar, ChevronRight, UserRound } from 'lucide-react';
+import { Calendar, ChevronRight } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 // Mengimpor komponen-komponen yang sudah dipecah
@@ -56,7 +56,7 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
     }, []);
 
     const getImageUrl = (path?: string): string => {
-        return path ? `/storage/${path}` : '/images/default-blog-cover.jpg';
+        return path ? `/storage/${path}` : '/images/penguin.png';
     };
 
     const fadeInSlideUp = {
@@ -111,11 +111,20 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                             {article.title}
                         </h1>
                         {/* Meta Info (Divisi & Tanggal) */}
-                        <div className="flex items-center gap-4 text-base text-gray-400">
-                            <span className="flex items-center gap-1.5 font-medium text-gray-300">
-                                <UserRound className="h-4 w-4 text-red-400" />
-                                {article.author.role?.name || 'Divisi Tidak Diketahui'}
-                            </span>
+                        <div className="flex items-center gap-4 text-xs text-gray-400 sm:text-sm md:text-base">
+                            {/* Gabungkan gambar dan nama penulis dalam satu container */}
+                            <div className="flex items-center gap-2 font-medium text-gray-300">
+                                <div className="h-6 w-6 overflow-hidden rounded-full">
+                                    <img
+                                        className="h-full w-full object-cover"
+                                        src={article.author?.picture ? getImageUrl(article.author?.picture) : '/assets/penguin.png'}
+                                        alt="Gambar"
+                                    />
+                                </div>
+                                <span>{article.author.name || 'Nama Tidak Diketahui'}</span>
+                            </div>
+
+                            {/* Tanggal tetap di container terpisah */}
                             <span className="flex items-center gap-1.5 font-medium text-gray-300">
                                 <Calendar className="h-4 w-4 text-red-400" />
                                 {new Date(article.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}

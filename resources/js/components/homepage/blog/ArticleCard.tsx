@@ -34,7 +34,7 @@ interface ArticleCardProps {
 }
 
 const getImageUrl = (path?: string): string => {
-    return path ? `/storage/${path}` : '/images/default-blog-cover.jpg';
+    return path ? `/storage/${path}` : '/images/penguin.png';
 };
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
