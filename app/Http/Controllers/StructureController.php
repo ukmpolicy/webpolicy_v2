@@ -117,8 +117,8 @@ class StructureController extends Controller
 
             $level = floatval("{$base}.1");
         } else {
-            $base = floor($existing->first()->level); 
-            $count = $existing->count(); 
+            $base = floor($existing->first()->level);
+            $count = $existing->count();
             $level = floatval("{$base}." . ($count + 1));
         }
 

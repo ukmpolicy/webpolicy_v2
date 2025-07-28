@@ -17,10 +17,23 @@ class MemberController extends Controller
         $this->memberService = $memberService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $members = $this->memberService->getAllMembers();
         $periods = Period::all();
+        $activePeriod = Period::where('is_active', 1)->first();
+
+        $requestedPeriodId = $request->query('period_id');
+
+        $periodIdToFilter = null;
+        if ($requestedPeriodId === 'all') {
+            $periodIdToFilter = null;
+        } elseif ($requestedPeriodId) {
+            $periodIdToFilter = (int) $requestedPeriodId;
+        } else {
+            $periodIdToFilter = $activePeriod?->id;
+        }
+
+        $members = $this->memberService->getAllMembers($periodIdToFilter);
 
         $departments = ['Teknologi Informasi dan Komputer', 'Bisnis', 'Teknik Elektro', 'Teknik Mesin', 'Teknik Sipil', 'Teknik Kimia'];
 
@@ -28,9 +41,10 @@ class MemberController extends Controller
             'members' => $members,
             'periods' => $periods,
             'departments' => $departments,
+            'activePeriodId' => $periodIdToFilter,
+            'activePeriod' => $activePeriod,
         ]);
     }
-
 
     public function store(Request $request)
     {
@@ -63,10 +77,7 @@ class MemberController extends Controller
 
     public function update(Request $request, $id)
     {
-
         try {
-
-
             $validated = $request->validate([
                 'period_id' => 'required|exists:periods,id',
                 'picture' => 'nullable|image|max:2048',
@@ -97,7 +108,6 @@ class MemberController extends Controller
                 ->withInput();
         }
     }
-
 
     public function destroy($id)
     {

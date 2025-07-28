@@ -13,9 +13,9 @@ class MemberService
         $this->memberRepository = $memberRepository;
     }
 
-    public function getAllMembers()
+    public function getAllMembers(?int $periodId = null)
     {
-        return $this->memberRepository->getAll();
+        return $this->memberRepository->getAll($periodId);
     }
 
     public function getMember($id)

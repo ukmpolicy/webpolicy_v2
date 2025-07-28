@@ -29,42 +29,34 @@ import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-export function MemberTable({ data, onEdit, onView }) {
+export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
+    console.log('Data yang diterima:');
+    console.log('Periods:', periods);
+    console.log('Active Period ID:', activePeriodId);
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
-    // Perbaikan extract period options
+    const [columnFilters, setColumnFilters] = useState([]);
+
     const periodOptions = useMemo(() => {
-        if (!data) return [];
-
-        // Pastikan kita handle case dimana period mungkin null/undefined
-        const periods = data.map((member) => member.period?.name).filter((name) => name !== undefined && name !== null);
-
-        return ['__all__', ...new Set(periods)];
-    }, [data]);
-
-    // Fixed year options extraction
-    const yearOptions = useMemo(() => {
-        const years = data?.map((m) => m.joined_college_on).filter((year) => year) || [];
-        return [...new Set(years)];
-    }, [data]);
+        return ['all', ...periods.map((p) => p.name)];
+    }, [periods]);
 
     React.useEffect(() => {
         setPageIndex(0);
-    }, [globalFilter, columnFilters]);
+    }, [globalFilter, activePeriodId]);
 
     const columns: ColumnDef<any>[] = [
         {
             id: 'no',
             header: '#',
-            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
+            cell: () => null,
         },
         {
             accessorKey: 'name',
-            header: 'Nama Anggota',
+            header: 'Nama',
         },
         {
             accessorKey: 'nim',
@@ -75,37 +67,13 @@ export function MemberTable({ data, onEdit, onView }) {
             header: 'Email',
         },
         {
-            accessorKey: 'department',
-            header: 'Jurusan',
-        },
-        {
-            accessorKey: 'study_program',
-            header: 'Prodi',
-        },
-        {
             accessorKey: 'period',
             header: 'Periode',
             cell: ({ row }) => row.original.period?.name || '-',
-            filterFn: (row, _, filterValue) => {
-                // Handle case ketika period null
-                const periodName = row.original.period?.name;
-
-                if (filterValue === '__all__' || !filterValue) {
-                    return true;
-                }
-
-                return periodName === filterValue;
-            },
         },
         {
             accessorKey: 'joined_college_on',
             header: 'Tahun Masuk',
-
-            // Filter Tahun Masuk
-            // filterFn: (row, columnId, filterValue) => {
-            //     if (!filterValue || filterValue === '__all__') return true;
-            //     return row.getValue(columnId) === filterValue;
-            // },
         },
         {
             id: 'actions',
@@ -186,51 +154,30 @@ export function MemberTable({ data, onEdit, onView }) {
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
 
-                {/* Period Filter */}
                 <Select
-                    value={(table.getColumn('period')?.getFilterValue() as string) || '__all__'}
+                    value={activePeriodId ? activePeriodId.toString() : 'all'}
                     onValueChange={(value) => {
-                        table.getColumn('period')?.setFilterValue(value === '__all__' ? undefined : value);
+                        Inertia.get('/members', {
+                            period_id: value,
+                        });
                     }}
                 >
                     <SelectTrigger className="w-40">
                         <SelectValue placeholder="Semua Periode" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="__all__">
+                        <SelectItem value="all">
                             <Layers className="mr-2 inline h-4 w-4" /> Semua Periode
                         </SelectItem>
-                        {periodOptions
-                            .filter((opt) => opt !== '__all__')
-                            .map((periodName) => (
-                                <SelectItem key={periodName} value={periodName}>
-                                    <Tag className="mr-2 inline h-4 w-4" />
-                                    {periodName}
-                                </SelectItem>
-                            ))}
-                    </SelectContent>
-                </Select>
-
-                {/* Filter Semua Tahun */}
-                {/* <Select
-                    value={(table.getColumn('joined_college_on')?.getFilterValue() as string) || '__all__'}
-                    onValueChange={(value) => table.getColumn('joined_college_on')?.setFilterValue(value === '__all__' ? undefined : value)}
-                >
-                    <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Tahun Masuk" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="__all__">
-                            <CalendarDays className="mr-2 inline h-4 w-4" /> Semua Tahun
-                        </SelectItem>
-                        {yearOptions.map((year) => (
-                            <SelectItem key={year} value={year}>
-                                <CalendarDays className="mr-2 inline h-4 w-4" />
-                                {year}
+                        {periods.map((period) => (
+                            <SelectItem key={period.id} value={period.id.toString()}>
+                                <Tag className="mr-2 inline h-4 w-4" />
+                                {period.name}
                             </SelectItem>
                         ))}
                     </SelectContent>
-                </Select> */}
+                </Select>
+
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
                         <SelectValue />
@@ -268,11 +215,17 @@ export function MemberTable({ data, onEdit, onView }) {
                     ) : (
                         table.getRowModel().rows.map((row, idx) => (
                             <TableRow key={row.id} className={idx % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-800'}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </TableCell>
-                                ))}
+                                <TableCell className="border-r border-l font-medium dark:border-zinc-800 dark:text-zinc-100">
+                                    {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + idx + 1}
+                                </TableCell>
+                                {row
+                                    .getVisibleCells()
+                                    .filter((cell) => cell.column.id !== 'no')
+                                    .map((cell) => (
+                                        <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
                             </TableRow>
                         ))
                     )}

@@ -7,7 +7,9 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function MemberIndex() {
-    const { members = [], periods = [], departments = [], activePeriodId = null } = usePage().props;
+    // Tambahkan 'activePeriod' ke destructuring props
+    const { members = [], periods = [], departments = [], activePeriodId = null, activePeriod = null } = usePage().props;
+    console.log('Active Period:', activePeriod);
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
 
@@ -26,8 +28,18 @@ export default function MemberIndex() {
                         <Plus className="m-auto w-4" /> Tambah Member
                     </Button>
                 </div>
+
+                {/* Tambahkan blok periode aktif di sini */}
+                {activePeriod && (
+                    <div className="font-semibold text-green-600">
+                        Periode aktif saat ini: <strong>{activePeriod.name}</strong>
+                    </div>
+                )}
+
                 <MemberTable
                     data={members}
+                    periods={periods}
+                    activePeriodId={activePeriodId}
                     onEdit={(member) => {
                         setEditData(member);
                         setOpen(true);

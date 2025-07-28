@@ -90,7 +90,7 @@ export function PeriodFormModal({ open, onClose, initialData }: PeriodFormModalP
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <Label>Nama Periode</Label>
-                        <Input value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="Contoh: 2024-2025" required />
+                        <Input value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="Contoh: 2024/2025" required />
                         <InputError message={errors.name} />
                     </div>
                     <div>

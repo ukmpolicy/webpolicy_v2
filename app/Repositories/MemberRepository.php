@@ -12,9 +12,15 @@ class MemberRepository
     {
         $this->model = new Member();
     }
-    public function getAll()
+    public function getAll(?int $periodId = null)
     {
-        return Member::with(['period'])->get();
+        $query = Member::with(['period']);
+
+        if ($periodId) {
+            $query->where('period_id', $periodId);
+        }
+
+        return $query->get();
     }
 
     public function find($id)
