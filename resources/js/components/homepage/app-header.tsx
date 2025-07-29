@@ -29,7 +29,7 @@ export default function AppHeader() {
     { label: 'Home', href: '/' },
     { label: 'About', href: '/about' },
     { label: 'Dokumentasi', href: '/gallery' }, // <-- Diubah dari /documentation menjadi /gallery
-    { label: 'Contact', href: '/contact' },
+    { label: 'Kontak', href: '/contact' },
   ];
 
   const isActive = (href: string) =>
