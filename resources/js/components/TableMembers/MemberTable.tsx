@@ -1,17 +1,3 @@
-import { Inertia } from '@inertiajs/inertia';
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    useReactTable,
-} from '@tanstack/react-table';
-import { Ellipsis, Pencil, Search, Tag, Trash2 } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
-
 import {
     AlertDialog,
     AlertDialogAction,
@@ -21,10 +7,10 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { Button } from '../ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Input } from '../ui/input';
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
     Pagination,
     PaginationContent,
@@ -33,81 +19,61 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from '../ui/pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+} from '@/components/ui/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Inertia } from '@inertiajs/inertia';
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
+import { Ellipsis, Layers, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
+import * as React from 'react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
-type Member = {
-    id: number;
-    period_id: number;
-    name: string;
-    nim: string;
-    email: string;
-    department: string;
-    study_program: string;
-    joined_college_on: number;
-    graduated_college_on: number | null;
-    born_at: string | null;
-    birth_date_at: string | null;
-    created_at: string;
-    updated_at: string;
-};
-
-interface MemberTableProps {
-    data: Member[];
-    onEdit?: (member: Member) => void;
-}
-
-export function MemberTable({ data, onEdit }: MemberTableProps) {
-    const [deleteId, setDeleteId] = useState<number | null>(null);
+export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
+    console.log('Data yang diterima:');
+    console.log('Periods:', periods);
+    console.log('Active Period ID:', activePeriodId);
+    const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
 
-    useEffect(() => {
+    const [columnFilters, setColumnFilters] = useState([]);
+
+    const periodOptions = useMemo(() => {
+        return ['all', ...periods.map((p) => p.name)];
+    }, [periods]);
+
+    React.useEffect(() => {
         setPageIndex(0);
-    }, [globalFilter, columnFilters]);
+    }, [globalFilter, activePeriodId]);
 
-    // Unique nama untuk filter
-    const nameOptions = useMemo(() => Array.from(new Set(data.map((m) => m.name))), [data]);
-    const nameFilter = (columnFilters.find((f) => f.id === 'name')?.value as string) ?? '';
-
-    // Definisi kolom tabel
-    const columns: ColumnDef<Member>[] = [
+    const columns: ColumnDef<any>[] = [
         {
-            id: 'rowNumber',
+            id: 'no',
             header: '#',
-            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
+            cell: () => null,
         },
         {
             accessorKey: 'name',
-            header: 'Nama Anggota',
-            cell: (info) => info.getValue(),
-            filterFn: (row, columnId, filterValue) => {
-                if (!filterValue || filterValue === '__all__') return true;
-                return row.getValue(columnId) === filterValue;
-            },
+            header: 'Nama',
         },
         {
             accessorKey: 'nim',
             header: 'NIM',
-            cell: (info) => info.getValue(),
         },
         {
             accessorKey: 'email',
             header: 'Email',
-            cell: (info) => info.getValue(),
         },
         {
-            accessorKey: 'department',
-            header: 'Jurusan',
-            cell: (info) => info.getValue(),
+            accessorKey: 'period',
+            header: 'Periode',
+            cell: ({ row }) => row.original.period?.name || '-',
         },
         {
-            accessorKey: 'study_program',
-            header: 'Prodi',
-            cell: (info) => info.getValue(),
+            accessorKey: 'joined_college_on',
+            header: 'Tahun Masuk',
         },
         {
             id: 'actions',
@@ -120,10 +86,13 @@ export function MemberTable({ data, onEdit }: MemberTableProps) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
+                        <DropdownMenuItem onClick={() => onView(row.original)}>
+                            <Tag className="mr-2 h-4 w-4" /> Detail
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(row.original)}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem variant="destructive" onClick={() => setDeleteId(row.original.id)}>
+                        <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Hapus
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -160,10 +129,9 @@ export function MemberTable({ data, onEdit }: MemberTableProps) {
     const pageCount = table.getPageCount();
     const currentPage = table.getState().pagination.pageIndex;
 
-    // Helper untuk menentukan halaman yang ditampilkan
     function getPaginationRange(current: number, total: number) {
         const delta = 2;
-        let range: number[] = [];
+        let range = [];
         for (let i = Math.max(0, current - delta); i <= Math.min(total - 1, current + delta); i++) {
             range.push(i);
         }
@@ -174,44 +142,42 @@ export function MemberTable({ data, onEdit }: MemberTableProps) {
 
     return (
         <>
-            {/* Filter & Search */}
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 <div className="relative w-48">
                     <Input
                         type="search"
-                        placeholder="Cari Anggota..."
+                        placeholder="Cari member..."
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="pl-9"
                     />
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
+
                 <Select
-                    value={nameFilter || '__all__'}
-                    onValueChange={(value) =>
-                        setColumnFilters(
-                            (old) =>
-                                [...old.filter((f) => f.id !== 'name'), value !== '__all__' ? { id: 'name', value } : undefined].filter(
-                                    Boolean,
-                                ) as ColumnFiltersState,
-                        )
-                    }
+                    value={activePeriodId ? activePeriodId.toString() : 'all'}
+                    onValueChange={(value) => {
+                        Inertia.get('/members', {
+                            period_id: value,
+                        });
+                    }}
                 >
                     <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Semua Nama" />
+                        <SelectValue placeholder="Semua Periode" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="__all__">
-                            <Tag className="mr-2 inline h-4 w-4" /> Semua Nama
+                        <SelectItem value="all">
+                            <Layers className="mr-2 inline h-4 w-4" /> Semua Periode
                         </SelectItem>
-                        {nameOptions.map((name) => (
-                            <SelectItem key={name} value={name}>
+                        {periods.map((period) => (
+                            <SelectItem key={period.id} value={period.id.toString()}>
                                 <Tag className="mr-2 inline h-4 w-4" />
-                                {name}
+                                {period.name}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
+
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
                         <SelectValue />
@@ -219,16 +185,14 @@ export function MemberTable({ data, onEdit }: MemberTableProps) {
                     <SelectContent>
                         {[5, 10, 20, 50].map((size) => (
                             <SelectItem key={size} value={String(size)}>
-                                <span className="flex items-center">
-                                    <span className="mr-2">List</span> {size}
-                                </span>
+                                <List className="mr-2 inline h-4 w-4" />
+                                {size}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
             </div>
 
-            {/* Tabel */}
             <Table className="divide-muted divide-y overflow-hidden rounded-lg border">
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -251,18 +215,23 @@ export function MemberTable({ data, onEdit }: MemberTableProps) {
                     ) : (
                         table.getRowModel().rows.map((row, idx) => (
                             <TableRow key={row.id} className={idx % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-800'}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </TableCell>
-                                ))}
+                                <TableCell className="border-r border-l font-medium dark:border-zinc-800 dark:text-zinc-100">
+                                    {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + idx + 1}
+                                </TableCell>
+                                {row
+                                    .getVisibleCells()
+                                    .filter((cell) => cell.column.id !== 'no')
+                                    .map((cell) => (
+                                        <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
                             </TableRow>
                         ))
                     )}
                 </TableBody>
             </Table>
 
-            {/* Pagination */}
             <Pagination className="mt-4">
                 <PaginationContent>
                     <PaginationItem>
@@ -317,13 +286,12 @@ export function MemberTable({ data, onEdit }: MemberTableProps) {
                 </PaginationContent>
             </Pagination>
 
-            {/* Dialog Konfirmasi Hapus */}
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Anggota?</AlertDialogTitle>
+                        <AlertDialogTitle>Hapus Member?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus anggota ini? Tindakan ini tidak dapat dibatalkan.
+                            Apakah Anda yakin ingin menghapus member ini? Tindakan ini tidak dapat dibatalkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -332,8 +300,8 @@ export function MemberTable({ data, onEdit }: MemberTableProps) {
                             onClick={() => {
                                 if (deleteId) {
                                     Inertia.delete(`/members/${deleteId}`, {
-                                        onSuccess: () => toast.success('Anggota berhasil dihapus!'),
-                                        onError: () => toast.error('Gagal menghapus anggota.'),
+                                        onSuccess: () => toast.success('Member berhasil dihapus!'),
+                                        onError: () => toast.error('Gagal menghapus member.'),
                                     });
                                     setDeleteId(null);
                                 }

@@ -27,7 +27,7 @@ class PermissionController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:50',
-            'key' => 'required|string|max:50|unique:permissions,key',
+            'key' => 'required|string|max:50|unique:permissions,key|regex:/^[a-z0-9\-]+$/',
             'description' => 'nullable|string|max:255',
         ]);
         $this->permissionService->createPermission($data);
@@ -38,7 +38,7 @@ class PermissionController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:50',
-            'key' => "required|string|max:50|unique:permissions,key,{$id}",
+            'key' => "required|string|max:50|unique:permissions,key,{$id}|regex:/^[a-z0-9\-]+$/",
             'description' => 'nullable|string|max:255',
         ]);
         $this->permissionService->updatePermission($id, $data);

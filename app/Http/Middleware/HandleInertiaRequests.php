@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\RolePermission;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -39,18 +40,29 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        $permissions = [];
+        $user = $request->user();
+
+        if ($user && $user->role_id) {
+            $permissions = RolePermission::where('role_id', $user->role_id)->join('permissions', 'role_permissions.permission_id', '=', 'permissions.id')->pluck('permissions.key')->toArray();
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'permissions' => $permissions, // Kirim daftar permission
             ],
-            'ziggy' => fn (): array => [
-                ...(new Ziggy)->toArray(),
-                'location' => $request->url(),
-            ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'ziggy' => fn(): array => array_merge(
+                (new Ziggy())->toArray(),
+                ['location' => $request->url()]
+            ),
+            'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'success' => fn() => $request->session()->get('success'),
+            'error' => fn() => $request->session()->get('error'),
+            'csrf_token' => csrf_token(),
         ];
     }
 }
