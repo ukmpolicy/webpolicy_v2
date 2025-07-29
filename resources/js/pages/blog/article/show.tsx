@@ -42,12 +42,13 @@ export default function ArticleShow() {
             breadcrumbs={[
                 { title: 'Blog', href: '#' },
                 { title: 'Artikel', href: '/articles' },
-                { title: article.title, href: `/articles/${article.id}` },
+                { title: 'Detail Artikel', href: '#' },
             ]}
         >
             <Head title="Detail Artikel" />
 
             <div className="flex h-full flex-1 flex-col gap-6 rounded-xl p-4">
+                {/* Header dengan judul halaman dan tombol aksi */}
                 <div className="mb-2 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
                         <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
@@ -58,7 +59,8 @@ export default function ArticleShow() {
                             <p className="text-sm text-gray-500">Detail artikel blog Anda.</p>
                         </div>
                     </div>
-                    <div className="flex gap-2">
+                    {/* Tombol Aksi - Desktop: atas kanan, Mobile: bawah */}
+                    <div className="hidden flex-wrap gap-2 md:order-last md:flex">
                         <Button variant="outline" onClick={() => window.history.back()}>
                             <X className="mr-2 h-4 w-4" />
                             Kembali
@@ -69,10 +71,12 @@ export default function ArticleShow() {
                         </Button>
                     </div>
                 </div>
+
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="space-y-6 lg:col-span-2">
                         <div className="bg-card space-y-6 rounded-lg border p-8 shadow-sm">
-                            <h1 className="mb-2 text-3xl leading-tight font-extrabold text-gray-900 uppercase md:text-4xl lg:text-5xl dark:text-gray-100">
+                            {/* Judul Artikel: Tambahkan break-words untuk responsivitas */}
+                            <h1 className="mb-2 text-3xl leading-tight font-extrabold break-words text-gray-900 uppercase md:text-4xl lg:text-5xl dark:text-gray-100">
                                 {article.title}
                             </h1>
                             {article.categories && article.categories.length > 0 && (
@@ -116,8 +120,9 @@ export default function ArticleShow() {
                                     />
                                 </div>
                             )}
-                            <div className="prose prose-lg dark:prose-invert prose-headings:text-gray-900 prose-headings:dark:text-gray-100 prose-p:text-gray-700 prose-p:dark:text-gray-300 prose-a:text-blue-600 prose-a:dark:dark:text-blue-400 prose-strong:text-gray-900 prose-strong:dark:text-gray-100 max-w-none">
-                                <TuiViewer content={article.content} /> {/* Menggunakan TuiViewer di sini */}
+                            {/* KONTEN UTAMA ARTIKEL: Kini hanya perlu kelas prose dan max-w-none */}
+                            <div className="prose prose-lg max-w-none">
+                                <TuiViewer content={article.content} />
                             </div>
                         </div>
 
@@ -157,6 +162,17 @@ export default function ArticleShow() {
                             </div>
                         </div>
                     </div>
+                </div>
+                {/* Tombol Aksi untuk Mobile (muncul di bawah, sembunyi di desktop) */}
+                <div className="mt-8 flex justify-end gap-3 rounded-lg border p-4 shadow-md md:hidden">
+                    <Button variant="outline" onClick={() => window.history.back()}>
+                        <X className="mr-2 h-4 w-4" />
+                        Kembali
+                    </Button>
+                    <Button onClick={() => Inertia.visit(`/articles/${article.id}/edit`)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Artikel
+                    </Button>
                 </div>
                 <div className="mt-8 border-t pt-6 text-center text-sm text-gray-500">
                     Artikel ini dipublikasikan pada {formatDate(article.created_at)}
