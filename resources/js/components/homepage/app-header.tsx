@@ -5,6 +5,7 @@ import { Menu, X, LayoutGrid } from 'lucide-react';
 import AppLogoHome from './app-logo';
 import AppSidebar from './app-sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function AppHeader() {
   const [isOpen, setIsOpen] = useState(false);

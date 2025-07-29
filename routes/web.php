@@ -3,6 +3,7 @@
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategoryArticleController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DivisionPlansController;
 use App\Http\Controllers\HomePageController;
@@ -42,7 +43,7 @@ Route::get('/gallery/albums/{album}', [PublicGalleryController::class, 'show'])-
 Route::get('/contact', function () {
     return Inertia::render('homepage/contact/index');
 })->name('contact');
-
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 
 /*

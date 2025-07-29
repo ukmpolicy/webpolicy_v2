@@ -1,5 +1,7 @@
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from "lucide-react";
 import logo from "@/assets/images/favicon.png";
+import { toast } from 'sonner';
+
 
 export default function AppFooter() {
   return (
