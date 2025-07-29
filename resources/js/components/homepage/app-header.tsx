@@ -5,6 +5,8 @@ import { LayoutGrid, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import AppLogoHome from './app-logo';
 import AppSidebar from './app-sidebar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function AppHeader() {
     const [isOpen, setIsOpen] = useState(false);
@@ -43,6 +45,13 @@ export default function AppHeader() {
         return (parts[0][0] + parts[1][0]).toUpperCase();
     };
 
+  // --- PERUBAHAN: Sesuaikan href untuk Dokumentasi ---
+  const navItems = [
+    { label: 'Home', href: '/' },
+    { label: 'About', href: '/about' },
+    { label: 'Dokumentasi', href: '/gallery' }, // <-- Diubah dari /documentation menjadi /gallery
+    { label: 'Kontak', href: '/contact' },
+  ];
     const userInitials = auth.user ? getUserInitials(auth.user.name) : '';
 
     return (
