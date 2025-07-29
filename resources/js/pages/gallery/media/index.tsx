@@ -376,7 +376,7 @@ export default function MediaIndex() {
 
                 {preview && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-                        <div ref={previewRef} className="relative w-full max-w-2xl rounded-xl bg-white p-4 shadow-lg dark:bg-zinc-900">
+                        <div ref={previewRef} className="relative w-fit max-w-2xl rounded-xl bg-white p-4 shadow-lg dark:bg-zinc-900">
                             <button className="absolute top-2 right-2 text-gray-500 hover:text-red-500" onClick={() => setPreview(null)}>
                                 <X className="h-6 w-6" />
                             </button>

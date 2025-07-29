@@ -82,7 +82,6 @@ export default function ArticleEdit({ article, categories }) {
             body: formData,
             onSuccess: () => {
                 toast.success('Artikel berhasil diperbarui!');
-                // Hapus Inertia.visit, biarkan backend yang mengatur redirect
             },
             onError: (formErrors) => {
                 console.error(formErrors);
@@ -121,22 +120,35 @@ export default function ArticleEdit({ article, categories }) {
             <Head title="Edit Artikel" />
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                {/* Header Page Title dan Tombol Kembali */}
-                <div className="mb-4 flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
-                        <ArrowLeft className="h-5 w-5" />
-                    </Button>
-                    <div>
-                        <h1 className="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Artikel</h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Edit Artikel Anda.</p>
+                {/* Header Page Title dan Tombol Aksi untuk Desktop */}
+                <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+                            <ArrowLeft className="h-5 w-5" />
+                        </Button>
+                        <div>
+                            <h1 className="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Artikel</h1>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Edit Artikel Anda.</p>
+                        </div>
+                    </div>
+                    {/* Tombol Aksi Desktop (Hidden on mobile) */}
+                    <div className="mt-4 flex hidden gap-3 md:mt-0 md:flex">
+                        <Button type="button" variant="outline" onClick={() => window.history.back()}>
+                            <X className="mr-2 h-4 w-4" />
+                            Batal
+                        </Button>
+                        <Button type="submit" disabled={processing} form="article-form">
+                            <Save className="mr-2 h-4 w-4" />
+                            {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                        </Button>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex-1">
+                <form id="article-form" onSubmit={handleSubmit} className="flex-1">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        {/* Left Column (2/3 width) - Konten Utama (Gambar, Judul, Ringkasan, Konten) */}
+                        {/* Kolom Kiri untuk Desktop */}
                         <div className="space-y-6 lg:col-span-2">
-                            {/* 1. Gambar Artikel (Upload Gambar) */}
+                            {/* 1. Upload Gambar Artikel (Urutan 1 di Mobile & Desktop Kiri) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Gambar Artikel</h2>
                                 <div>
@@ -169,17 +181,16 @@ export default function ArticleEdit({ article, categories }) {
                                 </div>
                             </div>
 
-                            {/* 2. Judul & 3. Ringkasan (digabung dalam Informasi Dasar) */}
-                            <div className="bg-card rounded-lg border p-6 shadow-md">
+                            {/* Ini adalah tempat untuk Judul Artikel di mobile, tapi di desktop akan ada di kolom kanan. */}
+                            <div className="bg-card rounded-lg border p-6 shadow-md lg:hidden">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Informasi Dasar</h2>
                                 <div className="space-y-5">
-                                    {/* Judul */}
                                     <div>
-                                        <Label htmlFor="title" className="mb-2 block">
+                                        <Label htmlFor="title_mobile" className="mb-2 block">
                                             Judul Artikel <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
-                                            id="title"
+                                            id="title_mobile"
                                             value={data.title}
                                             onChange={(e) => setData('title', e.target.value)}
                                             placeholder="Masukkan judul artikel yang menarik..."
@@ -187,26 +198,10 @@ export default function ArticleEdit({ article, categories }) {
                                         />
                                         {errors.title && <p className="mt-2 text-sm text-red-500">{errors.title}</p>}
                                     </div>
-
-                                    {/* Ringkasan */}
-                                    <div>
-                                        <Label htmlFor="summary" className="mb-2 block">
-                                            Ringkasan
-                                        </Label>
-                                        <Textarea
-                                            id="summary"
-                                            value={data.summary}
-                                            onChange={(e) => setData('summary', e.target.value)}
-                                            placeholder="Ringkasan singkat yang menggambarkan isi artikel..."
-                                            rows={4}
-                                            className="w-full"
-                                        />
-                                        {errors.summary && <p className="mt-2 text-sm text-red-500">{errors.summary}</p>}
-                                    </div>
                                 </div>
                             </div>
 
-                            {/* 5. Konten (Menggunakan Toast UI Editor) */}
+                            {/* 2. Konten Artikel (Urutan 3 di Mobile & Desktop Kiri) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Konten Artikel</h2>
                                 <div>
@@ -219,11 +214,50 @@ export default function ArticleEdit({ article, categories }) {
                                     {errors.content && <p className="mt-2 text-sm text-red-500">{errors.content}</p>}
                                 </div>
                             </div>
+
+                            {/* 3. Ringkasan Artikel (Urutan 4 di Mobile & Desktop Kiri) */}
+                            <div className="bg-card rounded-lg border p-6 shadow-md">
+                                <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Ringkasan Artikel</h2>
+                                <div>
+                                    <Label htmlFor="summary" className="mb-2 block">
+                                        Ringkasan
+                                    </Label>
+                                    <Textarea
+                                        id="summary"
+                                        value={data.summary}
+                                        onChange={(e) => setData('summary', e.target.value)}
+                                        placeholder="Ringkasan singkat yang menggambarkan isi artikel..."
+                                        rows={4}
+                                        className="w-full"
+                                    />
+                                    {errors.summary && <p className="mt-2 text-sm text-red-500">{errors.summary}</p>}
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Right Column (1/3 width) - Pengaturan Tambahan (Kategori, Status) */}
+                        {/* Kolom Kanan untuk Desktop */}
                         <div className="space-y-6 lg:col-span-1">
-                            {/* 4. Kategori */}
+                            {/* 1. Judul Artikel (Urutan 2 di Desktop Kanan, hidden di mobile karena sudah ada di kiri) */}
+                            <div className="bg-card hidden rounded-lg border p-6 shadow-md lg:block">
+                                <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Informasi Dasar</h2>
+                                <div className="space-y-5">
+                                    <div>
+                                        <Label htmlFor="title_desktop" className="mb-2 block">
+                                            Judul Artikel <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="title_desktop"
+                                            value={data.title}
+                                            onChange={(e) => setData('title', e.target.value)}
+                                            placeholder="Masukkan judul artikel yang menarik..."
+                                            className="w-full"
+                                        />
+                                        {errors.title && <p className="mt-2 text-sm text-red-500">{errors.title}</p>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. Kategori Artikel (Urutan 5 di Mobile & Desktop Kanan) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Kategori Artikel</h2>
                                 <div>
@@ -239,7 +273,7 @@ export default function ArticleEdit({ article, categories }) {
                                 </div>
                             </div>
 
-                            {/* 6. Status Publikasi */}
+                            {/* 3. Publikasi (Urutan 6 di Mobile & Desktop Kanan) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Publikasi</h2>
                                 <div>
@@ -261,8 +295,8 @@ export default function ArticleEdit({ article, categories }) {
                         </div>
                     </div>
 
-                    {/* Tombol Aksi di Bawah Form (paling bawah) */}
-                    <div className="bg-card mt-8 flex justify-end gap-3 rounded-lg border p-4 shadow-md">
+                    {/* Tombol Aksi untuk Mobile (muncul di bawah, sembunyi di desktop) */}
+                    <div className="bg-card mt-8 flex justify-end gap-3 rounded-lg border p-4 shadow-md md:hidden">
                         <Button type="button" variant="outline" onClick={() => window.history.back()}>
                             <X className="mr-2 h-4 w-4" />
                             Batal

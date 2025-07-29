@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ChevronsUpDown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'; // Pastikan cn (className utility) berfungsi dengan baik
 
 interface Option {
     value: string;
@@ -49,18 +49,22 @@ export function MultiSelect({ options, selected, onChange, placeholder = 'Pilih.
                         selected.map((option) => (
                             <span
                                 key={option.value}
-                                className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                                // PERBAIKAN: Styling tag kategori yang dipilih
+                                className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
+                                bg-blue-50 text-blue-700 ring-blue-700/10
+                                dark:bg-[var(--secondary)] dark:text-[var(--secondary-foreground)] dark:ring-[var(--secondary-foreground)]"
                             >
                                 {option.label}
                                 <button
                                     type="button"
-                                    className="ml-1 inline-flex h-3 w-3 items-center justify-center rounded-full hover:bg-blue-200"
+                                    // PERBAIKAN: Styling tombol X di tag
+                                    className="ml-1 inline-flex h-3 w-3 items-center justify-center rounded-full hover:bg-blue-200 dark:hover:bg-[var(--muted)]"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleRemove(option);
                                     }}
                                 >
-                                    <X className="h-2 w-2" />
+                                    <X className="h-2 w-2 dark:text-[var(--secondary-foreground)]" /> {/* PERBAIKAN: Warna icon X */}
                                 </button>
                             </span>
                         ))
@@ -70,10 +74,15 @@ export function MultiSelect({ options, selected, onChange, placeholder = 'Pilih.
             </Button>
 
             {open && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                // PERBAIKAN: Styling kontainer dropdown utama
+                <div className="absolute z-50 w-full mt-1 rounded-md shadow-lg max-h-60 overflow-auto
+                            bg-white border border-gray-200
+                            dark:bg-[var(--popover)] dark:border-[var(--border)] dark:shadow-md-dark" // Anda mungkin perlu mendefinisikan shadow-md-dark di tailwind.config jika belum ada
+                >
                     <div className="p-2">
                         {options.length === 0 ? (
-                            <div className="py-2 text-center text-sm text-gray-500">
+                            // PERBAIKAN: Styling teks "Tidak ada pilihan"
+                            <div className="py-2 text-center text-sm text-gray-500 dark:text-[var(--popover-foreground)]">
                                 Tidak ada pilihan
                             </div>
                         ) : (
@@ -84,8 +93,11 @@ export function MultiSelect({ options, selected, onChange, placeholder = 'Pilih.
                                         key={option.value}
                                         type="button"
                                         className={cn(
-                                            "w-full text-left px-2 py-2 text-sm rounded hover:bg-gray-100 flex items-center",
-                                            isSelected && "bg-blue-50 text-blue-700"
+                                            "w-full text-left px-2 py-2 text-sm rounded flex items-center",
+                                            // PERBAIKAN: Styling opsi normal dan hover
+                                            "hover:bg-gray-100 dark:hover:bg-[var(--accent)] dark:text-[var(--popover-foreground)]", // default text color and hover
+                                            // PERBAIKAN: Styling opsi terpilih
+                                            isSelected && "bg-blue-50 text-blue-700 dark:bg-[var(--primary)] dark:text-[var(--primary-foreground)]"
                                         )}
                                         onClick={() => handleSelect(option)}
                                     >
@@ -93,7 +105,11 @@ export function MultiSelect({ options, selected, onChange, placeholder = 'Pilih.
                                             type="checkbox"
                                             checked={isSelected}
                                             onChange={() => {}}
-                                            className="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                            // PERBAIKAN: Styling checkbox
+                                            className="mr-2 h-4 w-4 rounded
+                                                    text-blue-600 border-gray-300 focus:ring-blue-500
+                                                    dark:border-[var(--border)] dark:bg-[var(--card)] dark:focus:ring-[var(--ring)]
+                                                    dark:checked:bg-[var(--primary)] dark:checked:border-[var(--primary)] dark:checked:text-[var(--primary-foreground)]" // text- warna untuk tanda centang
                                         />
                                         {option.label}
                                     </button>

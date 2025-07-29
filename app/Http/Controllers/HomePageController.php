@@ -25,14 +25,14 @@ class HomePageController extends Controller
     {
         $periodId = $request->query('period_id');
 
-        // Ambil divisi berdasarkan periode (jika diperlukan)
-        $divisions = $this->divisionService->getAllDivisions($periodId);
-
-        // Ambil periode default (jika tidak disediakan)
+        // Jika tidak ada period_id dikirim, gunakan periode aktif atau terbaru
         if (!$periodId) {
             $periodId = Period::where('is_active', 1)->first()?->id ??
                 Period::latest()->first()?->id;
         }
+
+        // Ambil divisi berdasarkan periode
+        $divisions = $this->divisionService->getAllDivisions($periodId);
 
         // Ambil anggota struktural berdasarkan period ID
         $structureMembersRaw = $this->structureMemberService->getMembersByPeriod($periodId);
@@ -43,16 +43,13 @@ class HomePageController extends Controller
                 'id' => $member->id,
                 'name' => $member->name,
                 'position' => $member->structure->name ?? '-',
-                // 'department' => $member->department ?? '-',
-                // 'study_program' => $member->study_program ?? '-',
                 'picture' => $member->picture
                     ? asset('storage/' . $member->picture)
                     : null,
             ];
         });
 
-
-        // Ambil visi dan misi berdasarkan period_id aktif
+        // Ambil visi dan misi berdasarkan period_id
         $visi = Vission::where('period_id', $periodId)->pluck('content')->first() ?? '';
         $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
 
