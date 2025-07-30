@@ -153,7 +153,7 @@ const BlogPage: React.FC<BlogPageProps> = ({
                         {/* Breadcrumb: Home > Berita */}
                         <div className="mb-6 flex items-center text-xs md:text-sm">
                             <Link href={route('home')} className="font-medium text-gray-300 transition-colors duration-200 hover:text-red-400">
-                                Home
+                                Beranda
                             </Link>
                             <ChevronRight className="mx-2 h-4 w-4 text-white/60" />
                             <span className="font-bold text-red-500">Berita</span>

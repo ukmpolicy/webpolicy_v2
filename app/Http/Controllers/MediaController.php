@@ -7,6 +7,7 @@ use App\Services\AlbumService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Illuminate\Validation\Rule; // Tambahkan ini jika belum ada
 
 class MediaController extends Controller
 {
@@ -40,24 +41,45 @@ class MediaController extends Controller
         return Inertia::render('gallery/media/index', [
             'media' => $media,
             'albums' => $albums,
-            'selected_album_id' => $albumId, // Penting: Kirim kembali ID album yang dipilih
+            'selected_album_id' => $albumId,
             'search' => $search,
             'per_page' => $perPage,
-            'media_type' => $mediaType, // Penting: Kirim kembali tipe media yang dipilih
+            'media_type' => $mediaType,
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate(
+         $validated = $request->validate(
             [
                 'album_id' => 'required|exists:albums,id',
                 'caption' => 'required|string',
-                'file' => 'required|file|mimes:jpg,jpeg,png,mp4,mkv,avi|max:10240',
+                'file' => [
+                    'required',
+                    'file',
+                    'mimes:jpg,jpeg,png,mp4,mkv,avi', // Aturan MIME umum
+                    // Custom validation closure untuk ukuran file
+                    function ($attribute, $value, $fail) {
+                        $mimetype = $value->getMimeType();
+                        $fileSize = $value->getSize(); // Ukuran file dalam bytes
+
+                        $maxImageSize = 2 * 1024 * 1024; // 2 MB dalam bytes
+                        $maxVideoSize = 7 * 1024 * 1024; // 7 MB dalam bytes
+
+                        if (str_starts_with($mimetype, 'image/')) {
+                            if ($fileSize > $maxImageSize) {
+                                $fail("Ukuran file gambar melebihi batas 2 MB. Mohon unggah file yang lebih kecil.");
+                            }
+                        } elseif (str_starts_with($mimetype, 'video/')) {
+                            if ($fileSize > $maxVideoSize) {
+                                $fail("Ukuran file video melebihi batas 7 MB. Mohon unggah file yang lebih kecil.");
+                            }
+                        }
+                    },
+                ],
             ],
             [
                 'file.mimes' => 'Format file tidak didukung. Harap unggah gambar (JPG, JPEG, PNG) atau video (MP4, MKV, AVI).',
-                'file.max' => 'Ukuran file melebihi batas 10 MB. Mohon unggah file yang lebih kecil.',
             ],
         );
 
@@ -70,17 +92,43 @@ class MediaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validated = $request->validate(
-            [
-                'album_id' => 'required|exists:albums,id',
-                'caption' => 'required|string',
-                'file' => 'nullable|file|mimes:jpg,jpeg,png,mp4,mkv,avi|max:10240',
-            ],
-            [
-                'file.mimes' => 'Format file tidak didukung. Harap unggah gambar (JPG, JPEG, PNG) atau video (MP4, MKV, AVI).',
-                'file.max' => 'Ukuran file melebihi batas 10 MB. Mohon unggah file yang lebih kecil.',
-            ],
-        );
+         $rules = [
+            'album_id' => 'required|exists:albums,id',
+            'caption' => 'required|string',
+        ];
+
+        $messages = [
+            'file.mimes' => 'Format file tidak didukung. Harap unggah gambar (JPG, JPEG, PNG) atau video (MP4, MKV, AVI).',
+        ];
+
+        if ($request->hasFile('file')) {
+            $rules['file'] = [
+                'nullable',
+                'file',
+                'mimes:jpg,jpeg,png,mp4,mkv,avi',
+                function ($attribute, $value, $fail) {
+                    $mimetype = $value->getMimeType();
+                    $fileSize = $value->getSize(); // Ukuran file dalam bytes
+
+                    $maxImageSize = 2 * 1024 * 1024; // 2 MB dalam bytes
+                    $maxVideoSize = 7 * 1024 * 1024; // 7 MB dalam bytes
+
+                    if (str_starts_with($mimetype, 'image/')) {
+                        if ($fileSize > $maxImageSize) {
+                            $fail("Ukuran file gambar melebihi batas 2 MB. Mohon unggah file yang lebih kecil.");
+                        }
+                    } elseif (str_starts_with($mimetype, 'video/')) {
+                        if ($fileSize > $maxVideoSize) {
+                            $fail("Ukuran file video melebihi batas 7 MB. Mohon unggah file yang lebih kecil.");
+                        }
+                    }
+                },
+            ];
+        } else {
+            $rules['file'] = 'nullable';
+        }
+
+        $validated = $request->validate($rules, $messages);
 
         $validated['caption'] = strtolower(trim($validated['caption']));
         $file = $request->hasFile('file') ? $request->file('file') : null;
