@@ -1,15 +1,21 @@
-@import 'tailwindcss';
+/* Import Google Font Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* Tailwind & Plugin */
+@import 'tailwindcss';
 @plugin 'tailwindcss-animate';
 
+/* Laravel Blade Pagination Templates */
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
+/* Dark Mode Variant */
 @custom-variant dark (&:is(.dark *));
 
+/* Theme Customization */
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -59,14 +65,7 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+/* Tailwind v4 Compatibility: Default Border Color */
 @layer base {
     *,
     ::after,
@@ -77,6 +76,7 @@
     }
 }
 
+/* Light Mode Variables */
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -113,6 +113,7 @@
     --sidebar-ring: oklch(0.87 0 0);
 }
 
+/* Dark Mode Variables */
 .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
@@ -148,31 +149,26 @@
     --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Base Styling */
 @layer base {
     * {
         @apply border-border;
     }
 
     body {
-        @apply bg-background text-foreground;
-    }
-}
-@keyframes marquee {
-    0% {
-        transform: translateX(0%);
-    }
-    100% {
-        transform: translateX(-50%);
+        @apply bg-background text-foreground font-sans;
     }
 }
 
+/* Animation */
+@keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+}
+
 @keyframes scroll-horizontal {
-    0% {
-        transform: translateX(0%);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
 }
 
 .animate-scroll {

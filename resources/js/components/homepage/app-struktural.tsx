@@ -5,6 +5,14 @@ type Struktur = {
   picture?: string | null;
 };
 
+// Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata
+const toTitleCase = (text: string) =>
+  text
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
 export default function AppStruktural({ strukturalList }: { strukturalList: Struktur[] }) {
   return (
     <section className="py-20 px-6 bg-black text-white">
@@ -32,9 +40,11 @@ export default function AppStruktural({ strukturalList }: { strukturalList: Stru
                   />
                 </div>
                 <p className="text-red-500 font-bold text-base md:text-lg mb-1">
-                  {person.position}
+                  {toTitleCase(person.position)}
                 </p>
-                <h3 className="text-white text-lg md:text-xl font-semibold">{person.name}</h3>
+                <h3 className="text-white text-lg md:text-xl font-semibold">
+                  {toTitleCase(person.name)}
+                </h3>
               </div>
             ))}
           </div>
