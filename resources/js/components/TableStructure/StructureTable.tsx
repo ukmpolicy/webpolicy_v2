@@ -28,7 +28,13 @@ import { ArrowDown, ArrowUp, Ellipsis, List, Pencil, Search, Trash2 } from 'luci
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-export function StructureTable({ data, onEdit, sortDirection: initialSortDirection }) {
+const intPart = (lvl) => Math.floor(lvl);
+const fracPart = (lvl) => {
+    const [, f = '0'] = lvl.toString().split('.');
+    return f;
+};
+
+export function StructureTable({ data, onEdit }) {
     const { periods = [], selectedPeriodId } = usePage().props;
 
     const defaultPeriodId = selectedPeriodId || periods.find((p) => p.name === '2024-2025')?.id?.toString() || '';
@@ -72,7 +78,7 @@ export function StructureTable({ data, onEdit, sortDirection: initialSortDirecti
         {
             id: 'no',
             header: '#',
-            cell: ({ row }) => row.index + 1,
+            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
         },
         {
             accessorKey: 'name',

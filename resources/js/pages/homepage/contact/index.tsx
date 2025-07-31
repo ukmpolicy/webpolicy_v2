@@ -1,19 +1,52 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 // Komponen yang sudah ada dan kita gunakan kembali
 import AppHeader from '@/components/homepage/app-header';
 import AppFooter from '@/components/homepage/app-footer';
 import AppLoading from '@/components/homepage/app-loading';
+import InputError from '@/components/input-error'; // <-- Import komponen untuk menampilkan error
 import { Phone, MapPin, Clock } from 'lucide-react';
 
 const ContactPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
 
+    // --- Gunakan useForm untuk mengelola state form ---
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+    });
+
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 1500);
         return () => clearTimeout(timer);
     }, []);
+
+    // --- Fungsi untuk menangani submit form ---
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+
+        const promise = new Promise((resolve, reject) => {
+            // Kirim data ke route 'contact.send' yang ada di web.php
+            post(route('contact.send'), {
+                onSuccess: (page) => resolve(page),
+                onError: (errors) => reject(errors),
+                preserveScroll: true,
+            });
+        });
+
+        toast.promise(promise, {
+            loading: 'Mengirim pesan...',
+            success: () => {
+                reset(); // Kosongkan form setelah sukses
+                return 'Pesan berhasil terkirim!';
+            },
+            error: 'Gagal mengirim pesan. Periksa kembali isian Anda.',
+        });
+    }
 
     if (isLoading) return <AppLoading />;
 
@@ -47,7 +80,6 @@ const ContactPage: React.FC = () => {
                             {/* Info Cards */}
                             <div className="xl:col-span-4">
                                 <div className="space-y-8">
-                                    {/* Contact Card */}
                                     <div className="flex gap-6 p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-red-500 transition-colors duration-300">
                                         <div className="flex-shrink-0">
                                             <div className="w-12 h-12 inline-flex items-center justify-center rounded-lg bg-red-600 text-white">
@@ -60,7 +92,6 @@ const ContactPage: React.FC = () => {
                                             <p className="m-0 text-zinc-400">+62 123 4567 890</p>
                                         </div>
                                     </div>
-                                    {/* Address Card */}
                                     <div className="flex gap-6 p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-red-500 transition-colors duration-300">
                                         <div className="flex-shrink-0">
                                             <div className="w-12 h-12 inline-flex items-center justify-center rounded-lg bg-red-600 text-white">
@@ -73,7 +104,6 @@ const ContactPage: React.FC = () => {
                                             <p className="m-0 text-zinc-400">Aceh, Indonesia</p>
                                         </div>
                                     </div>
-                                    {/* Schedule Card */}
                                     <div className="flex gap-6 p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-red-500 transition-colors duration-300">
                                         <div className="flex-shrink-0">
                                             <div className="w-12 h-12 inline-flex items-center justify-center rounded-lg bg-red-600 text-white">
@@ -99,35 +129,57 @@ const ContactPage: React.FC = () => {
                                         </p>
                                     </div>
 
-                                    <form action="#" method="POST" className="flex flex-col gap-6">
+                                    {/* --- Sambungkan form ke useForm --- */}
+                                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <input
-                                                type="text" name="name"
-                                                className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
-                                                placeholder="Nama Anda" required
-                                            />
-                                            <input
-                                                type="email" name="email"
-                                                className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
-                                                placeholder="Email Anda" required
-                                            />
+                                            <div>
+                                                <input
+                                                    type="text" name="name"
+                                                    value={data.name}
+                                                    onChange={e => setData('name', e.target.value)}
+                                                    className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
+                                                    placeholder="Nama Anda" required
+                                                />
+                                                <InputError message={errors.name} className="mt-2" />
+                                            </div>
+                                            <div>
+                                                <input
+                                                    type="email" name="email"
+                                                    value={data.email}
+                                                    onChange={e => setData('email', e.target.value)}
+                                                    className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
+                                                    placeholder="Email Anda" required
+                                                />
+                                                <InputError message={errors.email} className="mt-2" />
+                                            </div>
                                         </div>
-                                        <input
-                                            type="text" name="subject"
-                                            className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
-                                            placeholder="Subjek" required
-                                        />
-                                        <textarea
-                                            name="message" rows={5}
-                                            className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
-                                            placeholder="Tulis pesan Anda" required
-                                        ></textarea>
+                                        <div>
+                                            <input
+                                                type="text" name="subject"
+                                                value={data.subject}
+                                                onChange={e => setData('subject', e.target.value)}
+                                                className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
+                                                placeholder="Subjek" required
+                                            />
+                                            <InputError message={errors.subject} className="mt-2" />
+                                        </div>
+                                        <div>
+                                            <textarea
+                                                name="message" rows={5}
+                                                value={data.message}
+                                                onChange={e => setData('message', e.target.value)}
+                                                className="block w-full px-5 py-3 text-base rounded-md bg-transparent border border-zinc-700 text-white focus:border-red-500 focus:ring-red-500 transition"
+                                                placeholder="Tulis pesan Anda" required
+                                            ></textarea>
+                                            <InputError message={errors.message} className="mt-2" />
+                                        </div>
                                         <div className="w-full text-center">
                                             <button
                                                 type="submit"
-                                                className="inline-block px-8 py-3 text-base font-semibold rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                                                disabled={processing} // <-- Tombol nonaktif saat mengirim
+                                                className="inline-block px-8 py-3 text-base font-semibold rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors disabled:bg-red-900 disabled:cursor-not-allowed"
                                             >
-                                                Kirim Pesan
+                                                {processing ? 'Mengirim...' : 'Kirim Pesan'}
                                             </button>
                                         </div>
                                     </form>
@@ -136,7 +188,7 @@ const ContactPage: React.FC = () => {
                         </div>
                     </div>
                 </section>
-                
+
                 {/* Map Section */}
                 <section id="map" className="w-full h-[400px] md:h-[500px]">
                     <iframe

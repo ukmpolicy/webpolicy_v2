@@ -18,7 +18,7 @@ export default function SectionLabel() {
         <div className="mt-6 text-base md:text-lg">
           <span className="italic text-white">Home</span>
           <span className="mx-2 text-white">/</span>
-          <span className="italic text-red-600 font-semibold">About</span>
+          <span className="italic text-red-600 font-semibold">Tentang</span>
         </div>
       </div>
     </section>

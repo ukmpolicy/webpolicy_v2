@@ -9,6 +9,8 @@ import AppLabel from '@/components/homepage/app-label';
 import AppLoading from '@/components/homepage/app-loading';
 import AppStruktural from '@/components/homepage/app-struktural';
 import AppVisiMisi from '@/components/homepage/app-visi-misi';
+import { toast } from 'sonner';
+
 
 interface Division {
     id: number;

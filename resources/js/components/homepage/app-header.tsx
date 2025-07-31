@@ -1,25 +1,24 @@
 import { Button } from '@/components/ui/button';
+import { Inertia } from '@inertiajs/inertia';
 import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LayoutGrid, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { SiInstagram, SiTiktok } from 'react-icons/si';
 import AppLogoHome from './app-logo';
-import AppSidebar from './app-sidebar';
 
 export default function AppHeader() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+    const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    const { url, props } = usePage(); // Ambil props dari usePage()
+    const { url, props } = usePage();
     const { auth } = props;
 
-    const toggleMenu = () => setIsOpen(!isOpen);
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+    const toggleMobileSidebar = () => setMobileSidebarOpen(!mobileSidebarOpen);
+    const toggleDesktopSidebar = () => setDesktopSidebarOpen(!desktopSidebarOpen);
 
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 30);
-        };
+        const handleScroll = () => setScrolled(window.scrollY > 30);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -28,7 +27,7 @@ export default function AppHeader() {
         { label: 'Home', href: '/' },
         { label: 'About', href: '/about' },
         { label: 'Berita', href: '/berita' },
-        { label: 'Dokumentasi', href: '/dokumentasi' },
+        { label: 'Dokumentasi', href: '/gallery' },
         { label: 'Contact', href: '/contact' },
     ];
 
@@ -36,14 +35,18 @@ export default function AppHeader() {
 
     const getUserInitials = (name: string) => {
         if (!name) return '';
-        const parts = name.split(' ').filter((part) => part.length > 0);
-        if (parts.length === 1) {
-            return parts[0].substring(0, 2).toUpperCase();
-        }
-        return (parts[0][0] + parts[1][0]).toUpperCase();
+        const parts = name.split(' ').filter(Boolean);
+        return parts.length === 1 ? parts[0].substring(0, 2).toUpperCase() : (parts[0][0] + parts[1][0]).toUpperCase();
     };
 
     const userInitials = auth.user ? getUserInitials(auth.user.name) : '';
+
+    const navItems = [
+        { label: 'Home', href: '/' },
+        { label: 'Tentang', href: '/about' },
+        { label: 'Dokumentasi', href: '/gallery' },
+        { label: 'Kontak', href: '/contact' },
+    ];
 
     return (
         <>
@@ -58,10 +61,12 @@ export default function AppHeader() {
             >
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between py-4">
+                        {/* Logo */}
                         <Link href="/" className="flex items-center gap-2">
                             <AppLogoHome />
                         </Link>
 
+                        {/* Desktop Navigation */}
                         <nav className="hidden gap-8 font-semibold tracking-wide text-white lg:flex">
                             {navItems.map((item) => (
                                 <Link
@@ -81,91 +86,133 @@ export default function AppHeader() {
                             ))}
                         </nav>
 
+                        {/* Desktop Actions */}
                         <div className="hidden items-center gap-4 lg:flex">
                             {auth.user ? (
                                 <Link href={route('dashboard')}>
-                                    <Button className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 p-0 text-base font-semibold text-white transition hover:bg-red-700">
+                                    <Button className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 p-0 text-base font-semibold text-white hover:bg-red-700">
                                         {userInitials}
                                     </Button>
                                 </Link>
                             ) : (
                                 <Link href="/login">
-                                    <Button className="bg-red-600 font-semibold text-white transition hover:bg-red-700">LOGIN</Button>
+                                    <Button className="bg-red-600 font-semibold text-white hover:bg-red-700">LOGIN</Button>
                                 </Link>
                             )}
-                            <Button variant="ghost" size="icon" onClick={toggleSidebar} aria-label="Open Sidebar">
-                                <LayoutGrid className="h-5 w-5 text-white" />
-                            </Button>
+                            {/* <Button variant="ghost" size="icon" onClick={toggleDesktopSidebar}>
+                <LayoutGrid className="h-5 w-5 text-white" />
+              </Button> */}
                         </div>
 
+                        {/* Mobile Toggle */}
                         <div className="flex items-center gap-2 lg:hidden">
-                            <Button onClick={toggleMenu} variant="ghost" size="icon" className="text-white" aria-label="Toggle menu">
-                                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            <Button onClick={toggleMobileSidebar} variant="ghost" size="icon" className="text-white">
+                                <Menu className="h-6 w-6" />
                             </Button>
                             {auth.user ? (
                                 <Link href={route('dashboard')}>
-                                    <Button className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600 p-0 text-sm font-semibold text-white transition hover:bg-red-700">
+                                    <Button className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600 p-0 text-sm font-semibold text-white hover:bg-red-700">
                                         {userInitials}
                                     </Button>
                                 </Link>
                             ) : (
                                 <Link href="/login">
-                                    <Button className="bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
-                                        LOGIN
-                                    </Button>
+                                    <Button className="bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">LOGIN</Button>
                                 </Link>
                             )}
-                            <Button onClick={toggleSidebar} variant="ghost" size="icon" className="text-white" aria-label="Open Sidebar">
-                                <LayoutGrid className="h-5 w-5" />
-                            </Button>
                         </div>
                     </div>
                 </div>
             </motion.header>
 
-            {/* MOBILE MENU */}
+            {/* MOBILE SIDEBAR */}
             <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        key="mobile-menu"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
-                        className="fixed top-[70px] right-0 left-0 z-40 w-full rounded-b-2xl border-t border-neutral-800 bg-[#111]/90 px-6 py-6 text-white shadow-2xl backdrop-blur-xl lg:hidden"
+                {mobileSidebarOpen && (
+                    <motion.aside
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ duration: 0.3 }}
+                        className="fixed top-0 right-0 z-50 flex h-full w-80 flex-col justify-between border-l border-neutral-800 bg-[#111] p-6 text-white shadow-xl lg:hidden"
                     >
-                        <nav className="flex flex-col divide-y divide-neutral-700 text-sm font-semibold">
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    onClick={() => setIsOpen(false)}
-                                    className={`block py-4 tracking-wide uppercase transition ${
-                                        isActive(item.href) ? 'text-red-500' : 'text-white hover:text-red-500'
-                                    }`}
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
-                        </nav>
+                        <div>
+                            <div className="mb-6 flex items-center justify-between">
+                                <AppLogoHome />
+                                <Button variant="ghost" size="icon" onClick={toggleMobileSidebar}>
+                                    <X className="h-6 w-6 text-white" />
+                                </Button>
+                            </div>
 
-                        <div className="mt-6">
-                            {auth.user ? (
-                                <Link href={route('dashboard')}>
-                                    <Button className="w-full bg-red-600 font-semibold text-white hover:bg-red-700">Dashboard</Button>
-                                </Link>
-                            ) : (
-                                <Link href="/login">
-                                    <Button className="w-full bg-red-600 font-semibold text-white hover:bg-red-700">LOGIN</Button>
-                                </Link>
+                            <nav className="mb-6 flex flex-col space-y-4">
+                                {navItems.map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={toggleMobileSidebar}
+                                        className={`text-sm font-semibold tracking-wide uppercase transition ${
+                                            isActive(item.href) ? 'text-red-500' : 'text-white hover:text-red-500'
+                                        }`}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                ))}
+                            </nav>
+
+                            {auth.user && (
+                                <Button
+                                    className="mb-6 w-full bg-red-600 text-white hover:bg-red-700"
+                                    onClick={() => {
+                                        Inertia.post(
+                                            route('logout'),
+                                            {},
+                                            {
+                                                onSuccess: () => {
+                                                    Inertia.visit('/');
+                                                    toggleMobileSidebar();
+                                                },
+                                            },
+                                        );
+                                    }}
+                                >
+                                    Logout
+                                </Button>
                             )}
+
+                            <hr className="mb-6" />
+
+                            <div className="mb-6 space-y-4 text-left text-sm text-neutral-400">
+                                <h2 className="mb-2 text-lg font-bold text-white">UKM POLICY</h2>
+                                <p className="text-sm leading-relaxed text-neutral-300">
+                                    Berpartisipasi dan berperan aktif dalam mengembangkan jaringan kerjasama dengan lembaga Politeknik Negeri
+                                    Lhokseumawe, komunitas Linux dan Open Source lainnya, Perguruan tinggi dan Pemerintah Daerah maupun Pusat.
+                                </p>
+                                <div>
+                                    <span className="mb-1 block font-semibold text-white">ADDRESS</span>
+                                    <p>Lhokseumawe, Bukit Rata</p>
+                                </div>
+                                <div>
+                                    <span className="mb-1 block font-semibold text-white">EMAIL</span>
+                                    <p>policy.lhokseumawe@gmail.com</p>
+                                </div>
+                            </div>
                         </div>
-                    </motion.div>
+
+                        {/* SOCIAL MEDIA fixed di bawah */}
+                        <div className="mt-6 flex justify-center gap-4">
+                            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
+                                    <SiTiktok size={22} />
+                                </div>
+                            </a>
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
+                                    <SiInstagram size={22} />
+                                </div>
+                            </a>
+                        </div>
+                    </motion.aside>
                 )}
             </AnimatePresence>
-
-            {/* SIDEBAR */}
-            <AnimatePresence>{sidebarOpen && <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}</AnimatePresence>
         </>
     );
 }
