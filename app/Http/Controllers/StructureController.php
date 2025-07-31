@@ -126,6 +126,21 @@ class StructureController extends Controller
             'level' => number_format($level, 1),
         ]);
     }
+public function reorder(Request $request)
+{
+    $structures = $request->input('data', []);
+
+    foreach ($structures as $item) {
+        $structure = Structure::find($item['id']);
+        if (!$structure) continue;
+
+        $structure->update([
+            'level' => $item['level']
+        ]);
+    }
+
+    // return response()->json(['message' => 'Struktur berhasil diubah.']);
+}
 
 
 }

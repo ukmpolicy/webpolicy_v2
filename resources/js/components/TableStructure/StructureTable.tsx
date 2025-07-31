@@ -1,179 +1,211 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Inertia } from '@inertiajs/inertia';
 import { usePage } from '@inertiajs/react';
 import {
-  Table,
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import {
-  Input
-} from '@/components/ui/input';
-import {
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import {
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import {
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
-  PaginationLink,
-  PaginationPrevious, 
-  PaginationNext, 
-  PaginationEllipsis
+  Pagination, PaginationContent, PaginationItem, PaginationLink,
+  PaginationPrevious, PaginationNext, PaginationEllipsis,
 } from '@/components/ui/pagination';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogTitle
+  AlertDialogDescription, AlertDialogFooter, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Ellipsis, Pencil, Trash2, List, ArrowDown, ArrowUp, Search } from 'lucide-react';
+import {
+  Ellipsis, Pencil, Trash2, List, ArrowUp, ArrowDown, Search,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import {
-  flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable
+  flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable,
 } from '@tanstack/react-table';
 
-export function StructureTable({ data, onEdit, sortDirection: initialSortDirection }) {
-    const { periods = [], selectedPeriodId } = usePage().props;
+const intPart = (lvl) => Math.floor(lvl);
+const fracPart = (lvl) => {
+  const [, f = '0'] = lvl.toString().split('.');
+  return f;
+};
 
-const defaultPeriodId = selectedPeriodId || periods.find(p => p.name === '2024-2025')?.id?.toString() || '';
+export function StructureTable({ data, onEdit }) {
+  const { periods = [], selectedPeriodId } = usePage().props;
 
-const [selectedPeriod, setSelectedPeriod] = useState(defaultPeriodId);
+  const defaultPeriodId =
+    selectedPeriodId?.toString() ||
+    periods.find((p) => p.is_active)?.id?.toString() ||
+    '';
 
+  const [selectedPeriod, setSelectedPeriod] = useState(defaultPeriodId);
+  const [structures, setStructures] = useState([...data]);
   const [deleteId, setDeleteId] = useState(null);
   const [globalFilter, setGlobalFilter] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
-  const [sortDirection, setSortDirection] = useState(initialSortDirection || 'desc');
 
-useEffect(() => {
-  if (selectedPeriodId) {
-    setSelectedPeriod(selectedPeriodId.toString());
-  } else {
-    const fallback = periods.find(p => p.name === '2024-2025')?.id?.toString() || '';
-    setSelectedPeriod(fallback);
-  }
-}, [selectedPeriodId, periods]);
+  useEffect(() => {
+    setStructures([...data]);
+  }, [data]);
 
-
-  function handleFilterChange(period_id) {
-    Inertia.get('/structures', {
-      period_id,
-      sort: sortDirection,
+  const handleFilterChange = (value) => {
+    setSelectedPeriod(value);
+    setPageIndex(0);
+    Inertia.get('/structures', { period_id: value }, {
+      preserveState: true,
+      replace: true,
     });
-  }
+  };
 
-  function sortByLevel(direction) {
-    Inertia.get('/structures', {
-      period_id: selectedPeriod,
-      sort: direction
-    }, { preserveState: true, replace: true });
-  }
+  const filteredData = useMemo(
+    () => [...structures].sort((a, b) => a.level - b.level),
+    [structures],
+  );
 
-  const columns = [
-    {
-      id: 'no',
-      header: '#',
-      cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
-    },
-    {
-      accessorKey: 'name',
-      header: 'Nama Struktur',
-    },
-    {
-      accessorKey: 'division.name',
-      header: 'Divisi',
-      cell: ({ row }) => row.original.division?.name || '-',
-    },
-    {
-      id: 'actions',
-      header: 'Aksi',
-      cell: ({ row }) => {
-        // Cek apakah baris ini adalah paling atas atau paling bawah
-        const rowIndex = row.index;
-        const totalRows = table.getRowModel().rows.length;
-        const isFirst = rowIndex === 0;
-        const isLast = rowIndex === totalRows - 1;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <Ellipsis className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => onEdit(row.original)}>
-                <Pencil className="mr-2 h-4 w-4" /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => Inertia.get(`/structure-members`, { structure_id: row.original.id })}>
-                <List className="mr-2 h-4 w-4" /> Lihat Struktur
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
-                <Trash2 className="mr-2 h-4 w-4" /> Hapus
-              </DropdownMenuItem>
-              {/* Tampilkan aksi urutkan level hanya jika bukan paling atas/bawah */}
-              {!isFirst && sortDirection === 'asc' && (
-                <DropdownMenuItem onClick={() => {
-                  setSortDirection('desc');
-                  sortByLevel('desc');
-                }}>
-                  <ArrowUp className="mr-2 h-4 w-4" /> Urutkan Level ke Atas
-                </DropdownMenuItem>
-              )}
-              {!isLast && sortDirection === 'desc' && (
-                <DropdownMenuItem onClick={() => {
-                  setSortDirection('asc');
-                  sortByLevel('asc');
-                }}>
-                  <ArrowDown className="mr-2 h-4 w-4" /> Urutkan Level ke Bawah
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      }
-    }
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        id: 'no',
+        header: '#',
+        cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
+      },
+      { accessorKey: 'name', header: 'Nama Struktur' },
+      {
+        accessorKey: 'division.name',
+        header: 'Divisi',
+        cell: ({ row }) => row.original.division?.name || '-',
+      },
+      {
+        id: 'actions',
+        header: 'Aksi',
+        cell: ({ row }) => renderActions(row.original),
+      },
+    ],
+    [pageIndex, pageSize],
+  );
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
-    state: {
-      globalFilter,
-      pagination: { pageIndex, pageSize },
-    },
+    state: { globalFilter, pagination: { pageIndex, pageSize } },
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: (updater) => {
-      if (typeof updater === 'function') {
-        const next = updater({ pageIndex, pageSize });
-        setPageIndex(next.pageIndex);
-        setPageSize(next.pageSize);
-      } else {
-        setPageIndex(updater.pageIndex);
-        setPageSize(updater.pageSize);
-      }
+      const next = typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater;
+      setPageIndex(next.pageIndex);
+      setPageSize(next.pageSize);
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  const maxIntGroupA = useMemo(() =>
+    Math.max(0, ...filteredData.filter((s) => !s.division_id).map((s) => intPart(s.level))),
+    [filteredData]
+  );
+
+  const minIntGroupB = useMemo(() => {
+    const ints = filteredData.filter((s) => s.division_id).map((s) => intPart(s.level));
+    return ints.length ? Math.min(...ints) : Infinity;
+  }, [filteredData]);
+
+  const clusterOf = (structure) =>
+    filteredData.filter(
+      (s) => s.division_id === structure.division_id &&
+        s.period_id === structure.period_id &&
+        s.division_id !== null,
+    );
+
+  const tryMove = (structure, dir) => {
+    const isGroupA = structure.division_id === null;
+    const delta = dir === 'up' ? -1 : 1;
+    let updated = [...structures];
+
+    if (isGroupA) {
+      updated = updated.map((s) => {
+        if (s.id === structure.id) {
+          const int = intPart(s.level) + delta;
+          return { ...s, level: parseFloat(`${int}.${fracPart(s.level)}`) };
+        }
+        return s;
+      });
+    } else {
+      const cluster = clusterOf(structure);
+      const canMove =
+        dir === 'up'
+          ? intPart(structure.level) - 1 >= maxIntGroupA
+          : intPart(structure.level) + 1 < 1000;
+
+      if (!canMove) {
+        toast.error('Perpindahan melanggar batas level.');
+        return;
+      }
+
+      updated = updated.map((s) => {
+        const inCluster = cluster.find((c) => c.id === s.id);
+        if (!inCluster) return s;
+        const int = intPart(s.level) + delta;
+        return { ...s, level: parseFloat(`${int}.${fracPart(s.level)}`) };
+      });
+    }
+
+    const changes = updated
+      .filter((s) => s.period_id === structure.period_id)
+      .map(({ id, level }) => ({ id, level }));
+
+    Inertia.post('/structures/reorder', { data: changes }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success('Urutan berhasil disimpan');
+        setStructures(updated);
+      },
+      onError: () => toast.error('Gagal menyimpan urutan'),
+    });
+  };
+
+  const renderActions = (structure) => {
+    const isGroupA = structure.division_id === null;
+    const actionsDisabledUp = (!isGroupA && intPart(structure.level) - 1 < maxIntGroupA) ||
+                              (isGroupA && intPart(structure.level) - 1 < 1);
+    const actionsDisabledDown = (isGroupA && intPart(structure.level) + 1 >= minIntGroupB);
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon" variant="ghost">
+            <Ellipsis className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => onEdit(structure)}>
+            <Pencil className="mr-2 h-4 w-4" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => Inertia.get('/structure-members', { structure_id: structure.id })}>
+            <List className="mr-2 h-4 w-4" /> Lihat Struktur
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={actionsDisabledUp} onClick={() => tryMove(structure, 'up')}>
+            <ArrowUp className="mr-2 h-4 w-4" /> Naik Level
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={actionsDisabledDown} onClick={() => tryMove(structure, 'down')}>
+            <ArrowDown className="mr-2 h-4 w-4" /> Turun Level
+          </DropdownMenuItem>
+          <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(structure.id)}>
+            <Trash2 className="mr-2 h-4 w-4" /> Hapus
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
   const pageCount = table.getPageCount();
   const currentPage = table.getState().pagination.pageIndex;
 
-  function getPaginationRange(current, total) {
+  const getPaginationRange = (current, total) => {
     const delta = 2;
     let range = [];
     for (let i = Math.max(0, current - delta); i <= Math.min(total - 1, current + delta); i++) {
@@ -182,7 +214,7 @@ useEffect(() => {
     if (range[0] > 0) range = [0, ...range];
     if (range[range.length - 1] < total - 1) range = [...range, total - 1];
     return Array.from(new Set(range));
-  }
+  };
 
   return (
     <>
@@ -241,7 +273,7 @@ useEffect(() => {
         <TableBody>
           {table.getRowModel().rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="text-center">
+              <TableCell colSpan={table.getAllColumns().length} className="text-center">
                 Tidak ada data struktur.
               </TableCell>
             </TableRow>
