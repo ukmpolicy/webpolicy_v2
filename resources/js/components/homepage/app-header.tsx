@@ -24,11 +24,11 @@ export default function AppHeader() {
     }, []);
 
     const navItems = [
-        { label: 'Home', href: '/' },
-        { label: 'About', href: '/about' },
+        { label: 'Beranda', href: '/' },
+        { label: 'Tentang', href: '/about' },
         { label: 'Berita', href: '/berita' },
         { label: 'Dokumentasi', href: '/gallery' },
-        { label: 'Contact', href: '/contact' },
+        { label: 'Kontak', href: '/contact' },
     ];
 
     const isActive = (href: string) => url === href || (href !== '/' && url.startsWith(href));
@@ -40,13 +40,6 @@ export default function AppHeader() {
     };
 
     const userInitials = auth.user ? getUserInitials(auth.user.name) : '';
-
-    const navItems = [
-        { label: 'Home', href: '/' },
-        { label: 'Tentang', href: '/about' },
-        { label: 'Dokumentasi', href: '/gallery' },
-        { label: 'Kontak', href: '/contact' },
-    ];
 
     return (
         <>
