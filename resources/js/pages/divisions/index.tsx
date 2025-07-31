@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 export default function DivisionIndex() {
     // Tambahkan 'activePeriod' ke destructuring props
-    const { divisions = [], periods = [], selectedPeriod = '', activePeriod = null } = usePage().props;
+    const { divisions = [], periods = [], selectedPeriod = '', activePeriod = null, activePeriodId = null } = usePage().props;
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
 
@@ -49,6 +49,7 @@ export default function DivisionIndex() {
                     }}
                     periods={periods}
                     selectedPeriod={selectedPeriod}
+                    activePeriodId={activePeriodId}
                 />
                 <DivisionFormModal
                     open={open}

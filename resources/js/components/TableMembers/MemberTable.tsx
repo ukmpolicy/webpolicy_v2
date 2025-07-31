@@ -30,9 +30,9 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
-    console.log('Data yang diterima:');
-    console.log('Periods:', periods);
-    console.log('Active Period ID:', activePeriodId);
+    // console.log('Data yang diterima:');
+    // console.log('Periods:', periods);
+    // console.log('Active Period ID:', activePeriodId);
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [pageSize, setPageSize] = useState(10);

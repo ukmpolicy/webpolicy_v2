@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Division; // Tetap ada karena DivisionController mengelola model Division
+use App\Models\Period;
 use App\Services\DivisionService;
 use App\Services\PeriodService; // Import PeriodService
 use Illuminate\Http\Request;
@@ -23,15 +24,39 @@ class DivisionController extends Controller
 
     public function index(Request $request)
     {
-        $periodId = $request->query('period_id');
-        $divisions = $this->divisionService->getAllDivisions($periodId);
-        $periods = $this->periodService->getAllPeriods(); // Panggil PeriodService untuk mendapatkan semua periode
-        $activePeriod = $this->periodService->getActivePeriod();
-        return inertia('divisions/index', [
+        // $periodId = $request->query('period_id');
+        // $divisions = $this->divisionService->getAllDivisions($periodId);
+        // $periods = $this->periodService->getAllPeriods(); // Panggil PeriodService untuk mendapatkan semua periode
+        // $activePeriod = $this->periodService->getActivePeriod();
+        // return inertia('divisions/index', [
+        //     'divisions' => $divisions,
+        //     'periods' => $periods, // Kirim periods ke frontend
+        //     'selectedPeriod' => $periodId, // Kirim juga selectedPeriod untuk menjaga state filter
+        //     'activePeriod' => $activePeriod,
+        // ]);
+         $periods = Period::all();
+        $activePeriod = Period::where('is_active', 1)->first();
+
+        $requestedPeriodId = $request->query('period_id');
+
+        $periodIdToFilter = null;
+        if ($requestedPeriodId === 'all') { // Jika 'all' dikirim dari frontend
+            $periodIdToFilter = null; // Filter semua
+        } else if ($requestedPeriodId) {
+            $periodIdToFilter = (int)$requestedPeriodId; // Gunakan ID yang diminta
+        } else {
+            $periodIdToFilter = $activePeriod?->id; // Default ke periode aktif
+        }
+
+        // Panggil service untuk mendapatkan divisi yang sudah difilter
+        $divisions = $this->divisionService->getAllDivisions($periodIdToFilter);
+
+        return Inertia::render('divisions/index', [ // Pastikan path benar
             'divisions' => $divisions,
-            'periods' => $periods, // Kirim periods ke frontend
-            'selectedPeriod' => $periodId, // Kirim juga selectedPeriod untuk menjaga state filter
-            'activePeriod' => $activePeriod,
+            'periods' => $periods,
+            'selectedPeriod' => $periodIdToFilter, // Kirim ID periode yang sedang aktif/difilter
+            'activePeriod' => $activePeriod, // Kirim objek periode aktif untuk pesan
+            'activePeriodId' => $activePeriod?->id, // Kirim ID periode aktif untuk inisialisasi filter
         ]);
     }
 

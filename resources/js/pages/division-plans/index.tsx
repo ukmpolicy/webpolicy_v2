@@ -8,7 +8,7 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function DivisionPlansIndex() {
-    const { division_plans = [], divisions = [] } = usePage().props;
+    const { division_plans = [], divisions = [], selected_division_id = null } = usePage().props;
 
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
@@ -51,6 +51,7 @@ export default function DivisionPlansIndex() {
                     }}
                     initialData={editData}
                     divisions={divisions}
+                    selectedDivisionId={selected_division_id}
                 />
             </div>
         </AppLayout>

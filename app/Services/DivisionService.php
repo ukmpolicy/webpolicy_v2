@@ -17,11 +17,15 @@ class DivisionService
     //     $this->divisionRepository = $divisionRepository;
     // }
 
-    public function getAllDivisions($periodId = null)
+    // public function getAllDivisions($periodId = null)
+    // {
+    //     return $this->divisionRepository->getAll($periodId);
+    // }
+
+    public function getAllDivisions(?int $periodId = null)
     {
         return $this->divisionRepository->getAll($periodId);
     }
-
     public function createDivision(array $data)
     {
         // Normalisasi nama sebelum create

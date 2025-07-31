@@ -26,20 +26,36 @@ import { Inertia } from '@inertiajs/inertia';
 import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
 import { Ellipsis, List, Pencil, Search, Trash2 } from 'lucide-react';
 import * as React from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react'; // Import useEffect
 import { toast } from 'sonner';
 
-export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' }) {
+export function DivisionTable({ data, onEdit, periods = [], selectedPeriod: propSelectedPeriod = '', activePeriodId = null }) {
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
-    const [columnFilters, setColumnFilters] = useState([]);
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
+    const [columnFilters, setColumnFilters] = useState([]); // Add this line
+
+    // Inisialisasi selectedPeriod dengan activePeriodId dari props
+    const [selectedPeriod, setSelectedPeriod] = useState(activePeriodId ? String(activePeriodId) : 'all');
+
+    // Sinkronisasi selectedPeriod state lokal dengan prop activePeriodId
+    useEffect(() => {
+        setSelectedPeriod(activePeriodId ? String(activePeriodId) : 'all');
+    }, [activePeriodId]);
 
     function handlePeriodFilter(value: string) {
-        window.location.href = value === '__all__' ? '/divisions' : `/divisions?period_id=${value}`;
+        // Gunakan Inertia.get untuk memuat ulang data dari backend
+        Inertia.get(
+            '/divisions',
+            {
+                period_id: value, // Kirim 'all' atau ID periode
+            },
+            { preserveScroll: true, replace: true },
+        );
     }
-    // Unique division names for filter
+
+    // Unique division names for filter (ini masih filter frontend, tidak masalah)
     const divisionNameOptions = useMemo(() => {
         const names = data?.map((d) => d.name).filter((name) => name) || [];
         return ['__all__', ...new Set(names)];
@@ -47,17 +63,18 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
 
     React.useEffect(() => {
         setPageIndex(0);
-    }, [globalFilter, columnFilters]);
+    }, [globalFilter, selectedPeriod]); // Tambahkan selectedPeriod sebagai dependency
 
     const columns = [
         {
             id: 'no',
             header: '#',
-            cell: ({ row }) => row.index + 1,
+            cell: () => null, // Render manual di JSX
         },
         {
             accessorKey: 'name',
             header: 'Nama Divisi',
+            // filterFn ini tidak akan digunakan jika filtering di backend
             filterFn: (row, _, filterValue) => {
                 if (!filterValue || filterValue === '__all__') return true;
                 return row.getValue('name') === filterValue;
@@ -98,7 +115,7 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
         columns,
         state: {
             globalFilter,
-            columnFilters,
+            columnFilters, // Tetap ada jika ada filter lain yang dikelola frontend
             pagination: { pageIndex, pageSize },
         },
         onGlobalFilterChange: setGlobalFilter,
@@ -114,7 +131,7 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
             }
         },
         getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
+        getFilteredRowModel: getFilteredRowModel(), // Tetap ada untuk globalFilter
         getPaginationRowModel: getPaginationRowModel(),
     });
 
@@ -147,34 +164,13 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
                     <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
 
-                {/* Filter Nama Divisi */}
-                {/* <Select
-                    value={(table.getColumn('name')?.getFilterValue() as string) || '__all__'}
-                    onValueChange={(value) => table.getColumn('name')?.setFilterValue(value === '__all__' ? undefined : value)}
-                >
-                    <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Semua Divisi" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="__all__">
-                            <Layers className="mr-2 inline h-4 w-4" /> Semua Divisi
-                        </SelectItem>
-                        {divisionNameOptions
-                            .filter((opt) => opt !== '__all__')
-                            .map((name) => (
-                                <SelectItem key={name} value={name}>
-                                    <Tag className="mr-2 inline h-4 w-4" />
-                                    {name}
-                                </SelectItem>
-                            ))}
-                    </SelectContent>
-                </Select> */}
-                <Select value={selectedPeriod || '__all__'} onValueChange={handlePeriodFilter}>
+                {/* Filter Periode */}
+                <Select value={selectedPeriod} onValueChange={handlePeriodFilter}>
                     <SelectTrigger className="w-48">
                         <SelectValue placeholder="Semua Periode" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="__all__">Semua Periode</SelectItem>
+                        <SelectItem value="all">Semua Periode</SelectItem> {/* Gunakan 'all' */}
                         {periods.map((period) => (
                             <SelectItem key={period.id} value={String(period.id)}>
                                 {period.name}
@@ -182,6 +178,7 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
                         ))}
                     </SelectContent>
                 </Select>
+
                 <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-32">
                         <SelectValue />
@@ -220,11 +217,22 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
                     ) : (
                         table.getRowModel().rows.map((row, idx) => (
                             <TableRow key={row.id} className={idx % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-800'}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </TableCell>
-                                ))}
+                                {/* Perbaikan penomoran manual */}
+                                <TableCell className="border-r border-l font-medium dark:border-zinc-800 dark:text-zinc-100">
+                                    {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + idx + 1}
+                                </TableCell>
+                                {row
+                                    .getVisibleCells()
+                                    .filter((cell) => cell.column.id !== 'no')
+                                    .map(
+                                        (
+                                            cell, // Filter out 'no' column
+                                        ) => (
+                                            <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </TableCell>
+                                        ),
+                                    )}
                             </TableRow>
                         ))
                     )}

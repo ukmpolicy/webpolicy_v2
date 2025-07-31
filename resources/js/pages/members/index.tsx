@@ -9,7 +9,6 @@ import { useState } from 'react';
 export default function MemberIndex() {
     // Tambahkan 'activePeriod' ke destructuring props
     const { members = [], periods = [], departments = [], activePeriodId = null, activePeriod = null } = usePage().props;
-    console.log('Active Period:', activePeriod);
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
 

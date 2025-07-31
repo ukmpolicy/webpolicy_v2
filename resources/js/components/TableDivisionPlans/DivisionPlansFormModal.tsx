@@ -8,7 +8,8 @@ import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-export function DivisionPlansFormModal({ open, onClose, initialData, divisions }) {
+// Tambahkan selectedDivisionId sebagai prop
+export function DivisionPlansFormModal({ open, onClose, initialData, divisions, selectedDivisionId }) {
     const isEdit = !!initialData?.id;
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
@@ -19,17 +20,22 @@ export function DivisionPlansFormModal({ open, onClose, initialData, divisions }
     });
 
     useEffect(() => {
-        if (initialData) {
-            setData({
-                name: initialData.name || '',
-                description: initialData.description || '',
-                scheduled_at: initialData.scheduled_at ? new Date(initialData.scheduled_at).toISOString().slice(0, 16) : '',
-                division_id: initialData.division_id ? initialData.division_id.toString() : '',
-            });
-        } else {
-            reset();
+        if (open) {
+            if (isEdit && initialData) {
+                // Mode Edit: Gunakan data dari initialData
+                setData({
+                    name: initialData.name || '',
+                    description: initialData.description || '',
+                    scheduled_at: initialData.scheduled_at ? new Date(initialData.scheduled_at).toISOString().slice(0, 16) : '',
+                    division_id: initialData.division_id ? initialData.division_id.toString() : '',
+                });
+            } else {
+                // Mode Tambah: Reset form, dan set division_id jika ada selectedDivisionId
+                reset();
+                setData('division_id', selectedDivisionId ? selectedDivisionId.toString() : '');
+            }
         }
-    }, [initialData, open]);
+    }, [initialData, open, selectedDivisionId]); // Tambahkan selectedDivisionId ke dependency array
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -84,9 +90,13 @@ export function DivisionPlansFormModal({ open, onClose, initialData, divisions }
 
                     <div className="space-y-2">
                         <Label htmlFor="division_id">Pilih Divisi</Label>
-                        <Select value={data.division_id} onValueChange={(value) => setData('division_id', value)}>
+                        <Select
+                            value={data.division_id}
+                            onValueChange={(value) => setData('division_id', value)}
+                            disabled={!!selectedDivisionId && !isEdit} // Dinonaktifkan jika selectedDivisionId ada dan bukan mode edit
+                        >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select division" />
+                                <SelectValue placeholder="Pilih divisi" />
                             </SelectTrigger>
                             <SelectContent>
                                 {divisions &&

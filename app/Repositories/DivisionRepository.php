@@ -13,17 +13,28 @@ class DivisionRepository
         $this->model = new Division();
     }
 
-    public function getAll($periodId = null)
-    {
-        // return Division::all();
+    // public function getAll($periodId = null)
+    // {
+    //     // return Division::all();
 
-        $query = Division::query();
-        if($periodId){
+    //     $query = Division::query();
+    //     if($periodId){
+    //         $query->where('period_id', $periodId);
+    //     }
+
+    //     return $query->get();
+    // }
+      public function getAll(?int $periodId = null)
+    {
+        $query = Division::query(); // Mulai dengan query builder
+
+        if ($periodId !== null) { // Pastikan hanya memfilter jika periodId bukan null
             $query->where('period_id', $periodId);
         }
 
         return $query->get();
     }
+
 
     public function create(array $data)
     {
