@@ -44,8 +44,8 @@ Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
 Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
 
 // Galeri
-Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('public.gallery');
-Route::get('/gallery/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.gallery.album.show');
+Route::get('/dokumentasi', [PublicGalleryController::class, 'index'])->name('public.dokumentasi');
+Route::get('/dokumentasi/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.dokumentasi.album.show');
 
 // Kontak
 Route::get('/contact', function () {

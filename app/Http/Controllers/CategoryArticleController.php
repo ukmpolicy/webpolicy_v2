@@ -33,7 +33,7 @@ class CategoryArticleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:blog_categories,name',
+            'name' => 'required|string|max:50|unique:blog_categories,name',
         ]);
 
         // Normalisasi data: huruf kecil dan spasi tunggal
@@ -43,7 +43,7 @@ class CategoryArticleController extends Controller
             $this->categoryService->createCategory($validated);
             return redirect()->back()->with('success', 'Kategori Artikel berhasil ditambahkan.');
         } catch (\Exception $e) {
-            Log::error('Error creating category: ' . $e->getMessage());
+            // Log::error('Error creating category: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menambahkan kategori. Silakan coba lagi.');
         }
     }
@@ -54,7 +54,7 @@ class CategoryArticleController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:blog_categories,name,' . $id,
+            'name' => 'required|string|max:50|unique:blog_categories,name,' . $id,
         ]);
 
         // Normalisasi data: huruf kecil dan spasi tunggal
@@ -64,7 +64,7 @@ class CategoryArticleController extends Controller
             $this->categoryService->updateCategory($id, $validated);
             return redirect()->back()->with('success', 'Kategori Artikel berhasil diperbarui.');
         } catch (\Exception $e) {
-            Log::error('Error updating category ' . $id . ': ' . $e->getMessage());
+            // Log::error('Error updating category ' . $id . ': ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal memperbarui kategori. Silakan coba lagi.');
         }
     }
@@ -78,7 +78,7 @@ class CategoryArticleController extends Controller
             $this->categoryService->deleteCategory($id);
             return redirect()->back()->with('success', 'Kategori Artikel berhasil dihapus.');
         } catch (\Exception $e) {
-            Log::error('Error deleting category ' . $id . ': ' . $e->getMessage());
+            // Log::error('Error deleting category ' . $id . ': ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menghapus kategori. Pastikan tidak ada artikel yang terhubung.');
         }
     }

@@ -53,7 +53,7 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
         {
             id: 'no',
             header: '#',
-            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
+            cell: ({ row }) => row.index + 1,
         },
         {
             accessorKey: 'name',

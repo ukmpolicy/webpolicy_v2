@@ -40,7 +40,7 @@ export function DivisionPlansTable({ data, divisions, onEdit }) {
         {
             id: 'no',
             header: '#',
-            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
+            cell: ({ row }) => row.index + 1,
         },
         {
             accessorKey: 'name',
