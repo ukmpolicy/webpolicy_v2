@@ -31,29 +31,32 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 
-// Home page route (Beranda)
-Route::get('/', [HomePageController::class, 'index'])->name('home');
+// Grup rute publik yang akan dilindungi jika email belum diverifikasi
+Route::middleware(['email.public.verified'])->group(function () {
+    // Home page route (Beranda)
+    Route::get('/', [HomePageController::class, 'index'])->name('home');
 
-// About
-Route::get('/about', function () {
-    return Inertia::render('homepage/about/index');
-})->name('about');
+    // About
+    Route::get('/about', function () {
+        return Inertia::render('homepage/about/index');
+    })->name('about');
 
-// Berita (Blog)
-Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
-Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
+    // Berita (Blog)
+    Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
+    Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
 
-// Galeri
-Route::get('/dokumentasi', [PublicGalleryController::class, 'index'])->name('public.dokumentasi');
-Route::get('/dokumentasi/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.dokumentasi.album.show');
+    // Galeri
+    Route::get('/dokumentasi', [PublicGalleryController::class, 'index'])->name('public.dokumentasi');
+    Route::get('/dokumentasi/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.dokumentasi.album.show');
 
-// Kontak
-Route::get('/contact', function () {
-    return Inertia::render('homepage/contact/index');
-})->name('contact');
-Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+    // Kontak
+    Route::get('/contact', function () {
+        return Inertia::render('homepage/contact/index');
+    })->name('contact');
+    Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+});
 
-// Logout
+// Logout (tetap di luar grup agar bisa diakses dari halaman verify-email)
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 
