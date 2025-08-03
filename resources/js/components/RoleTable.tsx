@@ -1,24 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useReactTable, getCoreRowModel, flexRender, ColumnDef, getFilteredRowModel, getPaginationRowModel } from '@tanstack/react-table';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './ui/table';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from './ui/dropdown-menu';
+import { router } from '@inertiajs/react';
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
+import { Ellipsis, List, Pencil, Search, Tag, Trash2, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from './ui/alert-dialog';
 import { Button } from './ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Input } from './ui/input';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './ui/select';
-import { Pencil, Trash2, User, CalendarDays, Ellipsis, Tag, Search, List } from 'lucide-react';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from './ui/alert-dialog';
 import {
     Pagination,
     PaginationContent,
+    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
-    PaginationPrevious,
     PaginationNext,
-    PaginationEllipsis,
+    PaginationPrevious,
 } from './ui/pagination';
-import { router } from '@inertiajs/react';
-import { toast } from 'sonner';
-import React from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
 // Tipe data disesuaikan dengan skema final (tanpa key)
 type Role = {
@@ -34,7 +42,7 @@ interface RoleTableProps {
     onManagePermissions?: (role: Role) => void;
     onManageUsers?: (role: Role) => void;
     canManageUsers?: boolean;
-};
+}
 
 export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, canManageUsers }: RoleTableProps) {
     const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -50,7 +58,7 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
         {
             id: 'rowNumber',
             header: '#',
-            cell: ({ row }) => row.index + 1 + pageIndex * pageSize,
+            cell: ({ row }) => row.index + 1,
         },
         {
             accessorKey: 'name',
@@ -59,7 +67,7 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
         {
             accessorKey: 'created_at',
             header: 'Dibuat',
-            cell: info => new Date(info.getValue() as string).toLocaleDateString('id-ID'),
+            cell: (info) => new Date(info.getValue() as string).toLocaleDateString('id-ID'),
         },
         {
             id: 'actions',
@@ -69,27 +77,24 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button size="icon" variant="ghost" aria-label="Aksi">
-                                <Ellipsis className="w-4 h-4" />
+                                <Ellipsis className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
-                                <Pencil className="w-4 h-4 mr-2" /> Edit
+                                <Pencil className="mr-2 h-4 w-4" /> Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onManagePermissions?.(row.original)}>
-                                <Tag className="w-4 h-4 mr-2" /> Manage Permissions
+                                <Tag className="mr-2 h-4 w-4" /> Manage Permissions
                             </DropdownMenuItem>
                             {canManageUsers && (
                                 <DropdownMenuItem onClick={() => onManageUsers?.(row.original)}>
-                                    <User className="w-4 h-4 mr-2" /> Manage Users
+                                    <User className="mr-2 h-4 w-4" /> Manage Users
                                 </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() => setDeleteId(row.original.id)}
-                            >
-                                <Trash2 className="w-4 h-4 mr-2" /> Hapus
+                            <DropdownMenuItem variant="destructive" onClick={() => setDeleteId(row.original.id)}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Hapus
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -106,7 +111,7 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
             pagination: { pageIndex, pageSize },
         },
         onGlobalFilterChange: setGlobalFilter,
-        onPaginationChange: updater => {
+        onPaginationChange: (updater) => {
             if (typeof updater === 'function') {
                 const next = updater({ pageIndex, pageSize });
                 setPageIndex(next.pageIndex);
@@ -137,30 +142,28 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
 
     return (
         // --- PERUBAHAN: Ganti 'shadow-sm' menjadi 'shadow-lg' untuk efek yang lebih kuat ---
-        <div className="bg-white dark:bg-zinc-900/50 p-4 sm:p-6 rounded-xl border-4 shadow-lg">
+        <div className="rounded-xl border-4 bg-white p-4 shadow-lg sm:p-6 dark:bg-zinc-900/50">
             {/* Filter & Search */}
-            <div className="flex flex-wrap gap-2 mb-4 items-center">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
                 <div className="relative w-full sm:w-48">
                     <Input
                         type="search"
                         placeholder="Cari role..."
                         value={globalFilter}
-                        onChange={e => setGlobalFilter(e.target.value)}
-                        className="pl-9 border-2 shadow-lg focus:border-secondary focus:ring-0 focus:shadow-lg transition-all duration-200"
+                        onChange={(e) => setGlobalFilter(e.target.value)}
+                        className="focus:border-secondary border-2 pl-9 shadow-lg transition-all duration-200 focus:shadow-lg focus:ring-0"
                     />
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
                 </div>
-                <Select
-                    value={String(pageSize)}
-                    onValueChange={v => setPageSize(Number(v))}
-                >
-                    <SelectTrigger className="w-full sm:w-32 border-2 shadow-md">
+                <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                    <SelectTrigger className="w-full border-2 shadow-md sm:w-32">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                        {[5, 10, 20, 50].map(size => (
+                        {[5, 10, 20, 50].map((size) => (
                             <SelectItem key={size} value={String(size)}>
-                                <List className="w-4 h-4 mr-2 inline focus:border-secondary focus:ring-0 focus:shadow-lg transition-all duration-200" />{size} Data
+                                <List className="focus:border-secondary mr-2 inline h-4 w-4 transition-all duration-200 focus:shadow-lg focus:ring-0" />
+                                {size}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -171,12 +174,10 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
-                        {table.getHeaderGroups().map(headerGroup => (
+                        {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id} className="bg-muted/50 hover:bg-muted/80">
-                                {headerGroup.headers.map(header => (
-                                    <TableHead key={header.id}>
-                                        {flexRender(header.column.columnDef.header, header.getContext())}
-                                    </TableHead>
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
                                 ))}
                             </TableRow>
                         ))}
@@ -184,17 +185,15 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                     <TableBody>
                         {table.getRowModel().rows.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="text-center h-24">
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
                                     Tidak ada data.
                                 </TableCell>
                             </TableRow>
                         ) : (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                                    {row.getVisibleCells().map(cell => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
+                                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                                     ))}
                                 </TableRow>
                             ))
@@ -205,11 +204,14 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
 
             {/* Pagination */}
             <div className="flex items-center justify-end space-x-2 py-4">
-                 <Pagination>
+                <Pagination>
                     <PaginationContent>
                         <PaginationItem>
                             <PaginationPrevious
-                                onClick={e => { e.preventDefault(); table.previousPage(); }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    table.previousPage();
+                                }}
                                 href="#"
                                 aria-disabled={!table.getCanPreviousPage()}
                                 className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
@@ -217,7 +219,7 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                         </PaginationItem>
                         {getPaginationRange(currentPage, pageCount).map((i, idx, arr) => (
                             <React.Fragment key={i}>
-                                {idx > 0 && arr[idx-1] !== i-1 && (
+                                {idx > 0 && arr[idx - 1] !== i - 1 && (
                                     <PaginationItem>
                                         <PaginationEllipsis />
                                     </PaginationItem>
@@ -225,7 +227,10 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                                 <PaginationItem>
                                     <PaginationLink
                                         isActive={i === currentPage}
-                                        onClick={e => { e.preventDefault(); table.setPageIndex(i); }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            table.setPageIndex(i);
+                                        }}
                                         href="#"
                                     >
                                         {i + 1}
@@ -235,7 +240,10 @@ export function RoleTable({ data, onEdit, onManagePermissions, onManageUsers, ca
                         ))}
                         <PaginationItem>
                             <PaginationNext
-                                onClick={e => { e.preventDefault(); table.nextPage(); }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    table.nextPage();
+                                }}
                                 href="#"
                                 aria-disabled={!table.getCanNextPage()}
                                 className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
