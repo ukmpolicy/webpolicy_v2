@@ -21,7 +21,7 @@ const AboutPage: React.FC = () => {
         <>
             <Head title="About - UKM POLICY - KBMPNL" />
             <AppHeader />
-            <main className="bg-black pt-18 text-white">
+            <main className="bg-black pt-20 sm:pt-20 min-h-screen">
                 <SectionLabel />
                 <AboutIntro />
                 <AboutHistory />

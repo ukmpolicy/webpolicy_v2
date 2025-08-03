@@ -19,7 +19,7 @@ export default function AboutLogo() {
                 {/* Konten Makna Logo */}
                 <div className="text-left">
                     <h2 className="mb-8 flex items-center gap-3 text-3xl font-bold tracking-tight md:text-4xl">
-                        <BadgeCheck className="h-7 w-7 text-red-500" />
+                        <BadgeCheck className="h-10 w-10 text-red-500" />
                         Makna Logo UKM POLICY
                     </h2>
 

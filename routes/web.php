@@ -31,64 +31,45 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 
-// Home page route (Beranda)
 Route::get('/', [HomePageController::class, 'index'])->name('home');
 
-// About
 Route::get('/about', function () {
     return Inertia::render('homepage/about/index');
 })->name('about');
 
-// Berita (Blog)
 Route::get('/berita', [BlogPageController::class, 'index'])->name('blog.index');
 Route::get('/berita/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
 
-// Galeri
 Route::get('/gallery', [PublicGalleryController::class, 'index'])->name('public.gallery');
 Route::get('/gallery/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.gallery.album.show');
 
-// Kontak
 Route::get('/contact', function () {
     return Inertia::render('homepage/contact/index');
 })->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
-// Logout
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-
 
 /*
 |--------------------------------------------------------------------------
 | Halaman Admin (Butuh Login)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
-    })->name('dashboard')->middleware('permission:dashboard');
+    })->name('dashboard');
 
-    // Roles Management
-    Route::resource('roles', RoleController::class)->middleware('permission:roles');
-    Route::post('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])
-        ->name('roles.permissions.update')
-        ->middleware('permission:roles');
+    Route::resource('roles', RoleController::class);
+    Route::post('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('roles.permissions.update');
+    Route::post('/roles/{role}/invite-user', [RoleController::class, 'inviteUser'])->name('roles.inviteUser');
+    Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.removeUser');
 
-    // Invite/Remove User from Role
-    Route::post('/roles/{role}/invite-user', [RoleController::class, 'inviteUser'])
-        ->name('roles.inviteUser')
-        ->middleware('permission:roles');
-    Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])
-        ->name('roles.removeUser')
-        ->middleware('permission:roles');
+    Route::resource('permissions', PermissionController::class);
+    Route::resource('periods', PeriodsController::class);
 
-    // Permissions management
-    Route::resource('permissions', PermissionController::class)->middleware('permission:permissions');
-
-    // Periods Management
-    Route::resource('periods', PeriodsController::class)->middleware('permission:periods');
-
-    // Visi & Misi Management (dianggap bagian dari manajemen periode)
-    Route::middleware('permission:periods')->group(function () {
+    Route::group([], function () {
         Route::post('/periods/{period}/vissions', [VissionController::class, 'store'])->name('vissions.store');
         Route::put('/vissions/{vission}', [VissionController::class, 'update'])->name('vissions.update');
         Route::delete('/vissions/{vission}', [VissionController::class, 'destroy'])->name('vissions.destroy');
@@ -98,38 +79,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/missions/{mission}', [MissionController::class, 'destroy'])->name('missions.destroy');
     });
 
-    // Member management
-    Route::resource('members', MemberController::class)->middleware('permission:members');
-    Route::post('members/{id}', [MemberController::class, 'update'])->middleware('permission:members');
+    Route::resource('members', MemberController::class);
+    Route::post('members/{id}', [MemberController::class, 'update']);
 
-    // Division Management
-    Route::resource('divisions', DivisionController::class)->middleware('permission:divisions');
+    Route::resource('divisions', DivisionController::class);
+    Route::resource('division-plans', DivisionPlansController::class);
 
-    // Division Plans Management
-    Route::resource('division-plans', DivisionPlansController::class)->middleware('permission:division-plans');
+    Route::resource('gallery-album', AlbumController::class);
+    Route::resource('gallery-media', MediaController::class);
+    Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])->name('gallery-media.move');
 
-    // Gallery Management
-    Route::resource('gallery-album', AlbumController::class)->middleware('permission:gallery-album');
-    Route::resource('gallery-media', MediaController::class)->middleware('permission:gallery-media');
-    Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])->name('gallery-media.move')->middleware('permission:gallery-media');
+    Route::resource('category-articles', CategoryArticleController::class);
+    Route::resource('articles', ArticleController::class);
+    Route::post('/articles/upload-image', [ArticleController::class, 'uploadImage'])->name('articles.uploadImage');
 
-    // Article Management
-    Route::resource('category-articles', CategoryArticleController::class)->middleware('permission:category-articles');
-    Route::resource('articles', ArticleController::class)->middleware('permission:articles');
-    Route::post('/articles/upload-image', [ArticleController::class, 'uploadImage'])->name('articles.uploadImage')->middleware('permission:articles');
+    Route::get('/structures/next-level', [StructureController::class, 'getNextLevel']);
+    Route::resource('structures', StructureController::class);
+    Route::post('/structures/reorder', [StructureController::class, 'reorder'])->name('structures.reorder');
 
-    // Structure Management
-    Route::get('/structures/next-level', [StructureController::class, 'getNextLevel'])->middleware('permission:structures');
-    Route::resource('structures', StructureController::class)->middleware('permission:structures');
-    Route::post('/structures/reorder', [StructureController::class, 'reorder'])->name('structures.reorder')->middleware('permission:structures');
-
-    // Structure Member Management
-    Route::get('/structure-members', [StructureMemberController::class, 'index'])->name('structure-members.index')->middleware('permission:structure-members');
-    Route::post('/structure-members', [StructureMemberController::class, 'store'])->name('structure-members.store')->middleware('permission:structure-members');
-    Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])->middleware('permission:structure-members');
-    Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware('permission:structure-members');
+    Route::get('/structure-members', [StructureMemberController::class, 'index'])->name('structure-members.index');
+    Route::post('/structure-members', [StructureMemberController::class, 'store'])->name('structure-members.store');
+    Route::post('structure-members/{id}', [StructureMemberController::class, 'update']);
+    Route::get('/structure-members/{id}', [StructureMemberController::class, 'show']);
 });
-
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
