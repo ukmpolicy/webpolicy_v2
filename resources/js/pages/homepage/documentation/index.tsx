@@ -36,7 +36,7 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ albums }) => {
         <>
             <Head title="Dokumentasi - UKM POLICY" />
             <AppHeader />
-            <main className="bg-black text-white pt-20 sm:pt-20 min-h-screen">
+            <main className="bg-black text-white pt-24 sm:pt-28 min-h-screen">
                 <DocumentationHeader />
                 <AlbumGrid albums={albums} />
             </main>
