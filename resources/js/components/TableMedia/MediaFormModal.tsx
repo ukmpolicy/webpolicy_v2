@@ -122,53 +122,10 @@ export function MediaFormModal({ open, onClose, initialData, albums, selectedAlb
                     // Pesan fallback jika terjadi error tak terduga (misal server error 500)
                     toast.error(`Gagal ${isEdit ? 'memperbarui' : 'menambahkan'} media. Silakan coba lagi.`);
                 }
-                console.error('Error from Inertia:', inertiaErrors);
+                // console.error('Error from Inertia:', inertiaErrors);
             },
         });
     }
-    // function handleSubmit(e) {
-    //     e.preventDefault();
-
-    //     // Validasi manual album_id (tetap dipertahankan)
-    //     if (!data.album_id || data.album_id === '') {
-    //         toast.error('Album wajib dipilih');
-    //         return;
-    //     }
-
-    //     const formData = new FormData();
-    //     formData.append('album_id', data.album_id || selectedAlbumId || '');
-    //     formData.append('caption', data.caption || '');
-    //     if (data.file) {
-    //         formData.append('file', data.file);
-    //     }
-    //     if (isEdit) {
-    //         formData.append('_method', 'PUT'); // Penting untuk metode PUT di Laravel
-    //     }
-
-    //     Inertia.post(isEdit ? `/gallery-media/${initialData.id}` : '/gallery-media', formData, {
-    //         forceFormData: true, // Pastikan Inertia mengirim sebagai FormData
-    //         onSuccess: () => {
-    //             toast.success(isEdit ? 'Media berhasil diperbarui' : 'Media Berhasil ditambahkan');
-    //             onClose(); // Tutup modal
-    //             reset(); // Reset form
-    //             // Muat ulang halaman untuk menampilkan media terbaru, pertahankan scroll dan state filter
-    //             Inertia.get('/gallery-media', { album_id: data.album_id }, { preserveScroll: true, preserveState: true });
-    //         },
-    //         onError: (inertiaErrors) => {
-    //             // *** PERUBAHAN UTAMA DI SINI ***
-    //             // Iterasi melalui semua error yang dikirim oleh Inertia dari Laravel
-    //             if (inertiaErrors && Object.keys(inertiaErrors).length > 0) {
-    //                 Object.values(inertiaErrors).forEach((errorMsg) => {
-    //                     toast.error(errorMsg); // Tampilkan setiap pesan kesalahan
-    //                 });
-    //             } else {
-    //                 // Fallback message jika tidak ada error spesifik dari Inertia (misal dari server error 500)
-    //                 toast.error(`Gagal ${isEdit ? 'edit' : 'tambah'} Media. Silakan coba lagi.`);
-    //             }
-    //             console.error('Error from Inertia:', inertiaErrors);
-    //         },
-    //     });
-    // }
 
     return (
         <Dialog open={open} onOpenChange={onClose}>

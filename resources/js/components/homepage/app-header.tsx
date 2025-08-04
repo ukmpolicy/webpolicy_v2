@@ -27,7 +27,7 @@ export default function AppHeader() {
         { label: 'Beranda', href: '/' },
         { label: 'Tentang', href: '/about' },
         { label: 'Berita', href: '/berita' },
-        { label: 'Dokumentasi', href: '/gallery' },
+        { label: 'Dokumentasi', href: '/dokumentasi' },
         { label: 'Kontak', href: '/contact' },
     ];
 
