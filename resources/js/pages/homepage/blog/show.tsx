@@ -47,6 +47,12 @@ interface BlogArticleShowProps extends PageProps {
 }
 // --- AKHIR DEFINISI TIPE ---
 
+// Fungsi helper untuk mengubah string menjadi Title Case
+const toTitleCase = (str: string): string => {
+    if (!str) return '';
+    return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
+
 const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArticles }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -121,7 +127,8 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                                         alt="Gambar"
                                     />
                                 </div>
-                                <span>{article.author.name || 'Nama Tidak Diketahui'}</span>
+                                {/* <span>{article.author.name || 'Nama Tidak Diketahui'}</span> */}
+                                <span>{toTitleCase(article.author.name || 'Nama Tidak Diketahui')}</span>
                             </div>
 
                             {/* Tanggal tetap di container terpisah */}

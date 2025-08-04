@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import { motion } from 'framer-motion'; // MODIFIKASI: Import motion
 import React, { useEffect, useState } from 'react';
 
 // Komponen yang sudah ada
@@ -92,6 +93,12 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ albums }) => {
     });
     // --- Akhir Logika Pagination ---
 
+    // MODIFIKASI: Varian animasi untuk elemen-elemen
+    const fadeInSlideUp = {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
     if (isLoading) return <AppLoading />;
 
     return (
@@ -100,7 +107,13 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ albums }) => {
             <AppHeader />
             <main className="min-h-screen bg-black text-white">
                 <DocumentationHeader />
-                <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+                {/* MODIFIKASI: Bungkus section dengan motion.section */}
+                <motion.section
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeInSlideUp} // Animasi untuk section keseluruhan konten
+                    className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+                >
                     <AlbumFilter
                         albums={albums}
                         selectedAlbumName={selectedAlbumName}
@@ -113,14 +126,21 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ albums }) => {
                     {paginatedAlbums.length > 0 ? (
                         <AlbumGrid albums={paginatedAlbums} />
                     ) : (
-                        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 py-10 text-center text-lg text-gray-400">
+                        // MODIFIKASI: Tambahkan motion.div untuk pesan "Tidak ada album"
+                        <motion.div
+                            initial="initial"
+                            animate="animate"
+                            variants={fadeInSlideUp}
+                            className="rounded-lg border border-zinc-800 bg-zinc-900/50 py-10 text-center text-lg text-gray-400"
+                        >
                             <p>Tidak ada album yang ditemukan untuk kriteria ini.</p>
-                        </div>
+                        </motion.div>
                     )}
 
                     {/* Tampilkan Pagination hanya jika ada lebih dari 1 halaman, menggunakan pagination album. */}
                     {totalPages > 1 && <Pagination links={paginationLinks} handlePaginationClick={handleClientPaginationClick} />}
-                </section>
+                </motion.section>{' '}
+                {/* MODIFIKASI: Penutup motion.section */}
             </main>
             <AppFooter />
         </>

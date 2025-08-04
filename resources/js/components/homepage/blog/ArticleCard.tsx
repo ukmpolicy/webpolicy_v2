@@ -37,6 +37,11 @@ const getImageUrl = (path?: string): string => {
     return path ? `/storage/${path}` : '/images/penguin.png';
 };
 
+// Fungsi helper untuk mengubah string menjadi Title Case
+const toTitleCase = (str: string): string => {
+    return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
+
 const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
     return (
         <Link
@@ -65,7 +70,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
                 </div>
 
                 <h2 className="mb-2 line-clamp-2 text-lg font-extrabold text-white transition-colors duration-300 group-hover:text-red-500">
-                    {article.title}
+                    {toTitleCase(article.title)} {/* Menerapkan fungsi toTitleCase di sini */}
                 </h2>
 
                 <p className="mb-4 line-clamp-3 flex-grow text-sm leading-relaxed text-gray-400">{article.summary}</p>
