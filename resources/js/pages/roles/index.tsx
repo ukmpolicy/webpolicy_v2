@@ -1,55 +1,56 @@
-import { useState } from "react";
-import { usePage, Head } from "@inertiajs/react";
-import AppLayout from "@/layouts/app-layout";
-import { RoleTable } from "@/components/RoleTable";
-import { RoleFormModal } from "@/components/RoleFormModal";
-import { RolePermissionFormModal } from "@/components/RolePermissionFormModal";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { RoleUserFormModal } from "@/components/RoleUserModal/RoleUserFormModal";
+import { RoleFormModal } from '@/components/RoleFormModal';
+import { RolePermissionFormModal } from '@/components/RolePermissionFormModal';
+import { RoleTable } from '@/components/RoleTable';
+import { RoleUserFormModal } from '@/components/RoleUserModal/RoleUserFormModal';
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
+import { Head, usePage } from '@inertiajs/react';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Role() {
-    // Ambil semua data yang dibutuhkan dari props. 'roles' di sini akan selalu menjadi data yang paling segar.
-    const { roles = [], permissions = [], users = [], canManageUsers = false } = usePage().props as any;
+    // Ambil semua data yang dibutuhkan dari props, termasuk 'auth'
+    const { roles = [], permissions = [], users = [], canManageUsers = false, auth } = usePage().props as any;
 
     // State untuk modal form Tambah/Ubah Role
     const [openFormModal, setOpenFormModal] = useState(false);
     const [editData, setEditData] = useState<any>(null);
 
-    // --- PERUBAHAN: Simpan hanya ID dari role yang dikelola, bukan seluruh objek ---
     const [managedRoleId, setManagedRoleId] = useState<number | null>(null);
 
     // State untuk mengontrol modal mana yang terbuka
     const [openPermissionModal, setOpenPermissionModal] = useState(false);
     const [openUserModal, setOpenUserModal] = useState(false);
 
-    // --- PERUBAHAN: Cari objek role dari props 'roles' yang segar pada setiap render ---
-    // Ini memastikan modal selalu mendapatkan data terbaru setelah ada perubahan.
     const managedRole = roles.find((r: any) => r.id === managedRoleId) || null;
 
     return (
-        <AppLayout breadcrumbs={[{ title: "Role", href: "/roles" }]}>
+        <AppLayout breadcrumbs={[{ title: 'Role', href: '/roles' }]}>
             <Head title="Role" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4 flex items-center justify-between">
                     <h1 className="text-xl font-bold">Daftar Role</h1>
-                    <Button onClick={() => { setEditData(null); setOpenFormModal(true); }}>
-                        <Plus className="w-4 h-4 mr-2" /> Tambah Role
+                    <Button
+                        onClick={() => {
+                            setEditData(null);
+                            setOpenFormModal(true);
+                        }}
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Tambah Role
                     </Button>
                 </div>
 
                 <RoleTable
                     data={roles}
-                    onEdit={role => {
+                    onEdit={(role) => {
                         setEditData(role);
                         setOpenFormModal(true);
                     }}
-                    // --- PERUBAHAN: Saat tombol diklik, simpan hanya ID-nya ---
-                    onManagePermissions={role => {
+                    onManagePermissions={(role) => {
                         setManagedRoleId(role.id);
                         setOpenPermissionModal(true);
                     }}
-                    onManageUsers={role => {
+                    onManageUsers={(role) => {
                         setManagedRoleId(role.id);
                         setOpenUserModal(true);
                     }}
@@ -89,6 +90,8 @@ export default function Role() {
                             }}
                             role={managedRole}
                             allUsers={users}
+                            // Teruskan informasi user yang sedang login
+                            currentUser={auth.user}
                         />
                     </>
                 )}

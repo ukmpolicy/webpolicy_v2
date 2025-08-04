@@ -26,6 +26,8 @@ class PermissionSeeder extends Seeder
             ['name' => 'Gallery Album', 'key' => 'gallery-album'],
             ['name' => 'Gallery Media', 'key' => 'gallery-media'],
             ['name' => 'Manage Role for User', 'key' => 'manage-users'],
+            ['name' => 'Category Articles', 'key' => 'category-articles'],
+            ['name' => 'Articles', 'key' => 'articles'],
         ];
 
         foreach ($permissions as $permission) {

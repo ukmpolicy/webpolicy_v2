@@ -32,8 +32,14 @@
 
         <title inertia>{{ $page['head']['title'] ?? $page['title'] ?? '' }}</title>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        {{-- Favicon baru Anda (menggantikan yang lama jika diinginkan) --}}
+        <link rel="icon" type="image/png" href="{{ asset('title-policy.png') }}">
+
+        {{-- Anda bisa menghapus dua baris di bawah ini jika hanya ingin menggunakan title-policy.png --}}
+        {{-- <link rel="icon" href="/favicon.ico" sizes="any"> --}}
+        {{-- <link rel="icon" href="/favicon.svg" type="image/svg+xml"> --}}
+
+        {{-- Biarkan apple-touch-icon jika Anda membutuhkannya untuk perangkat Apple --}}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
