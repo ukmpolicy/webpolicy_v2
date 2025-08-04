@@ -13,7 +13,7 @@ export default function AboutHistory() {
         
         {/* Header */}
         <div className="flex items-center space-x-3">
-          <History className="w-7 h-7 text-red-500" />
+          <History className="w-10 h-10 text-red-500" />
           <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
             Sejarah UKM POLICY
           </h2>

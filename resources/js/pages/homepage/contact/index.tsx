@@ -7,7 +7,7 @@ import AppHeader from '@/components/homepage/app-header';
 import AppFooter from '@/components/homepage/app-footer';
 import AppLoading from '@/components/homepage/app-loading';
 import InputError from '@/components/input-error'; // <-- Import komponen untuk menampilkan error
-import { Phone, MapPin, Clock } from 'lucide-react';
+import { Phone, MapPin, Clock, ChevronRight } from 'lucide-react';
 
 const ContactPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -54,24 +54,35 @@ const ContactPage: React.FC = () => {
         <>
             <Head title="Kontak - UKM POLICY" />
             <AppHeader />
-            <main className="bg-black text-white pt-24 sm:pt-28 min-h-screen">
+            <main className="bg-black text-white pt-20 sm:pt-20 min-h-screen">
                 {/* Header Halaman */}
-                <section className="relative text-center py-16 bg-zinc-900/50">
-                    <div className="absolute inset-0 -z-10 pointer-events-none">
-                        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] bg-red-600/30 rounded-full blur-[120px] opacity-30" />
-                    </div>
-                    <div className="container mx-auto px-4">
-                        <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-wider">Hubungi Kami</h1>
-                        <p className="mt-2 text-gray-400 text-lg">
+    <section className="relative overflow-hidden text-white bg-black py-8 text-left border-b border-white/10">
+      {/* Background Blobs (sama seperti Hero) */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] bg-red-600/40 rounded-full blur-[120px] opacity-40" />
+        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-white/10 rounded-full blur-2xl opacity-10" />
+      </div>
+
+      {/* Konten Utama */}
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="pt-0 pb-0 text-left md:pt-0">
+                        {/* Breadcrumb: Home > Berita */}
+                        <div className="mb-6 flex items-center text-xs md:text-sm">
+                            <Link href="/" className="font-medium text-gray-300 transition-colors duration-200 hover:text-red-400">
+                                Home
+                            </Link>
+                            <ChevronRight className="mx-2 h-4 w-4 text-white/60" />
+                            <span className="font-bold text-red-500">Kontak</span>
+                        </div>
+                        {/* Judul Utama: BLOG KAMI */}
+                        <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-white uppercase sm:text-3xl md:text-4xl">HUBUNGI KAMI</h1>
+                        {/* Deskripsi */}
+                        <p className="max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">
                             Kami siap mendengar dari Anda. Sampaikan pertanyaan atau masukan Anda melalui form di bawah ini.
                         </p>
-                        <div className="mt-6 text-base">
-                            <Link href="/" className="italic text-white hover:underline">Home</Link>
-                            <span className="mx-2 text-white">/</span>
-                            <span className="italic text-red-600 font-semibold">Kontak</span>
-                        </div>
                     </div>
-                </section>
+                </div>
+    </section>
 
                 {/* Konten Kontak */}
                 <section id="contact" className="py-20 px-6 md:px-12">
@@ -173,7 +184,7 @@ const ContactPage: React.FC = () => {
                                             ></textarea>
                                             <InputError message={errors.message} className="mt-2" />
                                         </div>
-                                        <div className="w-full text-center">
+                                        <div className="w-full text-right">
                                             <button
                                                 type="submit"
                                                 disabled={processing} // <-- Tombol nonaktif saat mengirim
