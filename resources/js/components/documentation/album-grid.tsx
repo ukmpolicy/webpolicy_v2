@@ -1,5 +1,5 @@
-// src/components/documentation/album-grid.tsx
 import { Link } from '@inertiajs/react';
+import { motion } from 'framer-motion'; // MODIFIKASI: Import motion
 import { Camera } from 'lucide-react';
 import React from 'react';
 
@@ -37,75 +37,102 @@ const AlbumGrid: React.FC<AlbumGridProps> = ({ albums }) => {
         return videoExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
     };
 
+    // MODIFIKASI: Varian animasi untuk grid dan item
+    const containerVariants = {
+        visible: {
+            opacity: 1,
+            transition: {
+                when: 'beforeChildren',
+                staggerChildren: 0.1, // Memberikan efek stagger pada children
+            },
+        },
+        hidden: { opacity: 0 },
+    };
+
+    const itemVariants = {
+        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+        hidden: { opacity: 0, y: 20 },
+    };
+
     return (
         <div className="mx-auto max-w-7xl">
             {albums.length > 0 ? (
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                // MODIFIKASI: div grid dibungkus motion.div
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
+                >
                     {albums.map((album) => (
-                        <Link
-                            href={`/dokumentasi/albums/${album.id}`}
-                            key={album.id}
-                            // Mengubah kelas Link untuk menggunakan flex-col
-                            className="group relative block flex flex-col overflow-hidden rounded-xl border border-transparent bg-zinc-900 shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-red-600 hover:shadow-2xl"
-                        >
-                            {/* Area Gambar/Pratinjau - sekarang memiliki tinggi tetap */}
-                            <div className="relative h-56 w-full overflow-hidden">
-                                {album.preview_media && album.preview_media.length > 0 ? (
-                                    <div className="absolute inset-0 flex items-center justify-center p-4">
-                                        <div className="relative h-56 w-56">
-                                            {album.preview_media.map((media, index) => {
-                                                const mediaPath = `/storage/${media.thumbnail_file || media.file}`;
-                                                const commonClasses = `absolute h-40 w-40 rounded-lg border-4 border-zinc-900 object-cover shadow-lg transition-all duration-300 ease-in-out ${imageStackPositions[index] || ''} ${imageHoverTransforms[index] || ''}`;
+                        // MODIFIKASI: Setiap Link kartu album dibungkus motion.Link
+                        <motion.div key={album.id} variants={itemVariants}>
+                            <Link
+                                href={`/dokumentasi/albums/${album.id}`}
+                                // Mengubah kelas Link untuk menggunakan flex-col
+                                className="group relative block flex flex-col overflow-hidden rounded-xl border border-transparent bg-zinc-900 shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-red-600 hover:shadow-2xl"
+                            >
+                                {/* Area Gambar/Pratinjau - sekarang memiliki tinggi tetap */}
+                                <div className="relative h-56 w-full overflow-hidden">
+                                    {album.preview_media && album.preview_media.length > 0 ? (
+                                        <div className="absolute inset-0 flex items-center justify-center p-4">
+                                            <div className="relative h-56 w-56">
+                                                {album.preview_media.map((media, index) => {
+                                                    const mediaPath = `/storage/${media.thumbnail_file || media.file}`;
+                                                    const commonClasses = `absolute h-40 w-40 rounded-lg border-4 border-zinc-900 object-cover shadow-lg transition-all duration-300 ease-in-out ${imageStackPositions[index] || ''} ${imageHoverTransforms[index] || ''}`;
 
-                                                return isVideo(media.file) ? (
-                                                    <video
-                                                        key={media.id}
-                                                        src={mediaPath}
-                                                        className={commonClasses}
-                                                        style={{ zIndex: index }}
-                                                        autoPlay
-                                                        loop
-                                                        muted
-                                                        playsInline
-                                                    />
-                                                ) : (
-                                                    <img
-                                                        key={media.id}
-                                                        src={mediaPath}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className={commonClasses}
-                                                        style={{ zIndex: index }}
-                                                        onError={(e) => {
-                                                            e.currentTarget.onerror = null;
-                                                            e.currentTarget.src = 'https://placehold.co/200x200/111/333?text=Error';
-                                                        }}
-                                                    />
-                                                );
-                                            })}
+                                                    return isVideo(media.file) ? (
+                                                        <video
+                                                            key={media.id}
+                                                            src={mediaPath}
+                                                            className={commonClasses}
+                                                            style={{ zIndex: index }}
+                                                            playsInline
+                                                            preload="metadata"
+                                                            controls={false}
+                                                            autoPlay={false}
+                                                            loop={false}
+                                                            muted={false}
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            key={media.id}
+                                                            src={mediaPath}
+                                                            alt={`Preview ${index + 1}`}
+                                                            className={commonClasses}
+                                                            style={{ zIndex: index }}
+                                                            onError={(e) => {
+                                                                e.currentTarget.onerror = null;
+                                                                e.currentTarget.src = 'https://placehold.co/200x200/111/333?text=Error';
+                                                            }}
+                                                        />
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex h-full w-full items-center justify-center bg-zinc-800">
-                                        <Camera className="h-16 w-16 text-zinc-600" />
-                                    </div>
-                                )}
-                                {/* Overlay gradient di atas gambar */}
-                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-                            </div>
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-zinc-800">
+                                            <Camera className="h-16 w-16 text-zinc-600" />
+                                        </div>
+                                    )}
+                                    {/* Overlay gradient di atas gambar */}
+                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                                </div>
 
-                            {/* Area Teks - sekarang menjadi blok terpisah di bawah gambar */}
-                            <div className="flex flex-grow flex-col p-6">
-                                {' '}
-                                {/* Menambahkan padding di sini */}
-                                <h3 className="mb-2 line-clamp-2 text-xl font-bold text-white transition-colors duration-300 group-hover:text-red-500">
-                                    {album.name}
-                                </h3>
-                                {/* Tambahkan line-clamp-2 untuk caption di mobile jika diperlukan */}
-                                <p className="mt-1 line-clamp-2 text-sm text-zinc-300 sm:line-clamp-none">{album.media_count} Foto</p>
-                            </div>
-                        </Link>
+                                {/* Area Teks - sekarang menjadi blok terpisah di bawah gambar */}
+                                <div className="flex flex-grow flex-col p-6">
+                                    {' '}
+                                    {/* Menambahkan padding di sini */}
+                                    <h3 className="mb-2 line-clamp-2 text-xl font-bold text-white transition-colors duration-300 group-hover:text-red-500">
+                                        {album.name}
+                                    </h3>
+                                    {/* Tambahkan line-clamp-2 untuk caption di mobile jika diperlukan */}
+                                    <p className="mt-1 line-clamp-2 text-sm text-zinc-300 sm:line-clamp-none">{album.media_count} Foto</p>
+                                </div>
+                            </Link>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             ) : (
                 <div className="py-16 text-center text-zinc-400">
                     <p>Belum ada album publik yang tersedia saat ini.</p>

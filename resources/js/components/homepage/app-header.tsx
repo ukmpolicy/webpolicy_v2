@@ -35,7 +35,7 @@ export default function AppHeader() {
         { label: 'Tentang', href: '/about' },
         { label: 'Berita', href: '/berita' },
         { label: 'Dokumentasi', href: '/dokumentasi' },
-        { label: 'Kontak', href: '/contact' },
+        { label: 'Kontak', href: '/kontak' },
     ];
 
     const isActive = (href: string) => url === href || (href !== '/' && url.startsWith(href));

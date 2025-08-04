@@ -69,17 +69,17 @@ export function MediaFormModal({ open, onClose, initialData, albums, selectedAlb
         if (data.file && data.file instanceof File) {
             const file = data.file;
             const isImage = file.type.startsWith('image/');
-            const isVideo = file.type.startsWith('video/');
-            const maxImageSize = 2 * 1024 * 1024; // 2 MB
-            const maxVideoSize = 7 * 1024 * 1024; // 7 MB
+            const isVideoFile = file.type.startsWith('video/');
+            const maxImageSize = 15 * 1024 * 1024; // 15 MB
+            const maxVideoSize = 1 * 1024 * 1024 * 1024; // 1 GB
 
             if (isImage && file.size > maxImageSize) {
-                toast.error('Ukuran file gambar melebihi batas 2 MB. Mohon unggah file yang lebih kecil.');
+                toast.error('Ukuran file gambar melebihi batas 15 MB. Mohon unggah file yang lebih kecil.');
                 return; // Hentikan proses submit
             }
 
-            if (isVideo && file.size > maxVideoSize) {
-                toast.error('Ukuran file video melebihi batas 7 MB. Mohon unggah file yang lebih kecil.');
+            if (isVideoFile && file.size > maxVideoSize) {
+                toast.error('Ukuran file video melebihi batas 1 GB. Mohon unggah file yang lebih kecil.');
                 return; // Hentikan proses submit
             }
         }

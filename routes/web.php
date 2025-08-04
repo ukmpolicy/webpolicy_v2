@@ -50,10 +50,10 @@ Route::middleware(['email.public.verified'])->group(function () {
     Route::get('/dokumentasi/albums/{album}', [PublicGalleryController::class, 'show'])->name('public.dokumentasi.album.show');
 
     // Kontak
-    Route::get('/contact', function () {
+    Route::get('/kontak', function () {
         return Inertia::render('homepage/contact/index');
     })->name('contact');
-    Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+    Route::post('/kontak', [ContactController::class, 'send'])->name('contact.send');
 });
 
 // Logout (tetap di luar grup agar bisa diakses dari halaman verify-email)

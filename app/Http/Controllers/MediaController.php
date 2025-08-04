@@ -27,9 +27,7 @@ class MediaController extends Controller
         $perPage = $request->query('per_page', 5);
         $mediaType = $request->query('media_type');
 
-        $query = $albumId
-            ? $this->mediaService->getMediaByAlbumQuery($albumId, $mediaType)
-            : $this->mediaService->getAllMediaQuery($mediaType);
+        $query = $albumId ? $this->mediaService->getMediaByAlbumQuery($albumId, $mediaType) : $this->mediaService->getAllMediaQuery($mediaType);
 
         if ($search) {
             $query->where('caption', 'like', '%' . $search . '%');
@@ -50,7 +48,7 @@ class MediaController extends Controller
 
     public function store(Request $request)
     {
-         $validated = $request->validate(
+        $validated = $request->validate(
             [
                 'album_id' => 'required|exists:albums,id',
                 'caption' => 'required|string',
@@ -63,16 +61,16 @@ class MediaController extends Controller
                         $mimetype = $value->getMimeType();
                         $fileSize = $value->getSize(); // Ukuran file dalam bytes
 
-                        $maxImageSize = 2 * 1024 * 1024; // 2 MB dalam bytes
-                        $maxVideoSize = 7 * 1024 * 1024; // 7 MB dalam bytes
+                        $maxImageSize = 15 * 1024 * 1024; // 15 MB dalam bytes
+                        $maxVideoSize = 1 * 1024 * 1024 * 1024; // 1 GB dalam bytes
 
                         if (str_starts_with($mimetype, 'image/')) {
                             if ($fileSize > $maxImageSize) {
-                                $fail("Ukuran file gambar melebihi batas 2 MB. Mohon unggah file yang lebih kecil.");
+                                $fail('Ukuran file gambar melebihi batas 15 MB. Mohon unggah file yang lebih kecil.');
                             }
                         } elseif (str_starts_with($mimetype, 'video/')) {
                             if ($fileSize > $maxVideoSize) {
-                                $fail("Ukuran file video melebihi batas 7 MB. Mohon unggah file yang lebih kecil.");
+                                $fail('Ukuran file video melebihi batas 1 GB. Mohon unggah file yang lebih kecil.');
                             }
                         }
                     },
@@ -92,7 +90,7 @@ class MediaController extends Controller
 
     public function update(Request $request, $id)
     {
-         $rules = [
+        $rules = [
             'album_id' => 'required|exists:albums,id',
             'caption' => 'required|string',
         ];
@@ -110,16 +108,16 @@ class MediaController extends Controller
                     $mimetype = $value->getMimeType();
                     $fileSize = $value->getSize(); // Ukuran file dalam bytes
 
-                    $maxImageSize = 2 * 1024 * 1024; // 2 MB dalam bytes
-                    $maxVideoSize = 7 * 1024 * 1024; // 7 MB dalam bytes
+                    $maxImageSize = 15 * 1024 * 1024; // 15 MB dalam bytes
+                    $maxVideoSize = 1 * 1024 * 1024 * 1024; // 1 GB dalam bytes
 
                     if (str_starts_with($mimetype, 'image/')) {
                         if ($fileSize > $maxImageSize) {
-                            $fail("Ukuran file gambar melebihi batas 2 MB. Mohon unggah file yang lebih kecil.");
+                            $fail('Ukuran file gambar melebihi batas 15 MB. Mohon unggah file yang lebih kecil.');
                         }
                     } elseif (str_starts_with($mimetype, 'video/')) {
                         if ($fileSize > $maxVideoSize) {
-                            $fail("Ukuran file video melebihi batas 7 MB. Mohon unggah file yang lebih kecil.");
+                            $fail('Ukuran file video melebihi batas 1 GB. Mohon unggah file yang lebih kecil.');
                         }
                     }
                 },

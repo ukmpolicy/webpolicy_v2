@@ -12,8 +12,8 @@ export default function AppFooter() {
                         UKM POLICY
                     </div>
                     <p className="text-sm leading-relaxed text-gray-400">
-                        Menyediakan informasi kebijakan yang transparan, mudah diakses, dan selalu diperbarui untuk organisasi mahasiswa dan
-                        masyarakat umum.
+                        Berpartisipasi dan berperan aktif dalam mengembangkan jaringan kerjasama dengan lembaga Politeknik Negeri Lhokseumawe ,
+                        komunitas Linux dan Open Source lainnya, Perguruan tinggi dan Pemerintah Daerah maupun Pusat.
                     </p>
                     <div className="mt-6 flex space-x-4">
                         {[Facebook, Twitter, Instagram, Linkedin].map((Icon, idx) => (
