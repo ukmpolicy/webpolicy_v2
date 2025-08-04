@@ -29,20 +29,21 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        // Proses name menjadi huruf kecil tanpa spasi
-        $data = $request->validated();
-        if (isset($data['name'])) {
-            $data['name'] = strtolower(str_replace(' ', '', $data['name']));
+            $user = $request->user();
+        $validatedData = $request->validated();
+
+        if (isset($validatedData['name'])) {
+            $user->name = $validatedData['name'];
         }
 
-        $request->user()->fill($data);
-        // $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if (isset($validatedData['email'])) {
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
+            $user->email = $validatedData['email'];
         }
 
-        $request->user()->save();
+        $user->save();
 
         return to_route('profile.edit');
     }
