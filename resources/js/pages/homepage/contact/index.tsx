@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import AppFooter from '@/components/homepage/app-footer';
 import AppHeader from '@/components/homepage/app-header';
 import AppLoading from '@/components/homepage/app-loading';
-import InputError from '@/components/input-error';
+import InputError from '@/components/input-error'; // <-- Import komponen untuk menampilkan error
 import { ChevronRight, Clock, MapPin, Phone } from 'lucide-react';
 
 const ContactPage: React.FC = () => {

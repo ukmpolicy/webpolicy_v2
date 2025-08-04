@@ -12,13 +12,15 @@ export default function AppVisiMisi() {
       <div className="max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-16 items-center">
 
         {/* Ilustrasi */}
-        <div className="flex justify-center">
-          <img
-            src={astronaut}
-            alt="Astronaut holding flag"
-            className="w-full max-w-[320px] md:max-w-[420px] object-contain"
-          />
-        </div>
+<div className="flex justify-center">
+<img
+  src={astronaut}
+  alt="Astronaut holding flag"
+  className="w-[200px] md:w-[240px] lg:w-[280px] object-contain"
+/>
+
+</div>
+
 
         {/* Konten Visi & Misi */}
         <div className="space-y-12">

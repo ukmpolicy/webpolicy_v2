@@ -29,13 +29,14 @@ const Hero = () => {
               transition={{ delay: 0.4, duration: 1 }}
             >
               Selamat Datang di{" "}
+              <br />
               <motion.span
                 className="text-red-600 drop-shadow-[0_0_10px_rgba(239,68,68,0.6)]"
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
               >
-                Policy
+                Unit Kegiatan Mahasiswa
               </motion.span>
               <br />
               <motion.span
@@ -49,13 +50,16 @@ const Hero = () => {
             </motion.h1>
 
             <motion.p
-              className="mx-auto mb-9 max-w-[600px] text-base sm:text-lg text-gray-400 leading-relaxed"
+              className="mx-auto mb-9 max-w-[800px] text-base sm:text-lg text-gray-400 leading-relaxed text-left"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.3, duration: 0.5 }}
             >
-              Kami adalah komunitas penggemar Linux dari Politeknik yang penuh semangat.
-              Bergabunglah bersama kami untuk menjelajahi open source, berkontribusi ke proyek nyata, dan mengembangkan karier teknologi Anda.
+              Kami adalah komunitas penggiat Linux dari <span className="text-white font-semibold">Politeknik</span> yang memiliki semangat tinggi dalam membangun ekosistem teknologi berbasis open source.
+              <br />
+
+              Bergabunglah bersama kami untuk memperluas jaringan, meningkatkan portofolio, serta mempersiapkan karier profesional di bidang teknologi informasi dengan landasan yang kuat pada nilai-nilai kolaboratif dan inovatif.
+              <br />
             </motion.p>
 
             <motion.div

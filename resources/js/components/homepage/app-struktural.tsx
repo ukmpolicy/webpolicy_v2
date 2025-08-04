@@ -16,35 +16,34 @@ const toTitleCase = (text: string) =>
 export default function AppStruktural({ strukturalList }: { strukturalList: Struktur[] }) {
   return (
     <section className="py-20 px-6 bg-black text-white">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1200px] mx-auto">
         <h2 className="text-center text-3xl md:text-4xl font-bold italic mb-12 relative">
           Struktural
           <div className="absolute w-28 h-[2px] bg-red-600 left-1/2 -translate-x-1/2 -bottom-2" />
         </h2>
 
         {strukturalList.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            {strukturalList.map((person) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {strukturalList.slice(0, 3).map((person) => (
               <div
                 key={person.id}
-                className="group flex flex-col items-center text-center bg-[#111111] rounded-2xl p-6
-                           border border-zinc-800 hover:border-red-500 transition-all duration-300
-                           hover:shadow-lg hover:shadow-red-500/20"
+                className="w-full bg-[#111111] rounded-xl p-4 text-center border border-zinc-800 
+                           hover:border-red-600 transition-all duration-300"
               >
-                <div className="w-28 h-28 rounded-full overflow-hidden shadow-lg ring-2 ring-red-600 mb-4">
+                <div className="w-full aspect-[3/4] overflow-hidden rounded-lg shadow-lg mb-6">
                   <img
                     src={person.picture ?? "/images/default-profile.png"}
                     alt={`Foto ${person.name}`}
                     title={person.name}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <p className="text-red-500 font-bold text-base md:text-lg mb-1">
-                  {toTitleCase(person.position)}
-                </p>
-                <h3 className="text-white text-lg md:text-xl font-semibold">
+                <h3 className="text-2xl font-bold text-white mb-2 leading-snug">
                   {toTitleCase(person.name)}
                 </h3>
+                <p className="text-red-500 text-lg font-semibold">
+                  {toTitleCase(person.position)}
+                </p>
               </div>
             ))}
           </div>
