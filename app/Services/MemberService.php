@@ -95,4 +95,25 @@ class MemberService
 
         return $this->memberRepository->delete($id);
     }
+
+    // Metode baru: Mendapatkan total semua anggota
+    public function getTotalMembersCount(): int
+    {
+        return $this->memberRepository->countAll();
+    }
+
+    // Metode baru: Mendapatkan jumlah anggota berdasarkan ID periode
+    public function getMembersCountByPeriod(int $periodId): int
+    {
+        return $this->memberRepository->countByPeriod($periodId);
+    }
+
+    /**
+     * Mendapatkan daftar semua anggota beserta tanggal lahirnya.
+     */
+    public function getAllMembersBirthdays()
+    {
+        return $this->memberRepository->getAllBirthdays();
+    }
+
 }

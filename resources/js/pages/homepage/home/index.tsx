@@ -37,6 +37,17 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
         return () => clearTimeout(timer);
     }, []);
 
+    // Tambahkan useEffect untuk mengontrol kelas pada <body>
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan, hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali saat mount dan unmount
+
     if (isLoading) return <AppLoading />;
 
     return (

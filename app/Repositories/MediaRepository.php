@@ -116,4 +116,10 @@ class MediaRepository
                 },
             ]);
     }
+
+    public function countAll()
+    {
+        return $this->model->count();
+    }
+
 }

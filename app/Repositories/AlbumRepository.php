@@ -68,4 +68,28 @@ class AlbumRepository
     {
         return $this->model->findOrFail($albumId)->media()->latest()->get();
     }
+
+    /**
+     * Menghitung total semua album.
+     */
+    public function countAll()
+    {
+        return Album::count();
+    }
+
+    /**
+     * Menghitung jumlah album yang bersifat publik (is_private = false).
+     */
+    public function countPublic()
+    {
+        return Album::where('is_private', false)->count();
+    }
+
+    /**
+     * Menghitung jumlah album yang bersifat privat (is_private = true).
+     */
+    public function countPrivate()
+    {
+        return Album::where('is_private', true)->count();
+    }
 }

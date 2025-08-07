@@ -9,20 +9,11 @@ class AlbumService
 {
     protected $albumRepository;
     protected $mediaRepository;
-        protected $mediaService;
+    protected $mediaService;
 
-    // public function __construct(
-    //     AlbumRepository $albumRepository,
-    //     MediaRepository $mediaRepository
-    // ) {
-    //     $this->albumRepository = $albumRepository;
-    //     $this->mediaRepository = $mediaRepository;
-    // }
-
-        public function __construct(
-        AlbumRepository $albumRepository,
-        MediaService $mediaService // <--- Inject MediaService, BUKAN MediaRepository
-    ) {
+    public function __construct(AlbumRepository $albumRepository, MediaService $mediaService)
+    {
+        // <--- Inject MediaService, BUKAN MediaRepository
         $this->albumRepository = $albumRepository;
         $this->mediaService = $mediaService; // <--- Tetapkan MediaService
     }
@@ -49,12 +40,12 @@ class AlbumService
     public function deleteAlbum($id)
     {
         // return $this->albumRepository->delete($id);
-          $album = $this->albumRepository->findById($id); // Eager load media sudah di repositori
+        $album = $this->albumRepository->findById($id); // Eager load media sudah di repositori
 
         if (!$album) {
             return false; // Album tidak ditemukan
         }
-          // Hapus semua media yang terkait dengan album ini
+        // Hapus semua media yang terkait dengan album ini
         // $album->media adalah koleksi media yang sudah di-eager load oleh findById
         foreach ($album->media as $mediaItem) {
             $this->mediaService->deleteMedia($mediaItem->id); // Panggil MediaService untuk hapus setiap media
@@ -67,5 +58,20 @@ class AlbumService
     public function getMediaByAlbum($albumId)
     {
         return $this->albumRepository->getMediaByAlbum($albumId);
+    }
+
+    public function getTotalAlbumsCount()
+    {
+        return $this->albumRepository->countAll();
+    }
+
+    public function getPublicAlbumsCount()
+    {
+        return $this->albumRepository->countPublic();
+    }
+
+    public function getPrivateAlbumsCount()
+    {
+        return $this->albumRepository->countPrivate();
     }
 }

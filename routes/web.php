@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BlogPageController;
 use App\Http\Controllers\CategoryArticleController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\DivisionPlansController;
 use App\Http\Controllers\HomePageController;
@@ -66,9 +67,13 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard')->middleware('permission:dashboard');
+    // Route::get('dashboard', function () {
+    //     return Inertia::render('dashboard');
+    // })->name('dashboard')->middleware('permission:dashboard');
+     Route::get('dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard')
+        ->middleware('permission:dashboard');
+
 
     // Roles Management
     Route::resource('roles', RoleController::class)->middleware('permission:roles');
