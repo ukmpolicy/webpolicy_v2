@@ -14,8 +14,7 @@
 
 /* Theme Customization */
 @theme {
-    --font-sans:
-        'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -162,15 +161,40 @@
 
 /* Animation */
 @keyframes marquee {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-50%); }
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
 
 @keyframes scroll-horizontal {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-50%); }
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
 
 .animate-scroll {
     animation: scroll-horizontal 12s linear infinite;
+}
+
+/* KODE UNTUK SCROLL BAR DITAMBAHKAN DI SINI */
+/* Scrollbar Styling for WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #dc3545; /* Warna merah */
+    border-radius: 6px;
+    border: 3px solid #000000;
 }
