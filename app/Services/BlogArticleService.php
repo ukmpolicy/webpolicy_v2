@@ -77,4 +77,38 @@ class BlogArticleService
     {
         return $this->articleRepository->countDraft();
     }
+
+    /**
+     * Menambah hitungan view count dan mengambil artikel.
+     */
+    public function viewArticle($id)
+    {
+        $article = $this->articleRepository->findById($id);
+        if ($article) {
+            $this->articleRepository->incrementViews($id);
+        }
+        return $article;
+    }
+
+    /**
+     * Mengambil artikel berdasarkan slug dan menambah hitungan views.
+     */
+    public function viewArticleBySlug($slug)
+    {
+        $article = $this->articleRepository->findBySlug($slug);
+        if ($article) {
+            $this->articleRepository->incrementViews($article->id);
+        }
+        return $article;
+    }
+
+    public function getPopularArticles($limit = 5)
+    {
+        return $this->articleRepository->getPopularArticles($limit);
+    }
+
+    public function getRelatedArticlesByCategory($categoryIds, $limit = 4, $excludeArticleId = null)
+    {
+        return $this->articleRepository->getRelatedArticlesByCategory($categoryIds, $limit, $excludeArticleId);
+    }
 }

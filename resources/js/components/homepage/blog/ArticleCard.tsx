@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Calendar } from 'lucide-react';
+import { Calendar, Eye } from 'lucide-react';
 import React from 'react';
 
 // Pastikan tipe Article, Category, dan Author sama dengan di file index.tsx
@@ -25,6 +25,7 @@ interface Article {
     slug: string;
     summary: string;
     created_at: string;
+    view_count: number;
     author: Author;
     categories: Category[];
 }
@@ -37,18 +38,14 @@ const getImageUrl = (path?: string): string => {
     return path ? `/storage/${path}` : '/images/penguin.png';
 };
 
-// Fungsi helper untuk mengubah string menjadi Title Case, menangani PascalCase/camelCase
 const toTitleCase = (text: string): string => {
     if (!text) return '';
-    // 1. Tambahkan spasi sebelum setiap huruf kapital (kecuali yang pertama)
     let formattedText = text.replace(/([A-Z])/g, ' $1').trim();
-
-    // 2. Ubah ke lowercase, pisahkan berdasarkan spasi, kapitalisasi huruf pertama setiap kata, lalu gabungkan
     return formattedText
         .toLowerCase()
         .split(' ')
         .map((word) => {
-            if (word.length === 0) return ''; // Tangani jika ada spasi ganda
+            if (word.length === 0) return '';
             return word.charAt(0).toUpperCase() + word.slice(1);
         })
         .join(' ');
@@ -69,20 +66,28 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
                         loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-zinc-900/60 px-2 py-1 text-xs text-white backdrop-blur-sm">
+                        <Eye className="h-4 w-4 text-red-400" />
+                        <span>{article.view_count}</span>
+                    </div>
                 </div>
             )}
 
             <div className="flex flex-grow flex-col p-6">
                 <div className="mb-3 flex flex-wrap gap-2">
                     {article.categories.map((category) => (
-                        <span key={category.id} className="inline-block rounded-full bg-red-800/20 px-2.5 py-0.5 text-xs font-semibold text-red-300">
+                        <span
+                            key={category.id}
+                            className="inline-block rounded-full bg-red-800/20 px-2.5 py-0.5 text-[10px] font-semibold text-red-300"
+                        >
                             {category.name}
                         </span>
                     ))}
                 </div>
 
                 <h2 className="mb-2 line-clamp-2 text-lg leading-snug font-extrabold text-white transition-colors duration-300 group-hover:text-red-500">
-                    {toTitleCase(article.title)} {/* Menerapkan fungsi toTitleCase di sini */}
+                    {toTitleCase(article.title)}
                 </h2>
 
                 <p className="mb-4 line-clamp-3 flex-grow text-sm leading-relaxed text-gray-400">{article.summary}</p>
@@ -97,8 +102,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
                             />
                         </div>
                         <div>
-                            <div className="font-bold">{toTitleCase(article.author.name || 'Penulis Tidak Diketahui')}</div>{' '}
-                            {/* MODIFIKASI: Terapkan toTitleCase di sini */}
+                            <div className="font-bold">{toTitleCase(article.author.name || 'Penulis Tidak Diketahui')}</div>
                             <div className="opacity-70">Mincy</div>
                         </div>
                     </span>

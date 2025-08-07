@@ -39,17 +39,22 @@ class BlogPageController extends Controller
 
     public function show($slug)
     {
-      $article = $this->articleService->getArticleBySlug($slug); // Asumsi ada metode getArticleBySlug
+        $article = $this->articleService->viewArticleBySlug($slug);
 
         if (!$article || $article->status !== 'published') {
-            abort(404); // Atau redirect ke halaman 404
+            abort(404);
         }
-           // Ambil artikel terkait (misalnya 4 artikel terbaru, tidak termasuk artikel ini)
-        // Ini adalah bagian yang harus ada di BlogPageController::show
-        $relatedArticles = $this->articleService->getLatestRecommendedArticles(4, $article->id);
 
-        return Inertia::render('homepage/blog/show', [ // Buat halaman show terpisah untuk detail artikel
+        // Mengambil artikel populer
+        $popularArticles = $this->articleService->getPopularArticles(4);
+
+        // Mengambil artikel terkait berdasarkan kategori yang sama
+        $categoryIds = $article->categories->pluck('id')->toArray();
+        $relatedArticles = $this->articleService->getRelatedArticlesByCategory($categoryIds, 4, $article->id);
+
+        return Inertia::render('homepage/blog/show', [
             'article' => $article,
+            'popularArticles' => $popularArticles,
             'relatedArticles' => $relatedArticles,
         ]);
     }

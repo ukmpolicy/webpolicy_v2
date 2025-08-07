@@ -1,6 +1,6 @@
 import { Link, PageProps } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Calendar, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronRight, Eye } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 // Mengimpor komponen-komponen yang sudah dipecah
@@ -39,11 +39,13 @@ export interface Article {
     updated_at: string;
     author: Author;
     categories: Category[];
+    view_count: number;
 }
 
 interface BlogArticleShowProps extends PageProps {
     article: Article;
     relatedArticles: Article[];
+    popularArticles: Article[]; // PERBAIKAN: Tambahkan ini
 }
 // --- AKHIR DEFINISI TIPE ---
 
@@ -64,7 +66,7 @@ const toTitleCase = (text: string) => {
         .join(' ');
 };
 
-const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArticles }) => {
+const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArticles, popularArticles }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -127,9 +129,10 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                         <h1 className="mb-2 text-3xl leading-tight font-extrabold tracking-tight text-white uppercase sm:text-3xl md:text-4xl">
                             {article.title}
                         </h1>
+
                         {/* Meta Info (Divisi & Tanggal) */}
+                        {/* PERUBAHAN: Pisahkan view count ke barisnya sendiri */}
                         <div className="flex items-center gap-4 text-xs text-gray-400 sm:text-sm md:text-base">
-                            {/* Gabungkan gambar dan nama penulis dalam satu container */}
                             <div className="flex items-center gap-2 font-medium text-gray-300">
                                 <div className="h-6 w-6 overflow-hidden rounded-full">
                                     <img
@@ -138,14 +141,17 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                                         alt="Gambar"
                                     />
                                 </div>
-                                <span>{toTitleCase(article.author.name || 'Nama Tidak Diketahui')}</span>{' '}
-                                {/* MODIFIKASI: Terapkan toTitleCase di sini */}
+                                <span>{toTitleCase(article.author.name || 'Nama Tidak Diketahui')}</span>
                             </div>
 
-                            {/* Tanggal tetap di container terpisah */}
                             <span className="flex items-center gap-1.5 font-medium text-gray-300">
                                 <Calendar className="h-4 w-4 text-red-400" />
                                 {new Date(article.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </span>
+
+                            <span className="flex items-center gap-1.5 font-medium text-gray-300">
+                                <Eye className="h-4 w-4 text-red-400" />
+                                {article.view_count}
                             </span>
                         </div>
                     </div>
@@ -272,7 +278,7 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                     </div>
 
                     {/* Kolom Kanan: Sidebar Artikel Terkait */}
-                    <RelatedArticlesSidebar relatedArticles={relatedArticles} />
+                    <RelatedArticlesSidebar relatedArticles={relatedArticles} popularArticles={popularArticles} />
                 </div>
             </motion.section>
         </BlogLayout>

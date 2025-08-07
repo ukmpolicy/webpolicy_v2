@@ -65,6 +65,9 @@ class DashboardController extends Controller
             }
         }
 
+         // Mengambil 3 artikel terpopuler untuk dashboard
+        $popularArticles = $this->articleService->getPopularArticles(3);
+
         return Inertia::render('dashboard', [
             'totalMembersCount' => $totalMembersCount,
             'activeMembersCount' => $activeMembersCount,
@@ -77,6 +80,7 @@ class DashboardController extends Controller
             'publicAlbumsCount' => $publicAlbumsCount,
             'privateAlbumsCount' => $privateAlbumsCount,
             'birthdays' => $birthdaysByDate,
+            'popularArticles' => $popularArticles,
         ]);
     }
 }

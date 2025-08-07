@@ -128,4 +128,47 @@ class BlogArticleRepository
     {
         return $this->model->where('status', 'draft')->count();
     }
+
+     /**
+     * Menambah jumlah view count untuk artikel tertentu.
+     */
+    public function incrementViews($id)
+    {
+        $article = $this->model->findOrFail($id);
+        $article->increment('view_count');
+        return $article;
+    }
+
+     /**
+     * Mengambil artikel populer berdasarkan view_count.
+     */
+    public function getPopularArticles($limit = 5)
+    {
+        return $this->model
+          ->with(['author.role', 'categories']) // BARIS INI YANG DITAMBAHKAN
+            ->where('status', 'published')
+            ->orderBy('view_count', 'desc')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Mengambil artikel terkait berdasarkan kategori.
+     */
+    public function getRelatedArticlesByCategory($categoryIds, $limit = 4, $excludeArticleId = null)
+    {
+        $query = $this->model
+            ->with(['author.role', 'categories'])
+            ->where('status', 'published')
+            ->whereHas('categories', function ($q) use ($categoryIds) {
+                $q->whereIn('blog_categories.id', $categoryIds);
+            })
+            ->latest();
+
+        if ($excludeArticleId) {
+            $query->where('id', '!=', $excludeArticleId);
+        }
+
+        return $query->limit($limit)->get();
+    }
 }
