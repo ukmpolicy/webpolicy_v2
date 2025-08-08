@@ -113,4 +113,19 @@ class BlogArticleRepository
             return true;
         });
     }
+
+    public function countPublished()
+    {
+        return $this->model->where('status', 'published')->count();
+    }
+
+    public function countAll()
+    {
+        return $this->model->count();
+    }
+
+    public function countDraft()
+    {
+        return $this->model->where('status', 'draft')->count();
+    }
 }

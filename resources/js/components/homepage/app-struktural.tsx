@@ -1,47 +1,51 @@
 type Struktur = {
-  id: number;
-  name: string;
-  position: string;
-  picture?: string | null;
+    id: number;
+    name: string;
+    position: string;
+    picture?: string | null;
 };
 
-export default function AppStruktural({ strukturalList }: { strukturalList: Struktur[] }) {
-  return (
-    <section className="py-20 px-6 bg-black text-white">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-center text-3xl md:text-4xl font-bold italic mb-12 relative">
-          Struktural
-          <div className="absolute w-28 h-[2px] bg-red-600 left-1/2 -translate-x-1/2 -bottom-2" />
-        </h2>
+// Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata
+const toTitleCase = (text: string) =>
+    text
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 
-        {strukturalList.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            {strukturalList.map((person) => (
-              <div
-                key={person.id}
-                className="group flex flex-col items-center text-center bg-[#111111] rounded-2xl p-6
-                           border border-zinc-800 hover:border-red-500 transition-all duration-300
-                           hover:shadow-lg hover:shadow-red-500/20"
-              >
-                <div className="w-28 h-28 rounded-full overflow-hidden shadow-lg ring-2 ring-red-600 mb-4">
-                  <img
-                    src={person.picture ?? "/images/default-profile.png"}
-                    alt={`Foto ${person.name}`}
-                    title={person.name}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <p className="text-red-500 font-bold text-base md:text-lg mb-1">
-                  {person.position}
-                </p>
-                <h3 className="text-white text-lg md:text-xl font-semibold">{person.name}</h3>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-400">Tidak ada anggota struktural yang tersedia.</p>
-        )}
-      </div>
-    </section>
-  );
+export default function AppStruktural({ strukturalList }: { strukturalList: Struktur[] }) {
+    return (
+        <section className="bg-black px-6 py-20 text-white">
+            <div className="mx-auto max-w-[1200px]">
+                <h2 className="relative mb-12 text-center text-3xl font-bold italic md:text-4xl">
+                    Struktural
+                    <div className="absolute -bottom-2 left-1/2 h-[2px] w-28 -translate-x-1/2 bg-red-600" />
+                </h2>
+
+                {strukturalList.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {strukturalList.slice(0, 3).map((person) => (
+                            <div
+                                key={person.id}
+                                className="w-full rounded-xl border border-zinc-800 bg-[#111111] p-4 text-center transition-all duration-300 hover:border-red-600"
+                            >
+                                <div className="mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg shadow-lg">
+                                    <img
+                                        src={person.picture ?? '/images/default-profile.png'}
+                                        alt={`Foto ${person.name}`}
+                                        title={person.name}
+                                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                                    />
+                                </div>
+                                <h3 className="mb-2 text-2xl leading-snug font-bold text-white">{toTitleCase(person.name)}</h3>
+                                <p className="text-lg font-semibold text-red-500">{toTitleCase(person.position)}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-center text-gray-400">Tidak ada anggota struktural yang tersedia.</p>
+                )}
+            </div>
+        </section>
+    );
 }

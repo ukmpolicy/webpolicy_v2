@@ -57,4 +57,24 @@ class BlogArticleService
     {
         return $this->articleRepository->delete($id);
     }
+
+    public function getTotalArticlesCount()
+    {
+        return $this->articleRepository->countPublished();
+    }
+
+    public function getAllArticlesCount()
+    {
+        return $this->articleRepository->countAll();
+    }
+
+    public function getPublishedArticlesCount()
+    {
+        return $this->articleRepository->countPublished();
+    }
+
+    public function getDraftArticlesCount()
+    {
+        return $this->articleRepository->countDraft();
+    }
 }

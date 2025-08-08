@@ -37,6 +37,23 @@ const getImageUrl = (path?: string): string => {
     return path ? `/storage/${path}` : '/images/penguin.png';
 };
 
+// Fungsi helper untuk mengubah string menjadi Title Case, menangani PascalCase/camelCase
+const toTitleCase = (text: string): string => {
+    if (!text) return '';
+    // 1. Tambahkan spasi sebelum setiap huruf kapital (kecuali yang pertama)
+    let formattedText = text.replace(/([A-Z])/g, ' $1').trim();
+
+    // 2. Ubah ke lowercase, pisahkan berdasarkan spasi, kapitalisasi huruf pertama setiap kata, lalu gabungkan
+    return formattedText
+        .toLowerCase()
+        .split(' ')
+        .map((word) => {
+            if (word.length === 0) return ''; // Tangani jika ada spasi ganda
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(' ');
+};
+
 const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
     return (
         <Link
@@ -64,8 +81,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
                     ))}
                 </div>
 
-                <h2 className="mb-2 line-clamp-2 text-lg font-extrabold text-white transition-colors duration-300 group-hover:text-red-500">
-                    {article.title}
+                <h2 className="mb-2 line-clamp-2 text-lg leading-snug font-extrabold text-white transition-colors duration-300 group-hover:text-red-500">
+                    {toTitleCase(article.title)} {/* Menerapkan fungsi toTitleCase di sini */}
                 </h2>
 
                 <p className="mb-4 line-clamp-3 flex-grow text-sm leading-relaxed text-gray-400">{article.summary}</p>
@@ -80,7 +97,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
                             />
                         </div>
                         <div>
-                            <div className="font-bold capitalize">{article.author.name || 'Penulis Tidak Diketahui'}</div>
+                            <div className="font-bold">{toTitleCase(article.author.name || 'Penulis Tidak Diketahui')}</div>{' '}
+                            {/* MODIFIKASI: Terapkan toTitleCase di sini */}
                             <div className="opacity-70">Mincy</div>
                         </div>
                     </span>

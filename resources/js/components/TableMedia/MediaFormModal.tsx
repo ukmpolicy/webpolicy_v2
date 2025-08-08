@@ -12,7 +12,13 @@ import { toast } from 'sonner';
 export function MediaFormModal({ open, onClose, initialData, albums, selectedAlbumId }) {
     const isEdit = !!initialData?.id;
     const [preview, setPreview] = useState<string | null>(null);
-    const { data, setData, processing, errors, reset } = useForm({
+    type MediaFormData = {
+        album_id: string;
+        caption: string;
+        file: File | null;
+    };
+
+    const { data, setData, processing, errors, reset } = useForm<MediaFormData>({
         album_id: selectedAlbumId || '',
         caption: '',
         file: null,
@@ -25,12 +31,12 @@ export function MediaFormModal({ open, onClose, initialData, albums, selectedAlb
                 setData({
                     album_id: initialData.album_id?.toString() || selectedAlbumId || '',
                     caption: initialData.caption || '',
-                    file: null,
+                    file: null, // Penting: reset file saat membuka modal edit, agar user harus memilih ulang jika ingin mengubahnya
                 });
                 setPreview(initialData.file ? `/storage/${initialData.file}` : null);
             } else {
-                reset();
-                setData('album_id', selectedAlbumId || '');
+                reset(); // Reset form untuk mode tambah
+                setData('album_id', selectedAlbumId || ''); // Set album_id default untuk mode tambah
                 setPreview(null);
             }
         }
@@ -42,10 +48,13 @@ export function MediaFormModal({ open, onClose, initialData, albums, selectedAlb
             const objectUrl = URL.createObjectURL(data.file);
             setPreview(objectUrl);
             return () => URL.revokeObjectURL(objectUrl);
+        } else {
+            setPreview(null); // Bersihkan preview jika tidak ada file yang dipilih
         }
     }, [data.file]);
 
     const isVideo = () => {
+        // Logika ini sudah baik, tidak perlu diubah
         if (data.file && data.file.type) return data.file.type.startsWith('video/');
         if (initialData?.mimetype) return initialData.mimetype.startsWith('video/');
         if (preview && preview.match(/\.(mp4|mov|avi)$/i)) return true;
@@ -55,12 +64,34 @@ export function MediaFormModal({ open, onClose, initialData, albums, selectedAlb
     function handleSubmit(e) {
         e.preventDefault();
 
-        // Validasi manual album_id
+        // --- VALIDASI UKURAN FILE DI FRONTEND ---
+        // Ini adalah langkah pertama dan paling penting untuk memberikan feedback instan
+        if (data.file && data.file instanceof File) {
+            const file = data.file;
+            const isImage = file.type.startsWith('image/');
+            const isVideoFile = file.type.startsWith('video/');
+            const maxImageSize = 15 * 1024 * 1024; // 15 MB
+            const maxVideoSize = 1 * 1024 * 1024 * 1024; // 1 GB
+
+            if (isImage && file.size > maxImageSize) {
+                toast.error('Ukuran file gambar melebihi batas 15 MB. Mohon unggah file yang lebih kecil.');
+                return; // Hentikan proses submit
+            }
+
+            if (isVideoFile && file.size > maxVideoSize) {
+                toast.error('Ukuran file video melebihi batas 1 GB. Mohon unggah file yang lebih kecil.');
+                return; // Hentikan proses submit
+            }
+        }
+        // --- AKHIR VALIDASI ---
+
+        // Validasi manual album_id yang sudah ada
         if (!data.album_id || data.album_id === '') {
             toast.error('Album wajib dipilih');
             return;
         }
 
+        // Persiapan data untuk dikirim
         const formData = new FormData();
         formData.append('album_id', data.album_id || selectedAlbumId || '');
         formData.append('caption', data.caption || '');
@@ -68,26 +99,30 @@ export function MediaFormModal({ open, onClose, initialData, albums, selectedAlb
             formData.append('file', data.file);
         }
         if (isEdit) {
-            formData.append('_method', 'PUT');
+            formData.append('_method', 'PUT'); // Penting untuk metode PUT di Laravel
         }
 
+        // Mengirim data menggunakan Inertia
         Inertia.post(isEdit ? `/gallery-media/${initialData.id}` : '/gallery-media', formData, {
-            forceFormData: true,
+            forceFormData: true, // Pastikan Inertia mengirim sebagai FormData
             onSuccess: () => {
-                // toast.success(isEdit ? 'Berhasil edit Media' : 'Berhasil tambah Media');
-                // Inertia.get('/gallery-media');
-                toast.success(isEdit ? 'Media berhasil diperbarui' : 'Media Berhasil ditambahkan');
-                onClose();
-                reset();
-                Inertia.get('/gallery-media', { album_id: data.album_id }, { preserveScroll: true });
+                toast.success(isEdit ? 'Media berhasil diperbarui' : 'Media berhasil ditambahkan');
+                onClose(); // Tutup modal
+                reset(); // Reset form
+                // Muat ulang data di halaman tanpa reload penuh, mempertahankan filter & scroll
+                Inertia.reload({ preserveScroll: true, preserveState: true });
             },
-            onError: (errors) => {
-                if (errors.file) {
-                    toast.error(errors.file);
+            onError: (inertiaErrors) => {
+                // Menampilkan semua pesan error dari backend
+                if (inertiaErrors && Object.keys(inertiaErrors).length > 0) {
+                    Object.values(inertiaErrors).forEach((errorMsg) => {
+                        toast.error(errorMsg);
+                    });
                 } else {
-                    toast.error(`Gagal ${isEdit ? 'edit' : 'tambah'} Media`);
+                    // Pesan fallback jika terjadi error tak terduga (misal server error 500)
+                    toast.error(`Gagal ${isEdit ? 'memperbarui' : 'menambahkan'} media. Silakan coba lagi.`);
                 }
-                console.error('Error:', errors);
+                // console.error('Error from Inertia:', inertiaErrors);
             },
         });
     }
@@ -115,11 +150,13 @@ export function MediaFormModal({ open, onClose, initialData, albums, selectedAlb
                             type="file"
                             onChange={(e) => setData('file', e.target.files?.[0] || null)}
                             accept="image/*,video/*"
-                            required={!isEdit}
+                            required={!isEdit} // File wajib diisi saat tambah, tapi tidak wajib saat edit
                         />
+                        {/* Menampilkan error spesifik untuk 'file' field */}
                         {errors.file && <p className="text-sm text-red-500">{errors.file}</p>}
                     </div>
 
+                    {/* Bagian ini sudah bagus, tidak perlu diubah */}
                     {!selectedAlbumId && (
                         <div className="space-y-2">
                             <Label htmlFor="album_id">Album</Label>

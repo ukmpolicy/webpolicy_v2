@@ -57,7 +57,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 autoComplete="email"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
-                                placeholder="Enter your Email"
+                                placeholder="Enter Email"
                             />
                             <InputError message={errors.email} />
                         </div>
@@ -67,7 +67,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 <Label htmlFor="password">Password</Label>
                                 {canResetPassword && (
                                     <TextLink href={route('password.request')} className="text-sm text-red-600">
-                                        Lupa Password?
+                                        Forgot Password?
                                     </TextLink>
                                 )}
                             </div>

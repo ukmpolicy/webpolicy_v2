@@ -1,3 +1,4 @@
+// index.tsx
 import { Head } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
 
@@ -36,19 +37,41 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
         return () => clearTimeout(timer);
     }, []);
 
+    // Tambahkan useEffect untuk mengontrol kelas pada <body>
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan, hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali saat mount dan unmount
+
     if (isLoading) return <AppLoading />;
 
     return (
         <>
             <Head title="UKM POLICY - KBMPNL" />
             <AppHeader />
-            <main className="bg-black pt-18">
+            {/* Hapus 'pt-18' agar tidak ada ruang kosong di atas hero */}
+            <main className="bg-black">
                 <AppHero />
-                <AppLabel />
-                <AppVisiMisi />
-                <AppLabel />
-                <AppBidang divisions={divisions} />
-                <AppStruktural strukturalList={structureMembers} />
+                <div className="border-t border-neutral-800">
+                    <AppLabel />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppVisiMisi />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppLabel />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppBidang divisions={divisions} />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppStruktural strukturalList={structureMembers} />
+                </div>
             </main>
             <AppFooter />
         </>

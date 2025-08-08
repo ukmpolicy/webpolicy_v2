@@ -59,7 +59,8 @@ class MediaService
             Storage::disk('public')->makeDirectory('media/thumbnails');
 
             // Resize dan kompres gambar untuk thumbnail (Intervention Image v3 syntax)
-            $this->imageManager->read(Storage::disk('public')->path($originalFilePath))
+            $this->imageManager
+                ->read(Storage::disk('public')->path($originalFilePath))
                 ->cover(300, 200) // fit() diganti dengan cover() atau resize()
                 ->toWebp(80) // encode() diganti dengan toWebp() atau toJpeg()
                 ->save($thumbnailFullPath);
@@ -111,7 +112,8 @@ class MediaService
                 Storage::disk('public')->makeDirectory('media/thumbnails');
 
                 // Resize dan kompres gambar untuk thumbnail (Intervention Image v3 syntax)
-                $this->imageManager->read(Storage::disk('public')->path($originalFilePath))
+                $this->imageManager
+                    ->read(Storage::disk('public')->path($originalFilePath))
                     ->cover(300, 200)
                     ->toWebp(80)
                     ->save($thumbnailFullPath);
@@ -133,7 +135,8 @@ class MediaService
         if ($media->file) {
             Storage::disk('public')->delete($media->file); // Hapus original
         }
-        if ($media->thumbnail_file && $media->thumbnail_file !== $media->file) { // Hapus thumbnail jika berbeda
+        if ($media->thumbnail_file && $media->thumbnail_file !== $media->file) {
+            // Hapus thumbnail jika berbeda
             Storage::disk('public')->delete($media->thumbnail_file);
         }
         return $this->mediaRepository->delete($id);
@@ -154,5 +157,10 @@ class MediaService
     {
         $query = $this->mediaRepository->getByAlbumQuery($albumId);
         return $this->mediaRepository->filterByType($query, $mediaType);
+    }
+
+    public function getTotalMediaCount()
+    {
+        return $this->mediaRepository->countAll();
     }
 }

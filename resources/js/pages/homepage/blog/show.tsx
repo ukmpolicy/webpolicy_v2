@@ -47,6 +47,23 @@ interface BlogArticleShowProps extends PageProps {
 }
 // --- AKHIR DEFINISI TIPE ---
 
+// Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata, menangani PascalCase/camelCase
+const toTitleCase = (text: string) => {
+    if (!text) return '';
+    // 1. Tambahkan spasi sebelum setiap huruf kapital (kecuali yang pertama)
+    let formattedText = text.replace(/([A-Z])/g, ' $1').trim();
+
+    // 2. Ubah ke lowercase, pisahkan berdasarkan spasi, kapitalisasi huruf pertama setiap kata, lalu gabungkan
+    return formattedText
+        .toLowerCase()
+        .split(' ')
+        .map((word) => {
+            if (word.length === 0) return ''; // Tangani jika ada spasi ganda
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(' ');
+};
+
 const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArticles }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -97,7 +114,7 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                         {/* Breadcrumb */}
                         <div className="mb-6 flex items-center text-xs md:text-sm">
                             <Link href={route('home')} className="font-medium text-gray-300 transition-colors duration-200 hover:text-red-400">
-                                Home
+                                Beranda
                             </Link>
                             <ChevronRight className="mx-2 h-4 w-4 text-white/60" />
                             <Link href={route('blog.index')} className="font-medium text-gray-300 transition-colors duration-200 hover:text-red-400">
@@ -121,7 +138,8 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                                         alt="Gambar"
                                     />
                                 </div>
-                                <span>{article.author.name || 'Nama Tidak Diketahui'}</span>
+                                <span>{toTitleCase(article.author.name || 'Nama Tidak Diketahui')}</span>{' '}
+                                {/* MODIFIKASI: Terapkan toTitleCase di sini */}
                             </div>
 
                             {/* Tanggal tetap di container terpisah */}

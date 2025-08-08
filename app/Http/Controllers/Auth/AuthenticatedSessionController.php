@@ -29,11 +29,23 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // $request->authenticate();
+
+        // $request->session()->regenerate();
+
+        // return redirect()->intended(route('dashboard', absolute: false));
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Check if the user's email is verified
+        if (!$request->user()->hasVerifiedEmail()) {
+            // If not verified, redirect to email verification page
+            return redirect()->intended(route('verification.notice'));
+        }
+
+        // If verified, always redirect to the home page (/)
+        return redirect()->intended(route('home')); // Mengarahkan ke halaman home (/)
     }
 
     /**

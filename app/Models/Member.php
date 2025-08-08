@@ -9,7 +9,7 @@ class Member extends Model
     protected $fillable = [
         'period_id', 'picture', 'name', 'nim', 'address', 'email',
         'department', 'study_program', 'joined_college_on', 'graduated_college_on',
-        'born_at', 'birth_date_at'
+        'born_at', 'birth_date_at', 'no_wa'
     ];
 
     public function period()
