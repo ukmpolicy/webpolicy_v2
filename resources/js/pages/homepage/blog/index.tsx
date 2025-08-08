@@ -144,6 +144,23 @@ const BlogPage: React.FC<BlogPageProps> = ({
     if (isLoading) {
         return <AppLoading />;
     }
+    // Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata, menangani PascalCase/camelCase
+    const toTitleCase = (text: string) => {
+        if (!text) return '';
+        // 1. Tambahkan spasi sebelum setiap huruf kapital (kecuali yang pertama)
+        //    Misal: "MuhammadRizkiSyahputra" -> "Muhammad Rizki Syahputra"
+        let formattedText = text.replace(/([A-Z])/g, ' $1').trim();
+
+        // 2. Ubah ke lowercase, pisahkan berdasarkan spasi, kapitalisasi huruf pertama setiap kata, lalu gabungkan
+        return formattedText
+            .toLowerCase()
+            .split(' ')
+            .map((word) => {
+                if (word.length === 0) return ''; // Tangani jika ada spasi ganda
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            })
+            .join(' ');
+    };
 
     return (
         <BlogLayout title="Berita - UKM POLICY">

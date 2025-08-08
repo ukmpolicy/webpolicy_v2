@@ -54,6 +54,10 @@ export default function MemberShow() {
                                     <p className="font-medium">{member.born_at}</p>
                                 </div>
                                 <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">No Whatsapp</p>
+                                    <p className="font-medium">{member.no_wa}</p>
+                                </div>
+                                <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Tanggal Lahir</p>
                                     <p className="font-medium">
                                         {new Date(member.birth_date_at).toLocaleDateString('id-ID', {

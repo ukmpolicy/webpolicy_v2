@@ -1,3 +1,4 @@
+// index.tsx
 import { Head } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
 
@@ -9,8 +10,6 @@ import AppLabel from '@/components/homepage/app-label';
 import AppLoading from '@/components/homepage/app-loading';
 import AppStruktural from '@/components/homepage/app-struktural';
 import AppVisiMisi from '@/components/homepage/app-visi-misi';
-import { toast } from 'sonner';
-
 
 interface Division {
     id: number;
@@ -44,13 +43,24 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
         <>
             <Head title="UKM POLICY - KBMPNL" />
             <AppHeader />
-            <main className="bg-black pt-18">
+            {/* Hapus 'pt-18' agar tidak ada ruang kosong di atas hero */}
+            <main className="bg-black">
                 <AppHero />
-                <AppLabel />
-                <AppVisiMisi />
-                <AppLabel />
-                <AppBidang divisions={divisions} />
-                <AppStruktural strukturalList={structureMembers} />
+                <div className="border-t border-neutral-800">
+                    <AppLabel />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppVisiMisi />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppLabel />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppBidang divisions={divisions} />
+                </div>
+                <div className="border-t border-neutral-800">
+                    <AppStruktural strukturalList={structureMembers} />
+                </div>
             </main>
             <AppFooter />
         </>
