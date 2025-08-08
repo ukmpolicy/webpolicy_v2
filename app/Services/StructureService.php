@@ -5,13 +5,43 @@ namespace App\Services;
 use App\Models\Structure;
 use App\Models\Division;
 use App\Models\Period;
+use App\Repositories\StructureRepository;
 
 class StructureService
 {
+    protected $structureRepository;
+
+    public function __construct(StructureRepository $structureRepository)
+    {
+        $this->structureRepository = $structureRepository;
+    }
+
+    public function getAllStructure($filter = [])
+    {
+        $data = $this->structureRepository->getAll($filter);   
+        $data = array_map(function ($item) {
+            $item["canUpLevel"] = false;
+            $item["canDownLevel"] = false;
+
+            if ($item["level"] > 1) {
+                $item["canUpLevel"] = true;
+            }
+            
+            if ($this->structureRepository->getStructureByLevel($item["level"] + 1)) {
+                $item["canDownLevel"] = true;
+            }
+
+            return $item;
+        }, $data->toArray());
+
+        return $data;
+    }
+
     public function getAllStructuresWithRelations()
     {
         return Structure::with(['division', 'period'])->get();
     }
+
     public function getAllStructuresWithRelationsSorted($sort = 'desc', $periodId = null)
     {
         $query = Structure::with(['division', 'period'])

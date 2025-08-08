@@ -16,9 +16,31 @@ class StructureRepository
     /**
      * Ambil semua struktur (tanpa relasi).
      */
-    public function getAll()
+    public function getAll($filter)
     {
-        return Structure::all();
+        $structure = Structure::select('*')
+        ->offset(0)
+        ->limit(10)
+        ->orderBy('level', 'asc');
+
+        if (isset($filter['page'])) {
+            $structure->offset(($filter['page'] - 1) * $filter['limit']);
+        }
+
+        if (isset($filter['limit'])) {
+            $structure->limit($filter['limit']);
+        }
+
+        if (isset($filter['period_id'])) {
+            $structure->where('period_id', $filter['period_id']);
+        }
+
+        return $structure->get();
+    }
+
+    public function getStructureByLevel($level)
+    {
+        return Structure::where('level', $level)->first();
     }
 
     /**
