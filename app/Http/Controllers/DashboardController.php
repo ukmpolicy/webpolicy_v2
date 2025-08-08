@@ -7,6 +7,7 @@ use App\Services\BlogArticleService;
 use App\Services\MediaService;
 use App\Services\MemberService;
 use App\Services\PeriodService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -57,7 +58,7 @@ class DashboardController extends Controller
         foreach ($membersWithBirthdays as $member) {
             if ($member->birth_date_at) {
                 // Gunakan format 'MM-DD' sebagai kunci
-                $dateKey = \Carbon\Carbon::parse($member->birth_date_at)->format('m-d');
+                $dateKey = Carbon::parse($member->birth_date_at)->format('m-d');
                 if (!isset($birthdaysByDate[$dateKey])) {
                     $birthdaysByDate[$dateKey] = [];
                 }

@@ -2,6 +2,7 @@ import AppFooter from '@/components/homepage/app-footer';
 import AppHeader from '@/components/homepage/app-header';
 import { Head } from '@inertiajs/react';
 import React from 'react';
+import { Toaster } from 'sonner';
 
 interface BlogLayoutProps {
     children: React.ReactNode;
@@ -15,6 +16,7 @@ const BlogLayout: React.FC<BlogLayoutProps> = ({ children, title }) => {
             <AppHeader />
             <main className="min-h-screen bg-black pt-0 text-white">{children}</main>
             <AppFooter />
+            <Toaster />
         </>
     );
 };
