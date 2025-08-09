@@ -86,6 +86,7 @@
         "framer-motion": "^12.23.6",
         "globals": "^15.14.0",
         "heroicons-react": "^1.4.1",
+        "highlight.js": "^11.11.1",
         "laravel-vite-plugin": "^1.0",
         "lucide-react": "^0.475.0",
         "marked": "^16.0.0",

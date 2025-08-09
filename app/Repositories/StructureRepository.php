@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Structure;
+use App\Models\Division;
+use App\Models\Period;
 
 class StructureRepository
 {
@@ -18,15 +20,47 @@ class StructureRepository
      */
     public function getAll()
     {
-        return Structure::all();
+        return $this->model->all();
     }
 
     /**
-     * Ambil semua struktur beserta relasi division.
+     * Ambil semua struktur dengan relasi division & period.
      */
-    public function getAllWithDivision()
+    public function getAllWithRelations()
     {
-        return Structure::with('division')->get();
+        return $this->model->with(['division', 'period'])->get();
+    }
+
+    /**
+     * Ambil semua struktur dengan relasi dan sorting berdasarkan level.
+     * Bisa difilter berdasarkan period_id.
+     */
+    public function getAllWithRelationsSorted($sort = 'desc', $periodId = null)
+    {
+        $query = $this->model->with(['division', 'period'])
+                             ->orderBy('level', $sort);
+
+        if ($periodId) {
+            $query->where('period_id', $periodId);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Ambil semua division.
+     */
+    public function getAllDivisions()
+    {
+        return Division::all();
+    }
+
+    /**
+     * Ambil semua period.
+     */
+    public function getAllPeriods()
+    {
+        return Period::all();
     }
 
     /**
@@ -34,7 +68,7 @@ class StructureRepository
      */
     public function create(array $data)
     {
-        return Structure::create($data);
+        return $this->model->create($data);
     }
 
     /**
@@ -42,7 +76,7 @@ class StructureRepository
      */
     public function update($id, array $data)
     {
-        $structure = Structure::findOrFail($id);
+        $structure = $this->model->findOrFail($id);
         $structure->update($data);
         return $structure;
     }
@@ -52,7 +86,7 @@ class StructureRepository
      */
     public function delete($id)
     {
-        $structure = Structure::findOrFail($id);
+        $structure = $this->model->findOrFail($id);
         return $structure->delete();
     }
 }

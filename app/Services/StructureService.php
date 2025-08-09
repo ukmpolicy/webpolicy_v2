@@ -2,54 +2,54 @@
 
 namespace App\Services;
 
-use App\Models\Structure;
-use App\Models\Division;
-use App\Models\Period;
+use App\Repositories\StructureRepository;
 
 class StructureService
 {
+    protected $structureRepository;
+
+    public function __construct(StructureRepository $structureRepository)
+    {
+        $this->structureRepository = $structureRepository;
+    }
+
+    public function getAllStructures()
+    {
+        return $this->structureRepository->getAll();
+    }
+
     public function getAllStructuresWithRelations()
     {
-        return Structure::with(['division', 'period'])->get();
+        return $this->structureRepository->getAllWithRelations();
     }
+
     public function getAllStructuresWithRelationsSorted($sort = 'desc', $periodId = null)
     {
-        $query = Structure::with(['division', 'period'])
-            ->orderBy('level', $sort);
-
-        if ($periodId) {
-            $query->where('period_id', $periodId);
-        }
-
-        return $query->get();
+        return $this->structureRepository->getAllWithRelationsSorted($sort, $periodId);
     }
 
     public function getAllDivisions()
     {
-        return Division::all();
+        return $this->structureRepository->getAllDivisions();
     }
 
     public function getAllPeriods()
     {
-        return Period::all();
+        return $this->structureRepository->getAllPeriods();
     }
 
     public function createStructure(array $data)
     {
-        return Structure::create($data);
+        return $this->structureRepository->create($data);
     }
 
     public function updateStructure($id, array $data)
     {
-        $structure = Structure::findOrFail($id);
-        $structure->update($data);
-        return $structure;
+        return $this->structureRepository->update($id, $data);
     }
 
     public function deleteStructure($id)
     {
-        $structure = Structure::findOrFail($id);
-        $structure->delete();
+        return $this->structureRepository->delete($id);
     }
-    
 }

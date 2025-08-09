@@ -49,6 +49,7 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
                 <AppLabel />
                 <AppVisiMisi />
                 <AppLabel />
+                
                 <AppBidang divisions={divisions} />
                 <AppStruktural strukturalList={structureMembers} />
             </main>

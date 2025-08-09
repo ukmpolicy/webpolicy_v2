@@ -41,7 +41,7 @@ export default function Register() {
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
-                    <div className="text-dark grid gap-2 dark:text-white">
+                    <div className="text-white grid gap-2 dark:text-white">
                         <Label htmlFor="name" className="">
                             Name
                         </Label>
@@ -60,7 +60,7 @@ export default function Register() {
                         <InputError message={errors.name} className="mt-2" />
                     </div>
 
-                    <div className="grid gap-2">
+                    <div className="grid gap-2 text-white dark:text-white">
                         <Label htmlFor="email" className="">
                             Email
                         </Label>
@@ -78,7 +78,7 @@ export default function Register() {
                         <InputError message={errors.email} />
                     </div>
 
-                    <div className="grid gap-2">
+                    <div className="grid gap-2 ">
                         <div className="relative">
                             <Input
                                 id="password"
@@ -101,7 +101,7 @@ export default function Register() {
                         <InputError message={errors.password} />
                     </div>
 
-                    <div className="grid gap-2">
+                    <div className="grid gap-2 text-white">
                         <Label htmlFor="password_confirmation" className="">
                             Confirm Password
                         </Label>
@@ -137,7 +137,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4 text-center text-sm">
-                    <span className="text-dark dark:text-white">Already have an account? </span>
+                    <span className="text-white dark:text-white">Already have an account? </span>
                     <TextLink href={route('login')} tabIndex={6} className="font-bold text-red-600">
                         Sign in
                     </TextLink>
