@@ -1,11 +1,10 @@
-// resources/js/Components/AppSidebar.jsx (atau .tsx)
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { NavGroup } from '@/types';
-import { Link, usePage } from '@inertiajs/react'; // Tambahkan usePage
+import { usePage } from '@inertiajs/react';
 import { Album, BookOpenText, Building2, CalendarRange, ClipboardList, FileText, Folder, Layers, LayoutGrid, User2, UserCog } from 'lucide-react';
-import AppLogo from './app-logo';
+import AppSidebarBranding from './app-sidebar-branding';
 
 const mainNavItems: NavGroup[] = [
     {
@@ -95,34 +94,26 @@ const mainNavItems: NavGroup[] = [
 
 type AuthProps = {
     permissions: string[];
-    // tambahkan properti lain jika diperlukan
 };
 
 export function AppSidebar() {
     const { auth } = usePage().props as { auth?: AuthProps };
     const permissions = auth?.permissions || [];
 
-    // Fungsi untuk memeriksa apakah user memiliki permission yang dibutuhkan
     const hasPermission = (permissionKey: string) => {
         return permissions.includes(permissionKey);
     };
 
-    // Filter mainNavItems berdasarkan permission
     const filteredNavItems = mainNavItems
         .map((group) => {
             const filteredItems = group.items.filter((item) => {
-                // Jika item memiliki children, cek permission untuk setiap child
                 if (item.children) {
-                    // Filter children yang memiliki permission
                     const filteredChildren = item.children.filter((child) => hasPermission(child.permission));
-                    // Jika setidaknya satu child memiliki permission, item parent tetap ditampilkan
                     return filteredChildren.length > 0;
                 }
-                // Jika tidak ada children, cek permission untuk item itu sendiri
                 return hasPermission(item.permission);
             });
 
-            // Hapus group jika tidak ada item yang lolos filter
             if (filteredItems.length === 0) {
                 return null;
             }
@@ -130,7 +121,6 @@ export function AppSidebar() {
             return {
                 ...group,
                 items: filteredItems.map((item) => {
-                    // Untuk item parent dengan children, pastikan children juga difilter
                     if (item.children) {
                         return {
                             ...item,
@@ -141,21 +131,12 @@ export function AppSidebar() {
                 }),
             };
         })
-        .filter((group) => group !== null); // Hapus group yang kosong
+        .filter((group) => group !== null);
 
     return (
         <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
-                                <AppLogo />
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
+            {/* Mengganti header lama dengan komponen baru */}
+            <AppSidebarBranding />
 
             <SidebarContent>
                 {filteredNavItems.map((data, i) => (

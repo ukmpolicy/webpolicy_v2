@@ -89,6 +89,16 @@ const BlogPage: React.FC<BlogPageProps> = ({
         setCurrentCategoryId(initialSelectedCategoryId || '');
     }, [initialSearch, initialSelectedCategoryId]);
 
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan (berpindah halaman), hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali
+
     const handlePaginationClick = (url: string | null) => {
         if (url) {
             const urlParams = new URLSearchParams(new URL(url).search);

@@ -25,6 +25,16 @@ const ContactPage: React.FC = () => {
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan (berpindah halaman), hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali
+
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
@@ -229,7 +239,7 @@ const ContactPage: React.FC = () => {
                                             ></textarea>
                                             <InputError message={errors.message} className="mt-2" />
                                         </motion.div>
-                                        <motion.div variants={itemVariants} className="w-full text-center">
+                                        <motion.div variants={itemVariants} className="flex w-full justify-center md:justify-end">
                                             <button
                                                 type="submit"
                                                 disabled={processing}

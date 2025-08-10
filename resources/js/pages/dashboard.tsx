@@ -45,7 +45,7 @@ export default function Dashboard() {
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Halo, Selamat Datang! Dashboard UKM-POLICY</h1>
+                    <h1 className="text-2xl font-bold">Selamat Datang Dashboard UKM-POLICY</h1>
                 </div>
 
                 {/* Bagian Metrik Utama */}

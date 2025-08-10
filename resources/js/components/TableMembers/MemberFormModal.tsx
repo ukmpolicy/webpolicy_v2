@@ -27,6 +27,8 @@ export function MemberFormModal({ open, onClose, initialData, periods, departmen
         ...initialData,
     });
 
+    // Perbaikan: Fungsi getLocalDate() dihapus karena tidak lagi dibutuhkan.
+
     useEffect(() => {
         if (initialData) {
             setData({
@@ -265,7 +267,7 @@ export function MemberFormModal({ open, onClose, initialData, periods, departmen
                             <Input
                                 id="birth_date_at"
                                 type="date"
-                                value={data.birth_date_at ? new Date(data.birth_date_at).toISOString().split('T')[0] : ''}
+                                value={data.birth_date_at} // Perbaikan: Langsung gunakan string tanggal
                                 onChange={(e) => setData('birth_date_at', e.target.value)}
                             />
                             {errors.birth_date_at && <p className="text-sm text-red-500">{errors.birth_date_at}</p>}

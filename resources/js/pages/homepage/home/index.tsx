@@ -24,12 +24,15 @@ interface StructureMember {
     picture?: string | null;
 }
 
+// Tambahkan prop isBirthday di interface
 interface HomePageProps {
     divisions: Division[];
     structureMembers: StructureMember[];
+    isBirthday: boolean;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
+// Tambahkan isBirthday sebagai parameter props
+const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirthday }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -53,7 +56,8 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
     return (
         <>
             <Head title="UKM POLICY - KBMPNL" />
-            <AppHeader />
+            {/* Teruskan prop isBirthday ke komponen AppHeader */}
+            <AppHeader isBirthday={isBirthday} />
             {/* Hapus 'pt-18' agar tidak ada ruang kosong di atas hero */}
             <main className="bg-black">
                 <AppHero />

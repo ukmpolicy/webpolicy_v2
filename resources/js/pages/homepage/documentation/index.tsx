@@ -39,6 +39,16 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ albums }) => {
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan (berpindah halaman), hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali
+
     // Reset halaman ke 1 setiap kali filter berubah
     useEffect(() => {
         setCurrentPage(1);

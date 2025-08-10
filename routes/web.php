@@ -22,7 +22,8 @@ use App\Http\Controllers\StructureMemberController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VissionController;
 use App\Http\Controllers\MissionController;
-
+use App\Http\Controllers\ProfileUserController;
+use App\Http\Controllers\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -60,20 +61,21 @@ Route::middleware(['email.public.verified'])->group(function () {
 // Logout (tetap di luar grup agar bisa diakses dari halaman verify-email)
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-
 /*
 |--------------------------------------------------------------------------
 | Halaman Admin (Butuh Login)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Route::get('dashboard', function () {
-    //     return Inertia::render('dashboard');
-    // })->name('dashboard')->middleware('permission:dashboard');
-     Route::get('dashboard', [DashboardController::class, 'index'])
+    // Dashboard monitoring
+    Route::get('dashboard', [DashboardController::class, 'index'])
         ->name('dashboard')
         ->middleware('permission:dashboard');
 
+    // Rute untuk Halaman Profile User
+    Route::get('/profile', [ProfileUserController::class, 'index'])->name('profile.edit');
+    Route::patch('/profile', [ProfileUserController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileUserController::class, 'destroy'])->name('profile.destroy');
 
     // Roles Management
     Route::resource('roles', RoleController::class)->middleware('permission:roles');
@@ -119,25 +121,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Gallery Management
     Route::resource('gallery-album', AlbumController::class)->middleware('permission:gallery-album');
     Route::resource('gallery-media', MediaController::class)->middleware('permission:gallery-media');
-    Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])->name('gallery-media.move')->middleware('permission:gallery-media');
+    Route::post('gallery-media/{id}/move', [MediaController::class, 'move'])
+        ->name('gallery-media.move')
+        ->middleware('permission:gallery-media');
 
     // Article Management
     Route::resource('category-articles', CategoryArticleController::class)->middleware('permission:category-articles');
     Route::resource('articles', ArticleController::class)->middleware('permission:articles');
-    Route::post('/articles/upload-image', [ArticleController::class, 'uploadImage'])->name('articles.uploadImage')->middleware('permission:articles');
+    Route::post('/articles/upload-image', [ArticleController::class, 'uploadImage'])
+        ->name('articles.uploadImage')
+        ->middleware('permission:articles');
 
     // Structure Management
     Route::get('/structures/next-level', [StructureController::class, 'getNextLevel'])->middleware('permission:structures');
     Route::resource('structures', StructureController::class)->middleware('permission:structures');
-    Route::post('/structures/reorder', [StructureController::class, 'reorder'])->name('structures.reorder')->middleware('permission:structures');
+    Route::post('/structures/reorder', [StructureController::class, 'reorder'])
+        ->name('structures.reorder')
+        ->middleware('permission:structures');
 
     // Structure Member Management
-    Route::get('/structure-members', [StructureMemberController::class, 'index'])->name('structure-members.index')->middleware('permission:structure-members');
-    Route::post('/structure-members', [StructureMemberController::class, 'store'])->name('structure-members.store')->middleware('permission:structure-members');
+    Route::get('/structure-members', [StructureMemberController::class, 'index'])
+        ->name('structure-members.index')
+        ->middleware('permission:structure-members');
+    Route::post('/structure-members', [StructureMemberController::class, 'store'])
+        ->name('structure-members.store')
+        ->middleware('permission:structure-members');
     Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])->middleware('permission:structure-members');
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware('permission:structure-members');
+
 });
 
-
-require __DIR__ . '/settings.php';
+// require __DIR__ . '/settings.php'; // TIDAK DIGUNAKAN LAGI
 require __DIR__ . '/auth.php';

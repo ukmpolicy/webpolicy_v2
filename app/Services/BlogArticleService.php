@@ -98,6 +98,7 @@ class BlogArticleService
         $article = $this->articleRepository->findBySlug($slug);
         if ($article) {
             $this->articleRepository->incrementViews($article->id);
+            $article->refresh();
         }
         return $article;
     }
