@@ -25,6 +25,16 @@ const ContactPage: React.FC = () => {
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan (berpindah halaman), hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali
+
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
@@ -80,7 +90,7 @@ const ContactPage: React.FC = () => {
                     initial="hidden"
                     animate="visible"
                     variants={fadeInSlideUp} // Animasi untuk section keseluruhan
-                    className="relative overflow-hidden bg-black py-8"
+                    className="relative overflow-hidden bg-black py-12"
                 >
                     <div className="pointer-events-none absolute inset-0 -z-10">
                         <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-red-600/40 opacity-40 blur-[120px]" />
@@ -229,7 +239,7 @@ const ContactPage: React.FC = () => {
                                             ></textarea>
                                             <InputError message={errors.message} className="mt-2" />
                                         </motion.div>
-                                        <motion.div variants={itemVariants} className="w-full text-center">
+                                        <motion.div variants={itemVariants} className="flex w-full justify-center md:justify-end">
                                             <button
                                                 type="submit"
                                                 disabled={processing}

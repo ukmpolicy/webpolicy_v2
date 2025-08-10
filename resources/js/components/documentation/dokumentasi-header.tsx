@@ -22,7 +22,7 @@ const DocumentationHeader: React.FC = () => {
             initial="hidden"
             animate="visible"
             variants={fadeInSlideUp} // Animasi untuk section keseluruhan
-            className="relative overflow-hidden bg-black py-8"
+            className="relative overflow-hidden bg-black py-12"
         >
             <div className="pointer-events-none absolute inset-0 -z-10">
                 <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-red-600/40 opacity-40 blur-[120px]" />

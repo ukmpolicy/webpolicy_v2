@@ -27,14 +27,17 @@ class StructureController extends Controller
             $periodId = $defaultPeriod?->id;
         }
 
+        $structures = $this->structureService->getAllStructure($request->all());
+
         return inertia('structures/index', [
-            'structures' => $this->structureService->getAllStructuresWithRelationsSorted($sort, $periodId),
+            'structures' => $structures,
             'divisions' => $this->structureService->getAllDivisions(),
             'periods' => $this->structureService->getAllPeriods(),
             'sortDirection' => $sort,
             'selectedPeriodId' => $periodId,
         ]);
     }
+    
     public function store(Request $request)
     {
         try {

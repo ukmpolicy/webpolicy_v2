@@ -6,9 +6,10 @@ import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { Inertia } from '@inertiajs/inertia';
 import { Head, usePage } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Edit, Tag, User as UserIcon, X } from 'lucide-react';
+import { ArrowLeft, Calendar, Edit, Eye, Tag, User as UserIcon, X } from 'lucide-react';
 
 export default function ArticleShow() {
+    // Pastikan 'article' memiliki properti view_count
     const { article } = usePage().props;
 
     if (!article) {
@@ -108,6 +109,12 @@ export default function ArticleShow() {
                                     <div className="flex items-center gap-2">
                                         <Calendar className="h-4 w-4" />
                                         <span>{formatDate(article.created_at)}</span>
+                                    </div>
+                                    {/* TAMBAHAN: Tampilkan view_count di sini */}
+                                    <Separator orientation="vertical" className="hidden h-5 md:block" />
+                                    <div className="flex items-center gap-2">
+                                        <Eye className="h-4 w-4" />
+                                        <span>{article.view_count} kali dilihat</span>
                                     </div>
                                 </div>
                             </div>

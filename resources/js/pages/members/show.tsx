@@ -60,12 +60,19 @@ export default function MemberShow() {
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Tanggal Lahir</p>
                                     <p className="font-medium">
-                                        {new Date(member.birth_date_at).toLocaleDateString('id-ID', {
+                                        {new Date(member.birth_date_at + 'T00:00:00').toLocaleDateString('id-ID', {
                                             day: 'numeric',
                                             month: 'long',
                                             year: 'numeric',
                                         })}
                                     </p>
+                                    {/* <p className="font-medium">
+                                        {new Date(member.birth_date_at + 'T00:00:00').toLocaleDateString('id-ID', {
+                                            day: 'numeric',
+                                            month: 'long',
+                                            year: 'numeric',
+                                        })}
+                                    </p> */}
                                 </div>
                             </div>
                         </div>

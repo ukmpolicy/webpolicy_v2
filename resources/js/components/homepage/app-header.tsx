@@ -19,8 +19,11 @@ import {
 export default function AppHeader() {
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    const { url, props } = usePage<{ auth: { user?: { name: string; email: string; role_id?: number | null } } }>();
-    const { auth } = props;
+    const { url, props } = usePage<{
+        auth: { user?: { name: string; email: string; role_id?: number | null; picture?: string | null } };
+        isBirthday?: boolean;
+    }>();
+    const { auth, isBirthday } = props;
 
     const toggleMobileSidebar = () => setMobileSidebarOpen(!mobileSidebarOpen);
 
@@ -42,7 +45,7 @@ export default function AppHeader() {
 
     const getProfileImageUrl = () => {
         if (auth.user) {
-            return '/assets/default_picture.webp';
+            return auth.user.picture ? `/storage/${auth.user.picture}` : '/assets/default_picture.webp';
         }
         return '';
     };
@@ -113,9 +116,15 @@ export default function AppHeader() {
                                     <DropdownMenuTrigger asChild>
                                         <Button
                                             variant="ghost"
-                                            className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full p-0 hover:bg-neutral-700/50"
+                                            className="relative flex h-10 w-10 items-center justify-center overflow-visible rounded-full p-0 hover:bg-neutral-700/50"
                                         >
-                                            <img src={profileImageSrc} alt="User Profile" className="h-full w-full object-cover" />
+                                            <img src={profileImageSrc} alt="User Profile" className="h-full w-full rounded-full object-cover" />
+                                            {/* Ikon notifikasi ulang tahun yang lebih besar dan berkedip */}
+                                            {isBirthday && (
+                                                <span className="absolute top-0 right-0 z-10 flex h-6 w-6 translate-x-1/4 -translate-y-1/4 transform animate-bounce items-center justify-center rounded-full text-lg shadow-lg">
+                                                    🎉
+                                                </span>
+                                            )}
                                         </Button>
                                     </DropdownMenuTrigger>
                                     {/* Konten Dropdown Menu */}
@@ -135,20 +144,10 @@ export default function AppHeader() {
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator className="bg-neutral-700" />
 
-                                        {/* Item Menu Umum (Profile, Notification, Settings) */}
+                                        {/* Item Menu Umum (Profile) */}
                                         <DropdownMenuItem asChild>
                                             <Link href={route('profile.edit')} className="block cursor-pointer p-2 hover:bg-neutral-700">
                                                 Profile
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href={route('home')} className="block cursor-pointer p-2 hover:bg-neutral-700">
-                                                Notification
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href={route('home')} className="block cursor-pointer p-2 hover:bg-neutral-700">
-                                                Settings
                                             </Link>
                                         </DropdownMenuItem>
 
@@ -213,9 +212,14 @@ export default function AppHeader() {
                                     <Link href={route('profile.edit')} onClick={toggleMobileSidebar}>
                                         <Button
                                             variant="ghost"
-                                            className="mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full p-0 text-base font-semibold text-white hover:bg-neutral-700/50"
+                                            className="relative mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-visible rounded-full p-0 text-base font-semibold text-white hover:bg-neutral-700/50"
                                         >
-                                            <img src={profileImageSrc} alt="User Profile" className="h-full w-full object-cover" />
+                                            <img src={profileImageSrc} alt="User Profile" className="h-full w-full rounded-full object-cover" />
+                                            {isBirthday && (
+                                                <span className="absolute top-0 right-0 z-10 flex h-6 w-6 translate-x-1/4 -translate-y-1/4 transform animate-bounce items-center justify-center rounded-full text-lg shadow-lg">
+                                                    🎉
+                                                </span>
+                                            )}
                                         </Button>
                                     </Link>
                                     {/* MODIFIKASI: Tambahkan 'truncate', 'overflow-hidden', 'whitespace-nowrap' */}
@@ -271,20 +275,6 @@ export default function AppHeader() {
                                             className="text-base font-semibold text-white transition hover:text-red-500"
                                         >
                                             Profile
-                                        </Link>
-                                        <Link
-                                            href={route('home')}
-                                            onClick={toggleMobileSidebar}
-                                            className="text-base font-semibold text-white transition hover:text-red-500"
-                                        >
-                                            Notification
-                                        </Link>
-                                        <Link
-                                            href={route('home')}
-                                            onClick={toggleMobileSidebar}
-                                            className="text-base font-semibold text-white transition hover:text-red-500"
-                                        >
-                                            Settings
                                         </Link>
                                         {userHasRole && (
                                             <Link

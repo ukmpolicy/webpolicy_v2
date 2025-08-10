@@ -1,5 +1,5 @@
 import { Link, PageProps, router } from '@inertiajs/react';
-import { motion } from 'framer-motion'; // Import motion dari framer-motion
+import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 
 // Mengimpor komponen-komponen yang sudah dipecah
@@ -37,6 +37,7 @@ interface Article {
     status: 'draft' | 'published';
     created_at: string;
     updated_at: string;
+    view_count: number;
     author: Author;
     categories: Category[];
 }
@@ -88,6 +89,16 @@ const BlogPage: React.FC<BlogPageProps> = ({
         setCurrentCategoryId(initialSelectedCategoryId || '');
     }, [initialSearch, initialSelectedCategoryId]);
 
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan (berpindah halaman), hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali
+
     const handlePaginationClick = (url: string | null) => {
         if (url) {
             const urlParams = new URLSearchParams(new URL(url).search);
@@ -113,7 +124,6 @@ const BlogPage: React.FC<BlogPageProps> = ({
         }
     };
 
-    // Varian animasi untuk elemen-elemen
     const fadeInSlideUp = {
         initial: { opacity: 0, y: 20 },
         animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
@@ -124,7 +134,7 @@ const BlogPage: React.FC<BlogPageProps> = ({
             opacity: 1,
             transition: {
                 when: 'beforeChildren',
-                staggerChildren: 0.1, // Memberikan efek stagger pada children
+                staggerChildren: 0.1,
             },
         },
         hidden: { opacity: 0 },
@@ -135,7 +145,6 @@ const BlogPage: React.FC<BlogPageProps> = ({
         hidden: { opacity: 0, y: 20 },
     };
 
-    // Varian untuk elemen teks individual di header (opsional, karena parent sudah dianimasikan)
     const textVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
@@ -144,19 +153,15 @@ const BlogPage: React.FC<BlogPageProps> = ({
     if (isLoading) {
         return <AppLoading />;
     }
-    // Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata, menangani PascalCase/camelCase
+
     const toTitleCase = (text: string) => {
         if (!text) return '';
-        // 1. Tambahkan spasi sebelum setiap huruf kapital (kecuali yang pertama)
-        //    Misal: "MuhammadRizkiSyahputra" -> "Muhammad Rizki Syahputra"
         let formattedText = text.replace(/([A-Z])/g, ' $1').trim();
-
-        // 2. Ubah ke lowercase, pisahkan berdasarkan spasi, kapitalisasi huruf pertama setiap kata, lalu gabungkan
         return formattedText
             .toLowerCase()
             .split(' ')
             .map((word) => {
-                if (word.length === 0) return ''; // Tangani jika ada spasi ganda
+                if (word.length === 0) return '';
                 return word.charAt(0).toUpperCase() + word.slice(1);
             })
             .join(' ');
@@ -164,20 +169,13 @@ const BlogPage: React.FC<BlogPageProps> = ({
 
     return (
         <BlogLayout title="Berita - UKM POLICY">
-            {/* Section Label (judul halaman) - Dengan Animasi */}
-            <motion.section
-                initial="hidden"
-                animate="visible"
-                variants={fadeInSlideUp} // Animasi untuk section keseluruhan
-                className="relative overflow-hidden bg-black py-8"
-            >
+            <motion.section initial="hidden" animate="visible" variants={fadeInSlideUp} className="relative overflow-hidden bg-black py-12">
                 <div className="pointer-events-none absolute inset-0 -z-10">
                     <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-red-600/40 opacity-40 blur-[120px]" />
                     <div className="absolute right-0 bottom-0 h-[300px] w-[300px] rounded-full bg-white/10 opacity-10 blur-2xl" />
                 </div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="pt-12 pb-6 text-left md:pt-20">
-                        {/* Breadcrumb: Home > Berita - Dengan Animasi */}
                         <motion.div variants={textVariants} className="mb-6 flex items-center text-xs md:text-sm">
                             <Link href={route('home')} className="font-medium text-gray-300 transition-colors duration-200 hover:text-red-400">
                                 Beranda
@@ -185,14 +183,12 @@ const BlogPage: React.FC<BlogPageProps> = ({
                             <ChevronRight className="mx-2 h-4 w-4 text-white/60" />
                             <span className="font-bold text-red-500">Berita</span>
                         </motion.div>
-                        {/* Judul Utama: BLOG KAMI - Dengan Animasi */}
                         <motion.h1
                             variants={textVariants}
                             className="mb-2 text-3xl font-extrabold tracking-tight text-white uppercase sm:text-3xl md:text-4xl"
                         >
                             BERITA KAMI
                         </motion.h1>
-                        {/* Deskripsi - Dengan Animasi */}
                         <motion.p variants={textVariants} className="max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">
                             Dapatkan informasi dan berita terbaru dari kami
                         </motion.p>
@@ -201,7 +197,6 @@ const BlogPage: React.FC<BlogPageProps> = ({
                 <div className="w-full border-t border-neutral-800 px-4 sm:px-6 lg:px-8"></div>
             </motion.section>
 
-            {/* Konten Artikel Blog */}
             <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
                 <BlogFilter
                     categories={categories}
@@ -216,13 +211,11 @@ const BlogPage: React.FC<BlogPageProps> = ({
                     <motion.div
                         initial="hidden"
                         animate="visible"
-                        variants={cardGridVariants} // Varian untuk grid artikel, mengontrol stagger
+                        variants={cardGridVariants}
                         className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3"
                     >
                         {articles.data.map((article) => (
                             <motion.div key={article.id} variants={cardItemVariants}>
-                                {' '}
-                                {/* Varian untuk setiap kartu artikel */}
                                 <ArticleCard article={article} />
                             </motion.div>
                         ))}
@@ -231,7 +224,7 @@ const BlogPage: React.FC<BlogPageProps> = ({
                     <motion.p
                         initial="initial"
                         animate="animate"
-                        variants={fadeInSlideUp} // Animasi untuk pesan "Tidak ada artikel"
+                        variants={fadeInSlideUp}
                         className="rounded-lg border border-zinc-800 bg-zinc-900/50 py-10 text-center text-lg text-gray-400"
                     >
                         Tidak ada artikel yang ditemukan untuk kriteria ini.

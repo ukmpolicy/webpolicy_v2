@@ -12,7 +12,7 @@
 .prose h6 {
     font-weight: 900 !important; /* font-extrabold */
     line-height: 1.25 !important; /* leading-tight */
-    margin-top: 2.5em !important; /* Spasi atas lebih besar */
+    /* margin-top: 2.5em !important; Spasi atas lebih besar */
     margin-bottom: 0.75em !important; /* Spasi bawah diperketat */
     border-bottom: none !important; /* Hapus garis bawah */
     padding-bottom: 0 !important; /* Hapus padding bawah */
