@@ -46,7 +46,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="email" className="text-black dark:text-white">
+                        <Label htmlFor="email" className="text-white dark:text-white">
                             Email
                         </Label>
                         <Input
@@ -63,7 +63,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password" className="text-black dark:text-white">
+                        <Label htmlFor="password" className="text-white dark:text-white">
                             Password
                         </Label>
                         <div className="relative">
@@ -92,7 +92,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation" className="text-black dark:text-white">
+                        <Label htmlFor="password_confirmation" className="text-white dark:text-white">
                             Confirm Password
                         </Label>
                         <div className="relative">
