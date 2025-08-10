@@ -1,8 +1,8 @@
 type Struktur = {
-  id: number;
-  name: string;
-  position: string;
-  picture?: string | null;
+    id: number;
+    name: string;
+    position: string;
+    picture?: string | null;
 };
 
 // Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata
@@ -70,4 +70,5 @@ export default function AppStruktural({
       </div>
     </section>
   );
+
 }

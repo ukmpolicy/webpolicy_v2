@@ -3,8 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\Structure;
-use App\Models\Division;
-use App\Models\Period;
 
 class StructureRepository
 {
@@ -18,49 +16,39 @@ class StructureRepository
     /**
      * Ambil semua struktur (tanpa relasi).
      */
-    public function getAll()
+    public function getAll($filter)
     {
-        return $this->model->all();
-    }
+        $structure = Structure::select('*')
+        ->offset(0)
+        ->limit(10)
+        ->orderBy('level', 'asc');
 
-    /**
-     * Ambil semua struktur dengan relasi division & period.
-     */
-    public function getAllWithRelations()
-    {
-        return $this->model->with(['division', 'period'])->get();
-    }
-
-    /**
-     * Ambil semua struktur dengan relasi dan sorting berdasarkan level.
-     * Bisa difilter berdasarkan period_id.
-     */
-    public function getAllWithRelationsSorted($sort = 'desc', $periodId = null)
-    {
-        $query = $this->model->with(['division', 'period'])
-                             ->orderBy('level', $sort);
-
-        if ($periodId) {
-            $query->where('period_id', $periodId);
+        if (isset($filter['page'])) {
+            $structure->offset(($filter['page'] - 1) * $filter['limit']);
         }
 
-        return $query->get();
+        if (isset($filter['limit'])) {
+            $structure->limit($filter['limit']);
+        }
+
+        if (isset($filter['period_id'])) {
+            $structure->where('period_id', $filter['period_id']);
+        }
+
+        return $structure->get();
+    }
+
+    public function getStructureByLevel($level)
+    {
+        return Structure::where('level', $level)->first();
     }
 
     /**
-     * Ambil semua division.
+     * Ambil semua struktur beserta relasi division.
      */
-    public function getAllDivisions()
+    public function getAllWithDivision()
     {
-        return Division::all();
-    }
-
-    /**
-     * Ambil semua period.
-     */
-    public function getAllPeriods()
-    {
-        return Period::all();
+        return Structure::with('division')->get();
     }
 
     /**
@@ -68,7 +56,7 @@ class StructureRepository
      */
     public function create(array $data)
     {
-        return $this->model->create($data);
+        return Structure::create($data);
     }
 
     /**
@@ -76,7 +64,7 @@ class StructureRepository
      */
     public function update($id, array $data)
     {
-        $structure = $this->model->findOrFail($id);
+        $structure = Structure::findOrFail($id);
         $structure->update($data);
         return $structure;
     }
@@ -86,7 +74,7 @@ class StructureRepository
      */
     public function delete($id)
     {
-        $structure = $this->model->findOrFail($id);
+        $structure = Structure::findOrFail($id);
         return $structure->delete();
     }
 }

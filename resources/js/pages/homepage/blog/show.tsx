@@ -1,7 +1,16 @@
 import { Link, PageProps } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Calendar, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronRight, Eye, Link as LinkIcon, Share2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+// Impor ikon sosial media yang relevan
+import { FaTelegram } from 'react-icons/fa';
+import { FaFacebook, FaWhatsapp, FaXTwitter } from 'react-icons/fa6';
+import { toast } from 'sonner';
+
+// Impor komponen dari Shadcn untuk popover
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
 
 // Mengimpor komponen-komponen yang sudah dipecah
 import AppLoading from '@/components/homepage/app-loading';
@@ -10,7 +19,6 @@ import RelatedArticlesSidebar from '@/components/homepage/blog/RelatedArticlesSi
 import TuiViewer from '@/components/tui-viewer';
 
 // --- DEFINISI ULANG TIPE UNTUK PROPS INERTIA ---
-// Pindahkan tipe ke sini agar bisa diimpor oleh komponen lain
 interface Category {
     id: number;
     name: string;
@@ -39,21 +47,41 @@ export interface Article {
     updated_at: string;
     author: Author;
     categories: Category[];
+    view_count: number;
 }
 
 interface BlogArticleShowProps extends PageProps {
     article: Article;
     relatedArticles: Article[];
+    popularArticles: Article[];
 }
 // --- AKHIR DEFINISI TIPE ---
 
-// Fungsi helper untuk mengubah string menjadi Title Case
-const toTitleCase = (str: string): string => {
-    if (!str) return '';
-    return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+// Gaya toast kustom agar hanya diterapkan di halaman ini
+const customToastStyle = {
+    background: '#1a1a1a', // Warna latar belakang hitam
+    color: '#ffffff', // Warna teks putih
+    border: '1px solid #ef4444', // Garis tepi merah
 };
 
-const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArticles }) => {
+const toTitleCase = (text: string) => {
+    if (!text) return '';
+    let formattedText = text.replace(/([A-Z])/g, ' $1').trim();
+    return formattedText
+        .toLowerCase()
+        .split(' ')
+        .map((word) => {
+            if (word.length === 0) return '';
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(' ');
+};
+
+const getImageUrl = (path?: string): string => {
+    return path ? `/storage/${path}` : '/images/penguin.png';
+};
+
+const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArticles, popularArticles }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -61,13 +89,49 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
         return () => clearTimeout(timer);
     }, []);
 
-    const getImageUrl = (path?: string): string => {
-        return path ? `/storage/${path}` : '/images/penguin.png';
-    };
-
     const fadeInSlideUp = {
         initial: { opacity: 0, y: 20 },
         animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const handleCopyLink = () => {
+        const link = window.location.href;
+        navigator.clipboard
+            .writeText(link)
+            .then(() => {
+                // Pesan toast kustom
+                toast.success('Lihat berita di UKM-POLICY', { style: customToastStyle });
+            })
+            .catch(() => {
+                toast.error('Gagal menyalin tautan.', { style: customToastStyle });
+            });
+    };
+
+    const handleShareWhatsapp = () => {
+        const url = window.location.href;
+        const text = `Baca artikel menarik ini dari UKM POLICY: ${article.title}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)} - ${encodeURIComponent(url)}`, '_blank');
+    };
+
+    const handleShareFacebook = () => {
+        const url = window.location.href;
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+    };
+
+    const handleShareTwitter = () => {
+        const url = window.location.href;
+        const text = `Baca artikel menarik ini: ${article.title}`;
+        window.open(
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+            '_blank',
+            'width=600,height=400',
+        );
+    };
+
+    const handleShareTelegram = () => {
+        const url = window.location.href;
+        const text = `Baca artikel menarik ini: ${article.title}`;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
     };
 
     if (isLoading) {
@@ -92,15 +156,13 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
 
     return (
         <BlogLayout title={article.title}>
-            {/* Section Label (detail page title) */}
-            <motion.section initial="initial" animate="animate" variants={fadeInSlideUp} className="relative overflow-hidden bg-black py-8">
+            <motion.section initial="initial" animate="animate" variants={fadeInSlideUp} className="relative overflow-hidden bg-black py-12">
                 <div className="pointer-events-none absolute inset-0 -z-10">
                     <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-red-600/40 opacity-40 blur-[120px]" />
                     <div className="absolute right-0 bottom-0 h-[300px] w-[300px] rounded-full bg-white/10 opacity-10 blur-2xl" />
                 </div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="pt-12 pb-6 text-left md:pt-20">
-                        {/* Breadcrumb */}
                         <div className="mb-6 flex items-center text-xs md:text-sm">
                             <Link href={route('home')} className="font-medium text-gray-300 transition-colors duration-200 hover:text-red-400">
                                 Beranda
@@ -112,13 +174,11 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                             <ChevronRight className="mx-2 h-4 w-4 text-white/60" />
                             <span className="line-clamp-1 font-bold text-red-500">Rincian Detail</span>
                         </div>
-                        {/* Judul Utama Artikel */}
                         <h1 className="mb-2 text-3xl leading-tight font-extrabold tracking-tight text-white uppercase sm:text-3xl md:text-4xl">
                             {article.title}
                         </h1>
-                        {/* Meta Info (Divisi & Tanggal) */}
-                        <div className="flex items-center gap-4 text-xs text-gray-400 sm:text-sm md:text-base">
-                            {/* Gabungkan gambar dan nama penulis dalam satu container */}
+
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-400 sm:text-sm md:text-base">
                             <div className="flex items-center gap-2 font-medium text-gray-300">
                                 <div className="h-6 w-6 overflow-hidden rounded-full">
                                     <img
@@ -127,25 +187,63 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                                         alt="Gambar"
                                     />
                                 </div>
-                                {/* <span>{article.author.name || 'Nama Tidak Diketahui'}</span> */}
                                 <span>{toTitleCase(article.author.name || 'Nama Tidak Diketahui')}</span>
                             </div>
 
-                            {/* Tanggal tetap di container terpisah */}
                             <span className="flex items-center gap-1.5 font-medium text-gray-300">
                                 <Calendar className="h-4 w-4 text-red-400" />
                                 {new Date(article.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                             </span>
+
+                            {/* Mengatur ulang tata letak untuk icon eye dan popover share */}
+                            <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-1.5 font-medium text-gray-300">
+                                    <Eye className="h-4 w-4 text-red-400" />
+                                    {article.view_count}
+                                </span>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button size="icon" variant="ghost">
+                                            <Share2 className="h-4 w-4" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-48 rounded-md border border-neutral-800 bg-neutral-900 p-2 shadow-lg" align="end">
+                                        <div className="flex flex-col gap-1">
+                                            {/* Tombol Salin Tautan */}
+                                            <Button onClick={handleCopyLink} variant="ghost" className="flex justify-start gap-2 text-white">
+                                                <LinkIcon className="h-4 w-4" />
+                                                Salin Tautan
+                                            </Button>
+                                            <Separator className="bg-neutral-800" />
+                                            {/* Tombol Berbagi Sosial Media */}
+                                            <Button onClick={handleShareWhatsapp} variant="ghost" className="flex justify-start gap-2 text-white">
+                                                <FaWhatsapp className="h-4 w-4 text-green-500" />
+                                                WhatsApp
+                                            </Button>
+                                            <Button onClick={handleShareFacebook} variant="ghost" className="flex justify-start gap-2 text-white">
+                                                <FaFacebook className="h-4 w-4 text-blue-600" />
+                                                Facebook
+                                            </Button>
+                                            <Button onClick={handleShareTwitter} variant="ghost" className="flex justify-start gap-2 text-white">
+                                                <FaXTwitter className="h-4 w-4 text-white" />
+                                                Twitter
+                                            </Button>
+                                            <Button onClick={handleShareTelegram} variant="ghost" className="flex justify-start gap-2 text-white">
+                                                <FaTelegram className="h-4 w-4 text-sky-400" />
+                                                Telegram
+                                            </Button>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div className="w-full border-t border-neutral-800 px-4 sm:px-6 lg:px-8"></div>
             </motion.section>
 
-            {/* Konten Detail Artikel + Sidebar */}
             <motion.section initial="initial" animate="animate" variants={fadeInSlideUp} className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-12">
-                    {/* Kolom Kiri: Konten Artikel Utama */}
                     <div className="lg:col-span-2">
                         <div className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-6 shadow-xl backdrop-blur-md sm:p-8">
                             {article.picture && (
@@ -249,7 +347,6 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                             </div>
                         </div>
 
-                        {/* Tombol Kembali ke Daftar Blog */}
                         <div className="mt-8 text-center">
                             <Link
                                 href={route('blog.index')}
@@ -260,8 +357,7 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                         </div>
                     </div>
 
-                    {/* Kolom Kanan: Sidebar Artikel Terkait */}
-                    <RelatedArticlesSidebar relatedArticles={relatedArticles} />
+                    <RelatedArticlesSidebar relatedArticles={relatedArticles} popularArticles={popularArticles} />
                 </div>
             </motion.section>
         </BlogLayout>

@@ -11,7 +11,7 @@ class BlogArticle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'picture', 'slug', 'summary', 'content', 'author_id', 'status'];
+    protected $fillable = ['title', 'picture', 'slug', 'summary', 'content', 'author_id', 'status', 'view_count'];
 
     /**
      * Relasi ke penulis (user).

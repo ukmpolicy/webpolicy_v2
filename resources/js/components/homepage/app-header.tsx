@@ -173,7 +173,7 @@ export default function AppHeader() {
                                 </DropdownMenu>
                             ) : (
                                 <Link href="/login">
-                                    <Button className="bg-red-600 font-semibold text-white hover:bg-red-700">LOGIN</Button>
+                                    <Button className="bg-red-700 font-semibold text-white hover:bg-red-800">LOGIN</Button>
                                 </Link>
                             )}
                         </div>
@@ -236,7 +236,7 @@ export default function AppHeader() {
                             ) : (
                                 <div className="mb-6">
                                     <Link href="/login" className="block w-full" onClick={toggleMobileSidebar}>
-                                        <Button className="w-full bg-red-600 font-semibold text-white hover:bg-red-700">LOGIN</Button>
+                                        <Button className="w-full bg-red-700 font-semibold text-white hover:bg-red-800">LOGIN</Button>
                                     </Link>
                                     <hr className="my-4 border-neutral-700" />
                                 </div>

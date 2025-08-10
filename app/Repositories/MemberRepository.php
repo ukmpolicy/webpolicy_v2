@@ -58,4 +58,33 @@ class MemberRepository
 
         return $query->first();
     }
+
+    public function getLatestMembers(int $limit = 5)
+    {
+        return Member::with(['period'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
+    }
+
+    // Metode baru: Menghitung total semua anggota
+    public function countAll(): int
+    {
+        return Member::count();
+    }
+
+    // Metode baru: Menghitung jumlah anggota berdasarkan ID periode
+    public function countByPeriod(int $periodId): int
+    {
+        return Member::where('period_id', $periodId)->count();
+    }
+
+
+    /**
+     * Mengambil daftar nama dan tanggal lahir semua anggota.
+     */
+    public function getAllBirthdays()
+    {
+        return Member::select('name', 'birth_date_at')->get();
+    }
 }

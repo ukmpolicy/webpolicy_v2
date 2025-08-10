@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Structure;
+use App\Models\Division;
+use App\Models\Period;
 use App\Repositories\StructureRepository;
 
 class StructureService
@@ -13,43 +16,70 @@ class StructureService
         $this->structureRepository = $structureRepository;
     }
 
-    public function getAllStructures()
+    public function getAllStructure($filter = [])
     {
-        return $this->structureRepository->getAll();
+        $data = $this->structureRepository->getAll($filter);
+        $data = array_map(function ($item) {
+            $item["canUpLevel"] = false;
+            $item["canDownLevel"] = false;
+
+            if ($item["level"] > 1) {
+                $item["canUpLevel"] = true;
+            }
+
+            if ($this->structureRepository->getStructureByLevel($item["level"] + 1)) {
+                $item["canDownLevel"] = true;
+            }
+
+            return $item;
+        }, $data->toArray());
+
+        return $data;
     }
 
     public function getAllStructuresWithRelations()
     {
-        return $this->structureRepository->getAllWithRelations();
+        return Structure::with(['division', 'period'])->get();
     }
 
     public function getAllStructuresWithRelationsSorted($sort = 'desc', $periodId = null)
     {
-        return $this->structureRepository->getAllWithRelationsSorted($sort, $periodId);
+        $query = Structure::with(['division', 'period'])
+            ->orderBy('level', $sort);
+
+        if ($periodId) {
+            $query->where('period_id', $periodId);
+        }
+
+        return $query->get();
     }
 
     public function getAllDivisions()
     {
-        return $this->structureRepository->getAllDivisions();
+        return Division::all();
     }
 
     public function getAllPeriods()
     {
-        return $this->structureRepository->getAllPeriods();
+        return Period::all();
     }
 
     public function createStructure(array $data)
     {
-        return $this->structureRepository->create($data);
+        return Structure::create($data);
     }
 
     public function updateStructure($id, array $data)
     {
-        return $this->structureRepository->update($id, $data);
+        $structure = Structure::findOrFail($id);
+        $structure->update($data);
+        return $structure;
     }
 
     public function deleteStructure($id)
     {
-        return $this->structureRepository->delete($id);
+        $structure = Structure::findOrFail($id);
+        $structure->delete();
     }
+
 }

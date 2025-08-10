@@ -17,6 +17,7 @@ export function MemberFormModal({ open, onClose, initialData, periods, departmen
         nim: '',
         address: '',
         email: '',
+        no_wa: '',
         department: '',
         study_program: '',
         joined_college_on: '',
@@ -35,6 +36,7 @@ export function MemberFormModal({ open, onClose, initialData, periods, departmen
                 nim: initialData.nim || '',
                 address: initialData.address || '',
                 email: initialData.email || '',
+                no_wa: initialData.no_wa || '',
                 department: initialData.department || '',
                 study_program: initialData.study_program || '',
                 joined_college_on: initialData.joined_college_on || '',
@@ -55,6 +57,7 @@ export function MemberFormModal({ open, onClose, initialData, periods, departmen
                 nim: '',
                 address: '',
                 email: '',
+                no_wa: '',
                 department: '',
                 study_program: '',
                 joined_college_on: '',
@@ -192,10 +195,15 @@ export function MemberFormModal({ open, onClose, initialData, periods, departmen
                         </div>
 
                         {/* Alamat */}
-                        <div className="col-span-1 space-y-2 md:col-span-2">
+                        <div className="space-y-2">
                             <Label htmlFor="address">Alamat</Label>
                             <Input id="address" value={data.address} onChange={(e) => setData('address', e.target.value)} />
                             {errors.address && <p className="text-sm text-red-500">{errors.address}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="no_wa">Nomor Whatsapp (WA)</Label>
+                            <Input id="no_wa" type="number" value={data.no_wa} onChange={(e) => setData('no_wa', e.target.value)} />
+                            {errors.no_wa && <p className="text-sm text-red-500">{errors.no_wa}</p>}
                         </div>
 
                         {/* Jurusan dan Prodi */}
