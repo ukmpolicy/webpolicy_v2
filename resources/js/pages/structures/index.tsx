@@ -7,7 +7,13 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function StructureIndex() {
-const { structures = [], divisions = [], periods = [], sortDirection = 'desc' } = usePage().props;
+    const {
+        structures = [],
+        divisions = [],
+        periods = [],
+        sortDirection = 'desc',
+        activePeriod = null,
+    } = usePage().props;
 
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
@@ -32,6 +38,14 @@ const { structures = [], divisions = [], periods = [], sortDirection = 'desc' } 
                         <Plus className="m-auto w-4" /> Tambah Struktur
                     </Button>
                 </div>
+
+                {/* Tambahkan ini untuk menampilkan periode aktif */}
+                {activePeriod && (
+                    <div className="font-semibold text-green-600">
+                        Periode aktif saat ini: <strong>{activePeriod.name}</strong>
+                    </div>
+                )}
+
                 <StructureTable
                     data={structures}
                     onEdit={(structure) => {
