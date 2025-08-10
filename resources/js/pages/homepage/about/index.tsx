@@ -16,12 +16,22 @@ const AboutPage: React.FC = () => {
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan (berpindah halaman), hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali
+
     if (isLoading) return <AppLoading />;
     return (
         <>
-            <Head title="About - UKM POLICY - KBMPNL" />
+            <Head title="About - UKM POLICY" />
             <AppHeader />
-            <main className="bg-black pt-20 sm:pt-20 min-h-screen">
+            <main className="min-h-screen bg-black pt-20 sm:pt-20">
                 <SectionLabel />
                 <AboutIntro />
                 <AboutHistory />

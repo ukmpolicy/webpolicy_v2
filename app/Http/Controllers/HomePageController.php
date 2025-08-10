@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
 use App\Services\DivisionService;
 use App\Services\StructureMemberService;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ use App\Models\Period;
 use Inertia\Inertia;
 use App\Models\Vission;
 use App\Models\Mission;
+use Carbon\Carbon;
 
 class HomePageController extends Controller
 {
@@ -27,8 +29,7 @@ class HomePageController extends Controller
 
         // Jika tidak ada period_id dikirim, gunakan periode aktif atau terbaru
         if (!$periodId) {
-            $periodId = Period::where('is_active', 1)->first()?->id ??
-                Period::latest()->first()?->id;
+            $periodId = Period::where('is_active', 1)->first()?->id ?? Period::latest()->first()?->id;
         }
 
         // Ambil divisi berdasarkan periode
@@ -43,9 +44,7 @@ class HomePageController extends Controller
                 'id' => $member->id,
                 'name' => $member->name,
                 'position' => $member->structure->name ?? '-',
-                'picture' => $member->picture
-                    ? asset('storage/' . $member->picture)
-                    : null,
+                'picture' => $member->picture ? asset('storage/' . $member->picture) : null,
             ];
         });
 
@@ -53,11 +52,30 @@ class HomePageController extends Controller
         $visi = Vission::where('period_id', $periodId)->pluck('content')->first() ?? '';
         $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
 
+        // --- LOGIKA NOTIFIKASI ULANG TAHUN UNTUK HEADER ---
+        $isBirthday = false;
+        $memberName = null;
+        $user = auth()->user();
+
+        if ($user) {
+            $member = Member::where('email', $user->email)->first();
+            if ($member && $member->birth_date_at) {
+                $memberBirthDate = Carbon::parse($member->birth_date_at);
+                if ($memberBirthDate->format('m-d') === Carbon::now()->format('m-d')) {
+                    $isBirthday = true;
+                    $memberName = $member->name;
+                }
+            }
+        }
+        // --- AKHIR LOGIKA NOTIFIKASI ULANG TAHUN ---
+
         return Inertia::render('homepage/home/index', [
             'divisions' => $divisions,
             'structureMembers' => $structureMembers,
             'visi' => $visi,
             'misi' => $misi,
+            'isBirthday' => $isBirthday, // Mengirim data ke frontend
+            'memberName' => $memberName, // Mengirim nama ke frontend
         ]);
     }
 }

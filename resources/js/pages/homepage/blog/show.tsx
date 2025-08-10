@@ -89,6 +89,16 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
         return () => clearTimeout(timer);
     }, []);
 
+    useEffect(() => {
+        // Saat komponen dimuat, tambahkan kelas 'public-theme'
+        document.body.classList.add('public-theme');
+
+        // Saat komponen tidak lagi digunakan (berpindah halaman), hapus kelasnya
+        return () => {
+            document.body.classList.remove('public-theme');
+        };
+    }, []); // Array kosong memastikan efek ini hanya berjalan sekali
+
     const fadeInSlideUp = {
         initial: { opacity: 0, y: 20 },
         animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
@@ -178,6 +188,19 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                             {article.title}
                         </h1>
 
+                        {/* --- Kategori sekarang di bawah judul --- */}
+                        <div className="mb-4 flex flex-wrap gap-2">
+                            {article.categories.map((category) => (
+                                <span
+                                    key={category.id}
+                                    className="inline-block rounded-full bg-red-800/20 px-2.5 py-0.5 text-xs font-semibold text-red-300"
+                                >
+                                    {category.name}
+                                </span>
+                            ))}
+                        </div>
+                        {/* --- Akhir bagian kategori baru --- */}
+
                         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-400 sm:text-sm md:text-base">
                             <div className="flex items-center gap-2 font-medium text-gray-300">
                                 <div className="h-6 w-6 overflow-hidden rounded-full">
@@ -195,7 +218,6 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                                 {new Date(article.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                             </span>
 
-                            {/* Mengatur ulang tata letak untuk icon eye dan popover share */}
                             <div className="flex items-center gap-2">
                                 <span className="flex items-center gap-1.5 font-medium text-gray-300">
                                     <Eye className="h-4 w-4 text-red-400" />
@@ -255,16 +277,7 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
                                 />
                             )}
 
-                            <div className="mb-6 flex flex-wrap gap-2">
-                                {article.categories.map((category) => (
-                                    <span
-                                        key={category.id}
-                                        className="inline-block rounded-full bg-red-800/20 px-2.5 py-0.5 text-xs font-semibold text-red-300"
-                                    >
-                                        {category.name}
-                                    </span>
-                                ))}
-                            </div>
+                            {/* Bagian kode kategori lama sudah dihapus */}
 
                             <div className="prose prose-lg max-w-none">
                                 <style jsx="true">{`
