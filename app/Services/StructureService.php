@@ -18,7 +18,7 @@ class StructureService
 
     public function getAllStructure($filter = [])
     {
-        $data = $this->structureRepository->getAll($filter);   
+        $data = $this->structureRepository->getAll($filter);
         $data = array_map(function ($item) {
             $item["canUpLevel"] = false;
             $item["canDownLevel"] = false;
@@ -26,7 +26,7 @@ class StructureService
             if ($item["level"] > 1) {
                 $item["canUpLevel"] = true;
             }
-            
+
             if ($this->structureRepository->getStructureByLevel($item["level"] + 1)) {
                 $item["canDownLevel"] = true;
             }
@@ -81,5 +81,5 @@ class StructureService
         $structure = Structure::findOrFail($id);
         $structure->delete();
     }
-    
+
 }

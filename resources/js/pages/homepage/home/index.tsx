@@ -55,23 +55,15 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers }) => {
             <Head title="UKM POLICY - KBMPNL" />
             <AppHeader />
             {/* Hapus 'pt-18' agar tidak ada ruang kosong di atas hero */}
-            <main className="bg-black">
+            <main className="pt-18 bg-black">
                 <AppHero />
-                <div className="border-t border-neutral-800">
-                    <AppLabel />
-                </div>
-                <div className="border-t border-neutral-800">
-                    <AppVisiMisi />
-                </div>
-                <div className="border-t border-neutral-800">
-                    <AppLabel />
-                </div>
-                <div className="border-t border-neutral-800">
-                    <AppBidang divisions={divisions} />
-                </div>
-                <div className="border-t border-neutral-800">
-                    <AppStruktural strukturalList={structureMembers} />
-                </div>
+                <AppLabel />
+                <AppVisiMisi />
+                <AppLabel />
+                
+                <AppBidang divisions={divisions} />
+                <AppStruktural strukturalList={structureMembers} />
+
             </main>
             <AppFooter />
         </>

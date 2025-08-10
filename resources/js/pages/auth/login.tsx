@@ -46,7 +46,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 <form className="flex flex-col gap-6" onSubmit={submit}>
                     <div className="grid gap-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="email" className="text-black dark:text-white">
+                            <Label htmlFor="email" className="text-white dark:text-white">
                                 Email
                             </Label>
                             <Input
@@ -64,7 +64,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password" className='text-white'>Password</Label>
                                 {canResetPassword && (
                                     <TextLink href={route('password.request')} className="text-sm text-red-600">
                                         Forgot Password?
@@ -100,7 +100,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 checked={data.remember}
                                 onCheckedChange={() => setData('remember', !data.remember)}
                             />
-                            <Label htmlFor="remember">Remember Me</Label>
+                            <Label htmlFor="remember" className='text-white'>Remember Me</Label>
                         </div>
 
                         <Button type="submit" className="mt-4 w-full" variant="destructive" disabled={processing}>
@@ -109,7 +109,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         </Button>
                     </div>
 
-                    <div className="mt-4 text-center text-sm">
+                    <div className="mt-4 text-center text-sm text-white">
                         <span>New to POLICY?</span>{' '}
                         <TextLink href={route('register')} className="text-red-600">
                             Create an account
