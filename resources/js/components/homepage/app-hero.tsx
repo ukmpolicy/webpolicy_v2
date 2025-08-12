@@ -26,7 +26,7 @@ const Hero = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8">
+       <div className="relative z-20 container max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[70%_30%] items-center gap-6 lg:gap-4">
           
           {/* Text Section */}

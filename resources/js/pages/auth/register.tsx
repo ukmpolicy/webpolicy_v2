@@ -36,7 +36,7 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout title="Sign up to POLICY" description="Welcome to POLICY, let's join with us.">
+        <AuthLayout title="Sign up to UKM POLICY" description="Welcome to UKM POLICY, let's join with us.">
             <Head title="Register Page" />
 
             <form className="flex flex-col gap-6" onSubmit={submit}>

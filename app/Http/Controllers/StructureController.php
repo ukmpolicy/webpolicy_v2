@@ -35,8 +35,10 @@ class StructureController extends Controller
             'periods' => $this->structureService->getAllPeriods(),
             'sortDirection' => $sort,
             'selectedPeriodId' => $periodId,
+            'activePeriod' => Period::find($periodId),
         ]);
     }
+
     
     public function store(Request $request)
     {
