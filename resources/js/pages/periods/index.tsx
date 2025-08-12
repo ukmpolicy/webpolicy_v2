@@ -1,7 +1,7 @@
 import { PeriodFormModal } from '@/components/TablePeriods/PeriodFormModal';
 import { PeriodTable } from '@/components/TablePeriods/PeriodTable';
-import { VissionManagementModal } from '@/components/VissionMissionModal/VissionManagementModal';
 import { MissionManagementModal } from '@/components/VissionMissionModal/MissionManagementModal';
+import { VissionManagementModal } from '@/components/VissionMissionModal/VissionManagementModal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage } from '@inertiajs/react';
@@ -22,8 +22,8 @@ export default function Index() {
 
     // --- PERUBAHAN: Cari objek periode dari props terbaru pada setiap render ---
     // Ini memastikan modal selalu mendapatkan data yang paling segar.
-    const managedPeriodForVissions = periods.find(p => p.id === managedVissionPeriodId) || null;
-    const managedPeriodForMissions = periods.find(p => p.id === managedMissionPeriodId) || null;
+    const managedPeriodForVissions = periods.find((p) => p.id === managedVissionPeriodId) || null;
+    const managedPeriodForMissions = periods.find((p) => p.id === managedMissionPeriodId) || null;
 
     const activePeriod = periods.find((p) => p.is_active);
 

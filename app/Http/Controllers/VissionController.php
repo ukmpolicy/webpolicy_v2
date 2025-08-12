@@ -26,7 +26,7 @@ class VissionController extends Controller
     public function store(Request $request, Period $period)
     {
         $validated = $request->validate([
-            'content' => 'required|string|max:50'
+            'content' => 'required|string|max:255'
         ]);
 
         // Panggil service dengan 'type' = 'vission'
