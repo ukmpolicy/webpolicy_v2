@@ -40,7 +40,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
     return (
         <>
-            <AuthLayout title="Sign in to POLICY" description="Welcome to POLICY.">
+            <AuthLayout title="Sign in to UKM POLICY" description="Welcome to UKM POLICY.">
                 <Head title="Login Page" />
 
                 <form className="flex flex-col gap-6" onSubmit={submit}>
