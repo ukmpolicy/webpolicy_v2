@@ -3,7 +3,7 @@ import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { ArrowRight, X } from 'lucide-react';
 import React from 'react';
-import { SiInstagram, SiTiktok } from 'react-icons/si';
+import { SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si';
 
 interface AppSidebarProps {
     isOpen: boolean;
@@ -67,12 +67,17 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen, onClose }) => {
 
                         {/* Bottom social icons */}
                         <div className="mt-8 flex justify-center gap-4">
-                            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
+                            <a href="https://www.youtube.com/@ukmpolicypnl" target="_blank" rel="noopener noreferrer">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
+                                    <SiYoutube size={22} />
+                                </div>
+                            </a>
+                            <a href="https://www.tiktok.com/@ukmpolicypnl" target="_blank" rel="noopener noreferrer">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
                                     <SiTiktok size={22} />
                                 </div>
                             </a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                            <a href="https://www.instagram.com/ukmpolicy.kbmpnl/" target="_blank" rel="noopener noreferrer">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
                                     <SiInstagram size={22} />
                                 </div>

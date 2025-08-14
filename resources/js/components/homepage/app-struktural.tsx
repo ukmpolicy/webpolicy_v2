@@ -1,8 +1,11 @@
+import { Link } from '@inertiajs/react';
+
 type Struktur = {
     id: number;
     name: string;
     position: string;
     picture?: string | null;
+    structure_id: number;
 };
 
 // Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata
@@ -35,9 +38,10 @@ export default function AppStruktural({ strukturalList }: { strukturalList: Stru
                 {strukturalList.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         {strukturalList.map((person) => (
-                            <div
+                            <Link
                                 key={person.id}
-                                className="group w-full rounded-xl border border-zinc-800 bg-[#111111] p-4 text-center transition-all duration-300 hover:border-red-600 hover:shadow-[0_0_25px_rgba(255,0,0,0.15)]"
+                                href={`/structures/${person.structure_id}/detail`}
+                                className="group w-full cursor-pointer rounded-xl border border-zinc-800 bg-[#111111] p-4 text-center transition-all duration-300 hover:border-red-600 hover:shadow-[0_0_25px_rgba(255,0,0,0.15)]"
                             >
                                 <div className="mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg shadow-lg">
                                     <img
@@ -47,9 +51,13 @@ export default function AppStruktural({ strukturalList }: { strukturalList: Stru
                                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                     />
                                 </div>
-                                <h3 className="mb-2 text-2xl leading-snug font-bold text-white">{toTitleCase(person.name)}</h3>
-                                <p className="text-lg font-semibold text-red-500">{toTitleCase(person.position)}</p>
-                            </div>
+                                <div className="flex h-20 flex-col justify-end">
+                                    {' '}
+                                    {/* Perbaikan di sini */}
+                                    <h3 className="mb-2 text-2xl leading-snug font-bold text-white">{toTitleCase(person.name)}</h3>
+                                    <p className="text-lg font-semibold text-red-500">{toTitleCase(person.position)}</p>
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 ) : (

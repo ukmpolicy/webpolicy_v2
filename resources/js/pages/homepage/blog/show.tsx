@@ -110,7 +110,7 @@ const BlogArticleShow: React.FC<BlogArticleShowProps> = ({ article, relatedArtic
             .writeText(link)
             .then(() => {
                 // Pesan toast kustom
-                toast.success('Lihat berita di UKM-POLICY', { style: customToastStyle });
+                toast.success('Tautan Berhasil di Salin', { style: customToastStyle });
             })
             .catch(() => {
                 toast.error('Gagal menyalin tautan.', { style: customToastStyle });

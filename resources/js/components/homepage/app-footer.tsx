@@ -1,6 +1,6 @@
 import logo from '@/assets/images/favicon.png';
-import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 import { usePage } from '@inertiajs/react';
+import { SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si';
 
 export default function AppFooter() {
     // Ambil latestArticles dari props Inertia
@@ -19,17 +19,15 @@ export default function AppFooter() {
 
     // Social media
     const socialLinks = [
-        { icon: Facebook, href: 'https://facebook.com' },
-        { icon: Twitter, href: 'https://twitter.com' },
-        { icon: Instagram, href: 'https://instagram.com' },
-        { icon: Linkedin, href: 'https://linkedin.com' },
+        { icon: SiYoutube, href: 'https://www.youtube.com/@ukmpolicypnl' },
+        { icon: SiTiktok, href: 'https://www.tiktok.com/@ukmpolicypnl' },
+        { icon: SiInstagram, href: 'https://www.instagram.com/ukmpolicy.kbmpnl/' },
     ];
 
     return (
         <footer className="border-t border-white/10 bg-black pt-16 text-gray-300">
             {/* Bagian atas */}
             <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 border-b border-gray-800 px-4 pb-12 sm:grid-cols-2 lg:grid-cols-3">
-                
                 {/* Logo & Deskripsi */}
                 <div>
                     <div className="mb-4 flex items-center gap-3 text-2xl font-bold text-white">
@@ -37,8 +35,8 @@ export default function AppFooter() {
                         UKM POLICY
                     </div>
                     <p className="text-sm leading-relaxed text-gray-400">
-                        Berpartisipasi aktif mengembangkan jaringan kerjasama dengan lembaga Politeknik Negeri Lhokseumawe,
-                        komunitas Linux dan Open Source, perguruan tinggi, serta pemerintah daerah maupun pusat.
+                        Berpartisipasi aktif mengembangkan jaringan kerjasama dengan lembaga Politeknik Negeri Lhokseumawe, komunitas Linux dan Open
+                        Source, perguruan tinggi, serta pemerintah daerah maupun pusat.
                     </p>
                     <div className="mt-6 flex space-x-4">
                         {socialLinks.map(({ icon: Icon, href }, idx) => (
@@ -76,10 +74,7 @@ export default function AppFooter() {
                         {latestArticles && latestArticles.length > 0 ? (
                             latestArticles.map((article) => (
                                 <li key={article.id}>
-                                    <a
-                                        href={`/berita/${article.slug}`}
-                                        className="transition-colors hover:text-white"
-                                    >
+                                    <a href={`/berita/${article.slug}`} className="transition-colors hover:text-white">
                                         {article.title}
                                     </a>
                                 </li>

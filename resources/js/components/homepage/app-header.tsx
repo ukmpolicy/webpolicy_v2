@@ -4,7 +4,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { SiInstagram, SiTiktok } from 'react-icons/si';
+import { SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si';
 import AppLogoHome from './app-logo';
 
 import {
@@ -318,12 +318,17 @@ export default function AppHeader() {
 
                             {/* Ikon Media Sosial */}
                             <div className="mt-6 flex justify-center gap-4">
-                                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.youtube.com/@ukmpolicypnl" target="_blank" rel="noopener noreferrer">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
+                                        <SiYoutube size={22} />
+                                    </div>
+                                </a>
+                                <a href="https://www.tiktok.com/@ukmpolicypnl" target="_blank" rel="noopener noreferrer">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
                                         <SiTiktok size={22} />
                                     </div>
                                 </a>
-                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.instagram.com/ukmpolicy.kbmpnl/" target="_blank" rel="noopener noreferrer">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-700">
                                         <SiInstagram size={22} />
                                     </div>
