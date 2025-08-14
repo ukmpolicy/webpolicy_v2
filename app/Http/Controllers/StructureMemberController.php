@@ -48,7 +48,7 @@ class StructureMemberController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
                 'department' => 'required|string|max:255',
                 'study_program' => 'required|string|max:255',
                 'structure_id' => 'required|exists:structures,id',
@@ -76,7 +76,7 @@ class StructureMemberController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
                 'department' => 'required|string|max:255',
                 'study_program' => 'required|string|max:255',
                 'structure_id' => 'required|exists:structures,id',
