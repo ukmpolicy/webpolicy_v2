@@ -47,7 +47,8 @@ export default function AppVisiMisi() {
                 {/* Logo */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.8 }}
                     className="flex justify-center lg:justify-start"
                 >
@@ -61,7 +62,12 @@ export default function AppVisiMisi() {
                 {/* VISI & MISI */}
                 <div className="space-y-14">
                     {/* VISI */}
-                    <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.6 }}>
+                    <motion.div
+                        initial={{ opacity: 0, x: 40 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.5 }}
+                        transition={{ delay: 0.1, duration: 0.6 }}
+                    >
                         <div className="mb-6">
                             <h2 className="flex items-center gap-3 text-4xl font-extrabold tracking-tight">
                                 <span className="block h-10 w-2 rounded-full bg-red-600"></span>
@@ -69,7 +75,6 @@ export default function AppVisiMisi() {
                             </h2>
                             <p className="mt-1 text-sm text-gray-500">Tujuan utama dan arah gerak komunitas.</p>
                         </div>
-                        {/* Gunakan komponen baru untuk VISI */}
                         {visi.length > 0 ? (
                             <ExpandableList items={visi} />
                         ) : (
@@ -80,7 +85,12 @@ export default function AppVisiMisi() {
                     </motion.div>
 
                     {/* MISI */}
-                    <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
+                    <motion.div
+                        initial={{ opacity: 0, x: 40 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.5 }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                    >
                         <div className="mb-6">
                             <h2 className="flex items-center gap-3 text-4xl font-extrabold tracking-tight">
                                 <span className="block h-10 w-2 rounded-full bg-red-600"></span>
@@ -88,7 +98,6 @@ export default function AppVisiMisi() {
                             </h2>
                             <p className="mt-1 text-sm text-gray-500">Langkah-langkah strategis untuk mencapai visi.</p>
                         </div>
-                        {/* Gunakan komponen baru untuk MISI */}
                         {misi.length > 0 ? (
                             <ExpandableList items={misi} />
                         ) : (

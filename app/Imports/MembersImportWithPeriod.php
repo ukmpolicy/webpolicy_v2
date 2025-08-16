@@ -52,7 +52,7 @@ class MembersImportWithPeriod implements ToModel, WithHeadingRow, SkipsEmptyRows
             'department' => $row['jurusan'] ?? null,
             'study_program' => $row['program_studi'] ?? null,
             'joined_college_on' => $row['tahun_masuk'] ?? null,
-            'graduated_college_on' => $graduatedCollegeOn,
+            'graduated_college_on' => $graduatedCollegeOn ?? null,
             'born_at' => $row['tempat_lahir'] ?? null,
             'birth_date_at' => $birthDate,
             'picture' => $pictureFileName,

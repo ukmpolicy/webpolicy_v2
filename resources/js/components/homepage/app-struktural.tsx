@@ -1,4 +1,6 @@
-import { Link } from '@inertiajs/react';
+'use client';
+
+import { motion } from 'framer-motion';
 
 type Struktur = {
     id: number;
@@ -15,6 +17,12 @@ const toTitleCase = (text: string) =>
         .split(' ')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
+
+// Definisikan varian animasi untuk item
+const itemVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
 
 export default function AppStruktural({ strukturalList }: { strukturalList: Struktur[] }) {
     return (
@@ -38,26 +46,28 @@ export default function AppStruktural({ strukturalList }: { strukturalList: Stru
                 {strukturalList.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         {strukturalList.map((person) => (
-                            <Link
+                            <motion.div
                                 key={person.id}
-                                href={`/structures/${person.structure_id}/detail`}
-                                className="group w-full cursor-pointer rounded-xl border border-zinc-800 bg-[#111111] p-4 text-center transition-all duration-300 hover:border-red-600 hover:shadow-[0_0_25px_rgba(255,0,0,0.15)]"
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: false, amount: 0.2 }}
+                                transition={{ duration: 0.6 }}
                             >
-                                <div className="mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg shadow-lg">
-                                    <img
-                                        src={person.picture ?? '/images/default-profile.png'}
-                                        alt={`Foto ${person.name}`}
-                                        title={person.name}
-                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                    />
+                                <div className="group w-full rounded-xl border border-zinc-800 bg-[#111111] p-4 text-center transition-all duration-300 md:cursor-pointer md:hover:border-red-600 md:hover:shadow-[0_0_25px_rgba(255,0,0,0.15)]">
+                                    <div className="mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg shadow-lg">
+                                        <img
+                                            src={person.picture ?? '/images/default-profile.png'}
+                                            alt={person.name}
+                                            title={person.name}
+                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                    </div>
+                                    <div className="flex h-20 flex-col justify-end">
+                                        <h3 className="mb-2 text-2xl leading-snug font-bold text-white">{toTitleCase(person.name)}</h3>
+                                        <p className="text-lg font-semibold text-red-500">{toTitleCase(person.position)}</p>
+                                    </div>
                                 </div>
-                                <div className="flex h-20 flex-col justify-end">
-                                    {' '}
-                                    {/* Perbaikan di sini */}
-                                    <h3 className="mb-2 text-2xl leading-snug font-bold text-white">{toTitleCase(person.name)}</h3>
-                                    <p className="text-lg font-semibold text-red-500">{toTitleCase(person.position)}</p>
-                                </div>
-                            </Link>
+                            </motion.div>
                         ))}
                     </div>
                 ) : (

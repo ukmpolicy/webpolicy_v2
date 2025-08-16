@@ -87,9 +87,9 @@ export default function AppFooter() {
             </div>
 
             {/* Bagian bawah */}
-            <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-4 px-4 py-6 text-sm text-gray-500 md:flex-row">
+            <div className="mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-4 px-4 py-6 text-sm text-gray-500 md:flex-row md:items-center">
                 <div>© {new Date().getFullYear()} UKM POLICY. Hak cipta dilindungi.</div>
-                <div className="flex flex-wrap gap-6">
+                <div className="flex flex-col flex-wrap gap-2 md:flex-row md:gap-6">
                     {['Kebijakan Privasi', 'Pernyataan Hukum', 'Syarat Layanan'].map((link, idx) => (
                         <a key={idx} href="#" className="transition-colors hover:text-white">
                             {link}
