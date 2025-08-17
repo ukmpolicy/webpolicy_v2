@@ -1,11 +1,26 @@
 'use client';
 import clsx from 'clsx';
+import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 
 type Division = {
     id: number;
     name: string;
     description?: string;
+};
+
+// Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata
+const toTitleCase = (text: string) =>
+    text
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+// Variasi animasi untuk item
+const itemVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
 export default function AppBidang({ divisions }: { divisions: Division[] }) {
@@ -36,11 +51,18 @@ export default function AppBidang({ divisions }: { divisions: Division[] }) {
                 </div>
 
                 {/* List */}
-                <div className="space-y-10">
-                    {divisions.length > 0 ? (
-                        divisions.map((item, idx) => (
-                            <div
+                {divisions.length > 0 ? (
+                    <motion.div
+                        className="space-y-10"
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ staggerChildren: 0.15 }}
+                    >
+                        {divisions.map((item, idx) => (
+                            <motion.div
                                 key={item.id}
+                                variants={itemVariants}
                                 className={clsx(
                                     'group flex items-start justify-between rounded-xl border-b border-gray-800 px-4 pb-8 transition-all duration-300 hover:border-red-600 hover:bg-white/[0.02]',
                                 )}
@@ -57,29 +79,31 @@ export default function AppBidang({ divisions }: { divisions: Division[] }) {
                                         <div className="mb-4 md:mb-0">
                                             <div className="text-lg tracking-wider text-gray-400 uppercase">Bidang</div>
                                             <div className="text-3xl font-extrabold transition-colors duration-300 group-hover:text-red-500 md:text-4xl">
-                                                {item.name}
+                                                {toTitleCase(item.name)}
                                             </div>
                                         </div>
-                                        <div className="text-lg leading-relaxed text-gray-400 md:max-w-2xl">
-                                            Bidang ini memiliki fokus utama pada{' '}
-                                            <span className="font-semibold text-white">{item.name ?? 'bidang yang belum terdefinisi'}</span>, yang
-                                            memainkan peran penting dalam menjalankan visi dan misi organisasi.
+                                        <div className="text-lg leading-relaxed text-gray-400 md:max-w-[40%]">
+                                            {item.description || `Bidang ini adalah ${item.name}`}
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Button */}
                                 <div className="ml-6 shrink-0">
-                                    <button className="rounded-lg bg-zinc-900 p-4 transition-colors duration-300 group-hover:bg-red-600">
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="rounded-lg bg-zinc-900 p-4 transition-colors duration-300 group-hover:bg-red-600"
+                                    >
                                         <ArrowUpRight size={22} className="transition-colors group-hover:text-black" />
-                                    </button>
+                                    </motion.button>
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="text-center text-lg text-gray-400 italic">Tidak ada bidang.</div>
-                    )}
-                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                ) : (
+                    <div className="text-center text-lg text-gray-400 italic">Tidak ada bidang.</div>
+                )}
             </div>
         </section>
     );

@@ -64,6 +64,14 @@ export function DivisionTable({ data, onEdit, periods = [], selectedPeriod = '' 
             },
         },
         {
+            accessorKey: 'description',
+            header: 'Deskripsi',
+            filterFn: (row, _, filterValue) => {
+                if (!filterValue || filterValue === '__all__') return true;
+                return row.getValue('description') === filterValue;
+            },
+        },
+        {
             id: 'actions',
             header: 'Aksi',
             cell: ({ row }) => (

@@ -58,7 +58,6 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
             <Head title="UKM POLICY - KBMPNL" />
             {/* Teruskan prop isBirthday ke komponen AppHeader */}
             <AppHeader isBirthday={isBirthday} />
-            {/* Hapus 'pt-18' agar tidak ada ruang kosong di atas hero */}
             <main className="bg-black pt-18">
                 <AppHero />
                 <AppLabel />

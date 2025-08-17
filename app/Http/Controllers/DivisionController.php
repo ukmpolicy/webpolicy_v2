@@ -42,7 +42,8 @@ class DivisionController extends Controller
             $request->merge(['name' => $this->normalizeDivisionName($request->name)]);
 
             $validated = $request->validate([
-                'name' => 'required|string|max:50',
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string|max:255',
                 'period_id' => 'required|exists:periods,id',
             ]);
 
@@ -64,7 +65,8 @@ class DivisionController extends Controller
             $request->merge(['name' => $this->normalizeDivisionName($request->name)]);
 
             $validated = $request->validate([
-                'name' => 'required|string|max:50|',
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string|max:255',
                 'period_id' => 'required|exists:periods,id',
             ]);
 

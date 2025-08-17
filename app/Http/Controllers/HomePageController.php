@@ -11,6 +11,8 @@ use Inertia\Inertia;
 use App\Models\Vission;
 use App\Models\Mission;
 use Carbon\Carbon;
+use App\Models\Structure;
+use Illuminate\Support\Collection;
 
 class HomePageController extends Controller
 {
@@ -27,32 +29,43 @@ class HomePageController extends Controller
     {
         $periodId = $request->query('period_id');
 
-        // Jika tidak ada period_id dikirim, gunakan periode aktif atau terbaru
         if (!$periodId) {
             $periodId = Period::where('is_active', 1)->first()?->id ?? Period::latest()->first()?->id;
         }
 
-        // Ambil divisi berdasarkan periode
         $divisions = $this->divisionService->getAllDivisions($periodId);
 
-        // Ambil anggota struktural berdasarkan period ID
-        $structureMembersRaw = $this->structureMemberService->getMembersByPeriod($periodId);
+        // Ambil struktur yang sudah diurutkan berdasarkan level, dengan filter has_many_member = false
+        $structuresWithMembers = Structure::with('structureMembers')
+            ->where('period_id', $periodId)
+            ->where('has_many_member', false)
+            ->orderBy('level', 'asc')
+            ->get();
+
+        // Kumpulkan semua anggota dari setiap struktur
+        $structureMembers = collect();
+        foreach ($structuresWithMembers as $structure) {
+            foreach ($structure->structureMembers as $member) {
+                // Tambahkan posisi dari nama struktur
+                $member->position = $structure->name;
+                $structureMembers->push($member);
+            }
+        }
 
         // Format ulang data anggota struktural
-        $structureMembers = $structureMembersRaw->map(function ($member) {
+        $formattedMembers = $structureMembers->map(function ($member) {
             return [
                 'id' => $member->id,
                 'name' => $member->name,
-                'position' => $member->structure->name ?? '-',
+                'position' => $member->position,
                 'picture' => $member->picture ? asset('storage/' . $member->picture) : null,
             ];
         });
-
+      
         // Ambil visi dan misi berdasarkan period_id
         $visi = Vission::where('period_id', $periodId)->pluck('content')->toArray();
         $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
 
-        // --- LOGIKA NOTIFIKASI ULANG TAHUN UNTUK HEADER ---
         $isBirthday = false;
         $memberName = null;
         $user = auth()->user();
@@ -67,15 +80,14 @@ class HomePageController extends Controller
                 }
             }
         }
-        // --- AKHIR LOGIKA NOTIFIKASI ULANG TAHUN ---
 
         return Inertia::render('homepage/home/index', [
             'divisions' => $divisions,
-            'structureMembers' => $structureMembers,
+            'structureMembers' => $formattedMembers,
             'visi' => $visi,
             'misi' => $misi,
-            'isBirthday' => $isBirthday, // Mengirim data ke frontend
-            'memberName' => $memberName, // Mengirim nama ke frontend
+            'isBirthday' => $isBirthday,
+            'memberName' => $memberName,
         ]);
     }
 }

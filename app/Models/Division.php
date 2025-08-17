@@ -9,7 +9,7 @@ class Division extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'period_id'];
+    protected $fillable = ['name', 'description', 'period_id'];
 
     // relasi ke periode
     public function period()

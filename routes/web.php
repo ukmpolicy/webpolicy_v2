@@ -108,6 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/missions/{mission}', [MissionController::class, 'destroy'])->name('missions.destroy');
     });
 
+    // Rute untuk mengimpor member
     Route::post('/members/import', [MemberController::class, 'import'])->name('members.import');
 
     // Rute untuk ekspor member

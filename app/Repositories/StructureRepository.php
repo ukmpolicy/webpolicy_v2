@@ -14,14 +14,14 @@ class StructureRepository
     }
 
     /**
-     * Ambil semua struktur (tanpa relasi).
+     * Ambil semua struktur beserta relasi division dan period.
      */
     public function getAll($filter)
     {
-        $structure = Structure::select('*')
-        ->offset(0)
-        ->limit(10)
-        ->orderBy('level', 'asc');
+        $structure = Structure::with('division') // Tambahkan with('division') di sini
+            // ->offset(0)
+            // ->limit(10)
+            ->orderBy('level', 'asc');
 
         if (isset($filter['page'])) {
             $structure->offset(($filter['page'] - 1) * $filter['limit']);
