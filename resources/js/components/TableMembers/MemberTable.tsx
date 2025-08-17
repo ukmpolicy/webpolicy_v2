@@ -9,7 +9,8 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
     Pagination,
@@ -22,23 +23,24 @@ import {
 } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Inertia } from '@inertiajs/inertia';
-import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
-import { Ellipsis, Layers, List, Pencil, Search, Tag, Trash2 } from 'lucide-react';
+import { router, useForm, usePage } from '@inertiajs/react'; // Perbaikan: import router
+import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
+import { Ellipsis, File, FileSpreadsheet, FileText, Layers, List, Pencil, Search, Tag, Trash2, Upload } from 'lucide-react';
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
-    console.log('Data yang diterima:');
-    console.log('Periods:', periods);
-    console.log('Active Period ID:', activePeriodId);
     const [deleteId, setDeleteId] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
     const [pageSize, setPageSize] = useState(10);
     const [pageIndex, setPageIndex] = useState(0);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
     const [columnFilters, setColumnFilters] = useState([]);
+
+    const { errors: sessionErrors } = usePage().props;
+    const errors_import = sessionErrors?.errors_import || [];
 
     const periodOptions = useMemo(() => {
         return ['all', ...periods.map((p) => p.name)];
@@ -48,58 +50,124 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
         setPageIndex(0);
     }, [globalFilter, activePeriodId]);
 
-    const columns: ColumnDef<any>[] = [
-        {
-            id: 'no',
-            header: '#',
-            cell: () => null,
-        },
-        {
-            accessorKey: 'name',
-            header: 'Nama',
-        },
-        {
-            accessorKey: 'nim',
-            header: 'NIM',
-        },
-        {
-            accessorKey: 'email',
-            header: 'Email',
-        },
-        {
-            accessorKey: 'period',
-            header: 'Periode',
-            cell: ({ row }) => row.original.period?.name || '-',
-        },
-        {
-            accessorKey: 'joined_college_on',
-            header: 'Tahun Masuk',
-        },
-        {
-            id: 'actions',
-            header: 'Aksi',
-            cell: ({ row }) => (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" aria-label="Aksi">
-                            <Ellipsis className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => onView(row.original)}>
-                            <Tag className="mr-2 h-4 w-4" /> Detail
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEdit(row.original)}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Hapus
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            ),
-        },
-    ];
+    const {
+        data: importData,
+        setData: setImportData,
+        processing: importProcessing,
+        reset: resetImportForm,
+    } = useForm({
+        file: null,
+    });
+
+    const handleFileChange = (e) => {
+        setImportData('file', e.target.files[0]);
+    };
+
+    const handleImportSubmit = (e) => {
+        e.preventDefault();
+
+        if (!importData.file) {
+            toast.error('Silakan pilih file untuk diimpor.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', importData.file);
+        if (activePeriodId) {
+            formData.append('period_id', activePeriodId);
+        }
+
+        // Menggunakan router.post untuk pengiriman file yang lebih andal
+        router.post(route('members.import'), formData, {
+            forceFormData: true,
+            onSuccess: () => {
+                toast.success('Data member berhasil diimpor!');
+                resetImportForm();
+                setIsImportModalOpen(false);
+            },
+            onError: (errors) => {
+                console.error('Errors dari server:', errors);
+
+                if (Array.isArray(errors.errors_import)) {
+                    const errorString = errors.errors_import.join('\n');
+                    toast.error('Gagal mengimpor', {
+                        description: <pre className="mt-2 w-full rounded-md bg-red-950 p-2 whitespace-pre-wrap text-white">{errorString}</pre>,
+                        duration: 15000,
+                    });
+                } else if (errors.file) {
+                    toast.error('Gagal mengimpor: ' + errors.file);
+                } else {
+                    toast.error('Terjadi kesalahan yang tidak diketahui. Silakan coba lagi.');
+                }
+            },
+        });
+    };
+
+    const handleExport = (type) => {
+        const queryParams = new URLSearchParams();
+        if (activePeriodId) {
+            queryParams.set('period_id', activePeriodId);
+        }
+        const queryString = queryParams.toString();
+        const url = `/members/export/${type}${queryString ? '?' + queryString : ''}`;
+        window.location.href = url;
+    };
+
+    const columns = useMemo(
+        () => [
+            {
+                id: 'no',
+                header: '#',
+                cell: ({ row, table }) => table.getState().pagination.pageIndex * table.getState().pagination.pageSize + row.index + 1,
+            },
+            {
+                accessorKey: 'name',
+                header: 'Nama',
+            },
+            {
+                accessorKey: 'nim',
+                header: 'NIM',
+            },
+            {
+                accessorKey: 'email',
+                header: 'Email',
+            },
+            {
+                accessorKey: 'period',
+                header: 'Periode',
+                cell: ({ row }) => row.original.period?.name || '-',
+            },
+            {
+                accessorKey: 'joined_college_on',
+                header: 'Tahun Masuk',
+            },
+            {
+                id: 'actions',
+                header: 'Aksi',
+                cell: ({ row }) => (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" aria-label="Aksi">
+                                <Ellipsis className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => onView(row.original)}>
+                                <Tag className="mr-2 h-4 w-4" /> Detail
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEdit(row.original)}>
+                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(row.original.id)}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ),
+            },
+        ],
+        [],
+    );
 
     const table = useReactTable({
         data,
@@ -129,7 +197,7 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
     const pageCount = table.getPageCount();
     const currentPage = table.getState().pagination.pageIndex;
 
-    function getPaginationRange(current: number, total: number) {
+    function getPaginationRange(current, total) {
         const delta = 2;
         let range = [];
         for (let i = Math.max(0, current - delta); i <= Math.min(total - 1, current + delta); i++) {
@@ -157,7 +225,7 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                 <Select
                     value={activePeriodId ? activePeriodId.toString() : 'all'}
                     onValueChange={(value) => {
-                        Inertia.get('/members', {
+                        router.get('/members', {
                             period_id: value,
                         });
                     }}
@@ -191,7 +259,44 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                         ))}
                     </SelectContent>
                 </Select>
+
+                {/* Tombol Dropdown Ekspor */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline">
+                            <File className="mr-2 h-4 w-4" /> Export
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleExport('excel')}>
+                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel (.xlsx)
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleExport('csv')}>
+                            <FileText className="mr-2 h-4 w-4" /> CSV (.csv)
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                            <FileText className="mr-2 h-4 w-4" /> PDF (.pdf)
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Tombol untuk membuka modal import */}
+                <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                    <Upload className="mr-2 h-4 w-4" /> Import
+                </Button>
             </div>
+            {/* Tampilkan errors import dari sesi di sini */}
+            {Array.isArray(errors_import) && errors_import.length > 0 && (
+                <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+                    <h3 className="mb-2 font-semibold">Gagal mengimpor file:</h3>
+                    <ul className="list-inside list-disc space-y-1">
+                        {errors_import.map((error, index) => (
+                            <li key={index}>{error}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             <Table className="divide-muted divide-y overflow-hidden rounded-lg border">
                 <TableHeader>
@@ -213,19 +318,13 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                             </TableCell>
                         </TableRow>
                     ) : (
-                        table.getRowModel().rows.map((row, idx) => (
-                            <TableRow key={row.id} className={idx % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-800'}>
-                                <TableCell className="border-r border-l font-medium dark:border-zinc-800 dark:text-zinc-100">
-                                    {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + idx + 1}
-                                </TableCell>
-                                {row
-                                    .getVisibleCells()
-                                    .filter((cell) => cell.column.id !== 'no')
-                                    .map((cell) => (
-                                        <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
+                        table.getRowModel().rows.map((row) => (
+                            <TableRow key={row.id} className={row.index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-800'}>
+                                {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id} className="border-r border-l dark:border-zinc-800 dark:text-zinc-100">
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </TableCell>
+                                ))}
                             </TableRow>
                         ))
                     )}
@@ -299,7 +398,7 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                         <AlertDialogAction
                             onClick={() => {
                                 if (deleteId) {
-                                    Inertia.delete(`/members/${deleteId}`, {
+                                    router.delete(`/members/${deleteId}`, {
                                         onSuccess: () => toast.success('Member berhasil dihapus!'),
                                         onError: () => toast.error('Gagal menghapus member.'),
                                     });
@@ -312,6 +411,37 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Import Data Member</DialogTitle>
+                        <DialogDescription>
+                            Unggah file Excel (.xlsx) atau CSV (.csv) untuk menambahkan data member. Pastikan format kolom sesuai dengan template yang
+                            ada.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleImportSubmit} className="space-y-4">
+                        <Input type="file" onChange={handleFileChange} accept=".xlsx, .csv" className="w-full" />
+                        {importData.file && <p className="text-muted-foreground text-sm">File terpilih: {importData.file.name}</p>}
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => {
+                                    setIsImportModalOpen(false);
+                                    resetImportForm();
+                                }}
+                            >
+                                Batal
+                            </Button>
+                            <Button type="submit" disabled={!importData.file || importProcessing}>
+                                {importProcessing ? 'Mengunggah...' : 'Import'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

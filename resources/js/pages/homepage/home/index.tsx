@@ -59,15 +59,14 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
             {/* Teruskan prop isBirthday ke komponen AppHeader */}
             <AppHeader isBirthday={isBirthday} />
             {/* Hapus 'pt-18' agar tidak ada ruang kosong di atas hero */}
-            <main className="pt-18 bg-black">
+            <main className="bg-black pt-18">
                 <AppHero />
                 <AppLabel />
                 <AppVisiMisi />
                 <AppLabel />
-                
+
                 <AppBidang divisions={divisions} />
                 <AppStruktural strukturalList={structureMembers} />
-
             </main>
             <AppFooter />
         </>

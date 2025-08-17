@@ -49,7 +49,7 @@ class HomePageController extends Controller
         });
 
         // Ambil visi dan misi berdasarkan period_id
-        $visi = Vission::where('period_id', $periodId)->pluck('content')->first() ?? '';
+        $visi = Vission::where('period_id', $periodId)->pluck('content')->toArray();
         $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
 
         // --- LOGIKA NOTIFIKASI ULANG TAHUN UNTUK HEADER ---
