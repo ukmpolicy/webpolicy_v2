@@ -19,7 +19,7 @@ jobs:
       - name: 🧰 Setup PHP dan Composer
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: mbstring, bcmath, curl
 
       - name: 🧩 Install Composer Dependencies (tanpa dev)
