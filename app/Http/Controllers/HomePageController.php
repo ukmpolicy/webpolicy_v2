@@ -61,7 +61,8 @@ class HomePageController extends Controller
                 'picture' => $member->picture ? asset('storage/' . $member->picture) : null,
             ];
         });
-
+      
+        // Ambil visi dan misi berdasarkan period_id
         $visi = Vission::where('period_id', $periodId)->pluck('content')->toArray();
         $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
 
