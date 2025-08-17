@@ -23,7 +23,9 @@ jobs:
           extensions: mbstring, bcmath, curl
 
       - name: 🧩 Install Composer Dependencies (tanpa dev)
-        run: composer install --no-dev --prefer-dist --no-progress --no-interaction
+        run: |
+          composer config platform.php 8.2.29
+          composer install --no-dev --prefer-dist --no-progress --no-interaction
 
       - name: ⚙️ Laravel Cache Commands
         run: |
@@ -38,7 +40,7 @@ jobs:
 
       - name: 📦 Install & Build Assets
         run: |
-          npm i --legacy-peer-deps
+          npm install --legacy-peer-deps
           npm run build
 
       - name: 🟢 Commit hasil build ke branch host-development
