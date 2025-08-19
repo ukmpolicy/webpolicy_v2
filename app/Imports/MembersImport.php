@@ -23,14 +23,25 @@ class MembersImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithBatc
 
     public function model(array $row)
     {
-        if (empty($row['nim']) || empty($row['email'])) {
-             return null;
+        // Periksa apakah NIM kosong, jika ya, lewati baris ini.
+        if (empty($row['nim'])) {
+            return null;
         }
 
-        $existingMember = Member::where('nim', $row['nim'])->orWhere('email', $row['email'])->first();
+        // --- Logika Baru ---
+        // Jika email kosong, buat email unik dengan format '[NIM]@invalid.com'
+        $email = $row['email'] ?? null;
+        if (empty($email)) {
+            $email = $row['nim'] . '@invalid.com';
+        }
+
+        // Pengecekan duplikasi yang lebih baik:
+        // Cek apakah email yang baru dibuat sudah ada di database
+        $existingMember = Member::where('nim', $row['nim'])->orWhere('email', $email)->first();
         if ($existingMember) {
             return null;
         }
+        // --- Akhir Logika Baru ---
 
         $birthDate = null;
         if (isset($row['tanggal_lahir'])) {
@@ -51,7 +62,7 @@ class MembersImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithBatc
             'period_id' => $this->periodId,
             'name' => $row['nama'] ?? null,
             'nim' => $row['nim'] ?? null,
-            'email' => $row['email'] ?? null,
+            'email' => $email,
             'no_wa' => $row['no_wa'] ?? null,
             'address' => $row['alamat'] ?? null,
             'department' => $row['jurusan'] ?? null,
@@ -68,7 +79,7 @@ class MembersImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithBatc
         return [
             '*.nama' => 'required',
             '*.nim' => 'required|numeric',
-            '*.email' => 'required|email',
+            '*.email' => 'nullable',
             '*.tahun_masuk' => 'nullable|numeric',
         ];
     }
