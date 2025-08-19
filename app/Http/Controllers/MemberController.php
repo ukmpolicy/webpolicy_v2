@@ -157,62 +157,13 @@ class MemberController extends Controller
         return redirect()->back()->with('error', 'Format ekspor tidak valid.');
     }
 
-    // sudah bisa tapi periode id nya selalu ke 1
-    // public function import(MemberImportRequest $request)
-    // {
-    //     try {
-    //         $file = $request->file('file');
-    //         $periodId = $request->input('period_id');
-
-    //         if (empty($periodId)) {
-    //             $activePeriod = Period::where('is_active', 1)->first();
-    //             $periodId = $activePeriod?->id;
-
-    //             if (!$periodId) {
-    //                 // Mengirimkan error yang sesuai jika tidak ada periode aktif
-    //                 return redirect()
-    //                     ->back()
-    //                     ->withErrors([
-    //                         'errors_import' => ['Periode aktif tidak ditemukan.'],
-    //                     ]);
-    //             }
-    //         }
-
-    //         Excel::import(new MembersImport($periodId), $file);
-
-    //         return redirect()->back()->with('success', 'Data member berhasil diimpor!');
-    //     } catch (ExcelValidationException $e) {
-    //         $failures = $e->failures();
-    //         $errorMessages = [];
-    //         foreach ($failures as $failure) {
-    //             $row = $failure->row();
-    //             $errors = implode(', ', $failure->errors());
-    //             $errorMessages[] = "Baris {$row}: {$errors}";
-    //         }
-    //         return redirect()
-    //             ->back()
-    //             ->withErrors([
-    //                 'errors_import' => $errorMessages,
-    //             ]);
-    //     } catch (\Exception $e) {
-    //         // Gunakan withErrors() di sini juga
-    //         return redirect()
-    //             ->back()
-    //             ->withErrors([
-    //                 'errors_import' => ['Terjadi kesalahan: ' . $e->getMessage()],
-    //             ]);
-    //     }
-    // }
-
-
-    // baru
-      public function import(MemberImportRequest $request)
+    public function import(MemberImportRequest $request)
     {
         try {
             $file = $request->file('file');
 
             // Perbaikan: Gunakan HeadingRowImport untuk cara yang lebih andal
-            $headers = (new HeadingRowImport)->toArray($file);
+            $headers = new HeadingRowImport()->toArray($file);
             $hasPeriodIdColumn = in_array('periode_id', $headers[0][0]);
 
             if ($hasPeriodIdColumn) {
@@ -225,9 +176,11 @@ class MemberController extends Controller
                     $activePeriod = Period::where('is_active', 1)->first();
                     $periodIdFromRequest = $activePeriod?->id;
                     if (!$periodIdFromRequest) {
-                        return redirect()->back()->withErrors([
-                            'errors_import' => ['Periode aktif tidak ditemukan.'],
-                        ]);
+                        return redirect()
+                            ->back()
+                            ->withErrors([
+                                'errors_import' => ['Periode aktif tidak ditemukan.'],
+                            ]);
                     }
                 }
                 Excel::import(new MembersImport($periodIdFromRequest), $file);
@@ -242,13 +195,17 @@ class MemberController extends Controller
                 $errors = implode(', ', $failure->errors());
                 $errorMessages[] = "Baris {$row}: {$errors}";
             }
-            return redirect()->back()->withErrors([
-                'errors_import' => $errorMessages,
-            ]);
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'errors_import' => $errorMessages,
+                ]);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                'errors_import' => ['Terjadi kesalahan: ' . $e->getMessage()],
-            ]);
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'errors_import' => ['Terjadi kesalahan: ' . $e->getMessage()],
+                ]);
         }
     }
 }
