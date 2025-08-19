@@ -86,7 +86,7 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                 setIsImportModalOpen(false);
             },
             onError: (errors) => {
-                console.error('Errors dari server:', errors);
+                // console.error('Errors dari server:', errors);
 
                 if (Array.isArray(errors.errors_import)) {
                     const errorString = errors.errors_import.join('\n');
