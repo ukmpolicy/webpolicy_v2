@@ -111,6 +111,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute untuk mengimpor member
     Route::post('/members/import', [MemberController::class, 'import'])->name('members.import');
 
+    // Rute untuk mengunduh template import member (Tambahan baru)
+    Route::get('/members/download-template/{type?}', [MemberController::class, 'downloadTemplate'])
+        ->name('members.download-template')
+        ->middleware('permission:members');
     // Rute untuk ekspor member
     Route::get('members/export/{type}', [MemberController::class, 'export'])
         ->name('members.export')
@@ -166,3 +170,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // require __DIR__ . '/settings.php'; // TIDAK DIGUNAKAN LAGI
 require __DIR__ . '/auth.php';
+
+
+// Rute fallback untuk halaman not found (Tambahan baru)
+Route::fallback(function () {
+    return Inertia::render('not-found');
+});
