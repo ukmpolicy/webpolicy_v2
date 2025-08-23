@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Member;
+use App\Models\Period;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -16,14 +17,25 @@ class MembersImportWithPeriod implements ToModel, WithHeadingRow, SkipsEmptyRows
 {
     public function model(array $row)
     {
-        if (empty($row['nim']) || empty($row['email'])) {
-             return null;
+        // Periksa apakah NIM kosong, jika ya, lewati baris ini.
+        if (empty($row['nim'])) {
+            return null;
         }
 
-        $existingMember = Member::where('nim', $row['nim'])->orWhere('email', $row['email'])->first();
+        // --- Logika Baru ---
+        // Jika email kosong, buat email unik dengan format '[NIM]@invalid.com'
+        $email = $row['email'] ?? null;
+        if (empty($email)) {
+            $email = $row['nim'] . '@invalid.com';
+        }
+
+        // Pengecekan duplikasi yang lebih baik:
+        // Cek apakah email yang baru dibuat sudah ada di database
+        $existingMember = Member::where('nim', $row['nim'])->orWhere('email', $email)->first();
         if ($existingMember) {
             return null;
         }
+        // --- Akhir Logika Baru ---
 
         $birthDate = null;
         if (isset($row['tanggal_lahir'])) {
@@ -39,14 +51,21 @@ class MembersImportWithPeriod implements ToModel, WithHeadingRow, SkipsEmptyRows
         }
 
         $graduatedCollegeOn = isset($row['tahun_lulus']) && is_numeric($row['tahun_lulus']) ? (int) $row['tahun_lulus'] : null;
-        $periodIdFromExcel = $row['periode_id'] ?? null;
-         $pictureFileName = $row['picture'] ?? null;
+        $pictureFileName = $row['picture'] ?? null;
+
+        $periodIdFromExcel = null;
+        if (isset($row['periode_id']) && !empty($row['periode_id'])) {
+            $period = Period::where('name', $row['periode_id'])->first();
+            if ($period) {
+                $periodIdFromExcel = $period->id;
+            }
+        }
 
         return new Member([
             'period_id' => $periodIdFromExcel,
             'name' => $row['nama'] ?? null,
             'nim' => $row['nim'] ?? null,
-            'email' => $row['email'] ?? null,
+            'email' => $email,
             'no_wa' => $row['no_wa'] ?? null,
             'address' => $row['alamat'] ?? null,
             'department' => $row['jurusan'] ?? null,
@@ -64,8 +83,8 @@ class MembersImportWithPeriod implements ToModel, WithHeadingRow, SkipsEmptyRows
         return [
             '*.nama' => 'required',
             '*.nim' => 'required|numeric',
-            '*.email' => 'required|email',
-            '*.periode_id' => 'required|exists:periods,id',
+            '*.email' => 'nullable',
+            '*.periode_id' => 'required|exists:periods,name',
             '*.tahun_masuk' => 'nullable|numeric',
             '*.picture' => 'nullable|string',
         ];

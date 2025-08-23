@@ -118,7 +118,10 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
             {
                 id: 'no',
                 header: '#',
-                cell: ({ row, table }) => table.getState().pagination.pageIndex * table.getState().pagination.pageSize + row.index + 1,
+                // cell: ({ row, table }) => table.getState().pagination.pageIndex * table.getState().pagination.pageSize + row.index + 1,
+                cell: ({ row }) => {
+                    return pageIndex * pageSize + row.index + 1;
+                },
             },
             {
                 accessorKey: 'name',
@@ -192,6 +195,7 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        manualPagination: false,
     });
 
     const pageCount = table.getPageCount();
@@ -249,7 +253,14 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                         </SelectContent>
                     </Select>
 
-                    <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                    <Select
+                        value={String(pageSize)}
+                        onValueChange={(v) => {
+                            const newPageSize = Number(v);
+                            setPageSize(newPageSize);
+                            setPageIndex(0); // PERBAIKAN: Reset ke halaman pertama saat ubah page size
+                        }}
+                    >
                         <SelectTrigger className="w-32">
                             <SelectValue />
                         </SelectTrigger>

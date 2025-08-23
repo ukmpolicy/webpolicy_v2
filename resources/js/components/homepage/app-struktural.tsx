@@ -60,6 +60,7 @@ export default function AppStruktural({ strukturalList }: { strukturalList: Stru
                                             alt={person.name}
                                             title={person.name}
                                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                            loading="lazy"
                                         />
                                     </div>
                                     <div className="flex h-20 flex-col justify-end">
