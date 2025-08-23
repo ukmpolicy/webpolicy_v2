@@ -257,11 +257,11 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
                                         className="group relative cursor-pointer overflow-hidden rounded-lg bg-zinc-900 shadow-lg"
                                         onClick={() => openLightbox(item)}
                                     >
-                                        <div className="aspect-w-1 aspect-h-1">
+                                        <div className="relative w-full overflow-hidden rounded-t-lg pb-[100%]">
                                             {isVideo(item.file) ? (
                                                 <video
                                                     src={mediaPath}
-                                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     muted
                                                     playsInline
                                                 />
@@ -269,7 +269,7 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
                                                 <img
                                                     src={mediaPath}
                                                     alt={item.caption}
-                                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null;
                                                         e.currentTarget.src = 'https://placehold.co/400x400/111/333?text=Error';

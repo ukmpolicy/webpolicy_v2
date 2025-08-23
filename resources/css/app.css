@@ -197,3 +197,27 @@
     border-radius: 6px;
     border: 3px solid #000000;
 }
+
+/* Anda dapat menempatkan ini di file CSS global atau sebagai style inline di div */
+.masonry-container {
+    column-count: 3; /* Sesuaikan jumlah kolom */
+    column-gap: 1.5rem; /* Sesuaikan jarak antar kolom (misal: 24px) */
+    column-fill: balance;
+}
+
+.masonry-item {
+    break-inside: avoid-column;
+    margin-bottom: 1.5rem; /* Sesuaikan jarak bawah */
+}
+
+@media (max-width: 768px) {
+    .masonry-container {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 640px) {
+    .masonry-container {
+        column-count: 1;
+    }
+}
