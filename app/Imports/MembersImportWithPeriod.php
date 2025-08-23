@@ -53,12 +53,19 @@ class MembersImportWithPeriod implements ToModel, WithHeadingRow, SkipsEmptyRows
         $graduatedCollegeOn = isset($row['tahun_lulus']) && is_numeric($row['tahun_lulus']) ? (int) $row['tahun_lulus'] : null;
         $pictureFileName = $row['picture'] ?? null;
 
+
         $periodIdFromExcel = null;
         if (isset($row['periode_id']) && !empty($row['periode_id'])) {
             $period = Period::where('name', $row['periode_id'])->first();
             if ($period) {
                 $periodIdFromExcel = $period->id;
             }
+        }
+
+        // Jika periode_id dari Excel tidak ada, ambil periode aktif
+        if (!$periodIdFromExcel) {
+            $activePeriod = Period::where('is_active', 1)->first();
+            $periodIdFromExcel = $activePeriod?->id;
         }
 
         return new Member([
@@ -84,7 +91,7 @@ class MembersImportWithPeriod implements ToModel, WithHeadingRow, SkipsEmptyRows
             '*.nama' => 'required',
             '*.nim' => 'required|numeric',
             '*.email' => 'nullable',
-            '*.periode_id' => 'required|exists:periods,name',
+            '*.periode_id' => 'nullable|exists:periods,name',
             '*.tahun_masuk' => 'nullable|numeric',
             '*.picture' => 'nullable|string',
         ];

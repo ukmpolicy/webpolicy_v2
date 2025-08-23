@@ -9,6 +9,7 @@ use App\Models\Period;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Exports\MembersExport;
+use App\Exports\MembersTemplateExport;
 use App\Imports\MembersImport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -162,8 +163,9 @@ class MemberController extends Controller
         try {
             $file = $request->file('file');
 
-            // Perbaikan: Gunakan HeadingRowImport untuk cara yang lebih andal
-            $headers = new HeadingRowImport()->toArray($file);
+            // Gunakan HeadingRowImport untuk cara yang lebih andal
+            $headingRowImport = new HeadingRowImport();
+            $headers = $headingRowImport->toArray($file);
             $hasPeriodIdColumn = in_array('periode_id', $headers[0][0]);
 
             if ($hasPeriodIdColumn) {
@@ -207,5 +209,10 @@ class MemberController extends Controller
                     'errors_import' => ['Terjadi kesalahan: ' . $e->getMessage()],
                 ]);
         }
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new MembersTemplateExport(), 'template-import-member.xlsx');
     }
 }
