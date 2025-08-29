@@ -23,10 +23,10 @@ class MembersImportWithPeriod implements ToModel, WithHeadingRow, SkipsEmptyRows
         }
 
         // --- Logika Baru ---
-        // Jika email kosong, buat email unik dengan format '[NIM]@invalid.com'
+        // Jika email kosong, buat email unik dengan format '[NIM]@gmail.com'
         $email = $row['email'] ?? null;
         if (empty($email)) {
-            $email = $row['nim'] . '@invalid.com';
+            $email = $row['nim'] . '@gmail.com';
         }
 
         // Pengecekan duplikasi yang lebih baik:
