@@ -86,7 +86,7 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                 setIsImportModalOpen(false);
             },
             onError: (errors) => {
-                console.error('Errors dari server:', errors);
+                // console.error('Errors dari server:', errors);
 
                 // Perubahan dimulai di sini:
                 if (Array.isArray(errors.errors_import)) {
@@ -445,6 +445,7 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                 </AlertDialogContent>
             </AlertDialog>
 
+            {/* Members Imports */}
             <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -456,14 +457,13 @@ export function MemberTable({ data, onEdit, onView, periods, activePeriodId }) {
                         <div className="rounded-md border bg-gray-50 p-4 dark:bg-zinc-800">
                             <h4 className="mb-2 text-sm font-semibold">Petunjuk Penting untuk Import:</h4>
                             <ol className="list-inside list-decimal space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                                <li>Gunakan **template yang sudah disediakan**. Klik tombol di bawah untuk mengunduh.</li>
-                                <li>Pastikan nama kolom di file Anda **sama persis** dengan yang ada di template (huruf kecil, tidak ada spasi).</li>
-                                <li>Kolom **nama** dan **nim** wajib diisi.</li>
+                                <li>Gunakan template yang sudah disediakan. Klik tombol di bawah untuk mengunduh.</li>
+                                <li>Pastikan nama kolom di file Anda sama persis dengan yang ada di template (huruf kecil, tidak ada spasi).</li>
+                                <li>Kolom nama dan nim wajib diisi.</li>
                                 <li>
-                                    Jika kolom **periode_id** diisi, datanya harus berupa **nama periode** yang sudah ada di sistem (contoh:
-                                    "2024/2025").
+                                    Jika kolom periode_id diisi, datanya harus berupa nama periode yang sudah ada di sistem (contoh: "2024/2025").
                                 </li>
-                                <li>Jika kolom **periode_id** kosong, data akan otomatis masuk ke **periode aktif**.</li>
+                                <li>Jika kolom periode_id kosong, data akan otomatis masuk ke periode aktif.</li>
                             </ol>
                             <div className="mt-4">
                                 <Button variant="outline" onClick={() => (window.location.href = route('members.download-template'))}>
