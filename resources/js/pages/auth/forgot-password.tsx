@@ -30,7 +30,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-2">
-                    <Label htmlFor="email" className="text-dark dark:text-white">
+                    <Label htmlFor="email" className="text-white dark:text-white">
                         Email
                     </Label>
                     <Input
@@ -53,7 +53,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 </Button>
 
                 <div className="mt-4 text-center text-sm">
-                    <span className="text-dark dark:text-white">Or, return to </span>
+                    <span className="text-white dark:text-white">Or, return to </span>
                     <TextLink href={route('login')} className="font-bold text-red-600">
                         log in
                     </TextLink>

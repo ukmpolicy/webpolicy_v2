@@ -1,5 +1,6 @@
 'use client';
 import clsx from 'clsx';
+import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 
 type Division = {
@@ -8,53 +9,101 @@ type Division = {
     description?: string;
 };
 
+// Fungsi bantu untuk menjadikan huruf kapital di setiap awal kata
+const toTitleCase = (text: string) =>
+    text
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+// Variasi animasi untuk item
+const itemVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
 export default function AppBidang({ divisions }: { divisions: Division[] }) {
     return (
-        <section className="bg-black px-6 py-12 text-white md:px-10">
-            <div className="mx-auto max-w-[1200px]">
-                <div className="mb-12 text-center">
-                    <h2 className="relative mb-12 text-center text-3xl font-bold italic md:text-4xl">
+        <section className="relative overflow-hidden border-b border-zinc-800 bg-black px-6 py-16 text-white md:px-10">
+            {/* Pattern Grid */}
+            <div
+                className="absolute inset-0 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] opacity-[0.03]"
+                style={{ backgroundSize: '50px 50px' }}
+            ></div>
+
+            {/* Glow efek */}
+            <div className="absolute top-[-200px] left-[-200px] h-[500px] w-[500px] rounded-full bg-red-600/20 blur-[150px]"></div>
+            <div className="absolute right-[-200px] bottom-[-200px] h-[400px] w-[400px] rounded-full bg-red-500/10 blur-[120px]"></div>
+
+            {/* Garis animasi */}
+            <div className="absolute inset-0">
+                <div className="absolute top-0 left-0 h-px w-full animate-[pulse_6s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+            </div>
+
+            <div className="relative z-10 mx-auto max-w-[1200px]">
+                {/* Header */}
+                <div className="mb-16 text-center">
+                    <h2 className="relative inline-block text-4xl font-bold italic md:text-5xl">
                         Bidang
-                        <div className="absolute -bottom-2 left-1/2 h-[2px] w-28 -translate-x-1/2 bg-red-600" />
+                        <span className="absolute -bottom-3 left-1/2 block h-[3px] w-28 -translate-x-1/2 rounded-full bg-red-600"></span>
                     </h2>
                 </div>
 
-                <div className="space-y-8">
-                    {divisions.length > 0 ? (
-                        divisions.map((item, idx) => (
-                            <div
+                {/* List */}
+                {divisions.length > 0 ? (
+                    <motion.div
+                        className="space-y-10"
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ staggerChildren: 0.15 }}
+                    >
+                        {divisions.map((item, idx) => (
+                            <motion.div
                                 key={item.id}
+                                variants={itemVariants}
                                 className={clsx(
-                                    'group flex items-start justify-between border-b border-gray-700 pb-6 transition-all duration-300 hover:border-red-600',
+                                    'group flex items-start justify-between rounded-xl border-b border-gray-800 px-4 pb-8 transition-all duration-300 hover:border-red-600 hover:bg-white/[0.02]',
                                 )}
                             >
+                                {/* Left: Number + Content */}
                                 <div className="flex w-full flex-col md:flex-row md:items-start md:space-x-10">
-                                    <div className="w-12 shrink-0 font-mono text-lg text-white">{String(idx + 1).padStart(2, '0')}</div>
+                                    {/* Nomor */}
+                                    <div className="w-16 shrink-0 font-mono text-2xl font-bold text-red-500 md:text-3xl">
+                                        {String(idx + 1).padStart(2, '0')}
+                                    </div>
+
+                                    {/* Text */}
                                     <div className="flex w-full flex-col md:flex-row md:justify-between">
-                                        <div>
-                                            <div className="text-base font-bold text-white">Bidang</div>
-                                            <div className="text-3xl font-extrabold transition-colors duration-300 group-hover:text-red-500">
-                                                {item.name}
+                                        <div className="mb-4 md:mb-0">
+                                            <div className="text-lg tracking-wider text-gray-400 uppercase">Bidang</div>
+                                            <div className="text-3xl font-extrabold transition-colors duration-300 group-hover:text-red-500 md:text-4xl">
+                                                {toTitleCase(item.name)}
                                             </div>
                                         </div>
-                                        <div className="mt-4 text-gray-400 md:mt-0 md:max-w-2xl">
-                                            Bidang ini memiliki fokus utama pada{' '}
-                                            <span className="font-semibold text-white">{item.name ?? 'bidang yang belum terdefinisi'}</span>, yang
-                                            memainkan peran penting dalam menjalankan visi dan misi organisasi.
+                                        <div className="text-lg leading-relaxed text-gray-400 md:max-w-[40%]">
+                                            {item.description || `Bidang ini adalah ${item.name}`}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="ml-4 shrink-0">
-                                    <button className="rounded-md bg-zinc-900 p-3 transition-colors duration-300 group-hover:bg-red-600">
-                                        <ArrowUpRight size={20} className="group-hover:text-black" />
-                                    </button>
+
+                                {/* Button */}
+                                <div className="ml-6 shrink-0">
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="rounded-lg bg-zinc-900 p-4 transition-colors duration-300 group-hover:bg-red-600"
+                                    >
+                                        <ArrowUpRight size={22} className="transition-colors group-hover:text-black" />
+                                    </motion.button>
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="text-center text-lg text-gray-400 italic">Tidak ada bidang.</div>
-                    )}
-                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                ) : (
+                    <div className="text-center text-lg text-gray-400 italic">Tidak ada bidang.</div>
+                )}
             </div>
         </section>
     );

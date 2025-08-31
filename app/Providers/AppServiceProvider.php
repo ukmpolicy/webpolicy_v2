@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Auth\Notifications\ResetPassword; // Import Notifikasi ResetPassword bawaan
-use App\Mail\CustomResetPassword; // Import Mailable ResetPassword kustom Anda
-use Illuminate\Auth\Notifications\VerifyEmail; // Import Notifikasi VerifyEmail bawaan (jika Anda ingin memindahkannya ke sini juga)
+use Illuminate\Auth\Notifications\ResetPassword;
+use App\Mail\CustomResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use App\Mail\CustomVerifyEmail;
+use Inertia\Inertia;
+use App\Services\BlogArticleService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,14 +27,17 @@ class AppServiceProvider extends ServiceProvider
     {
         // Kustomisasi email verifikasi
         VerifyEmail::toMailUsing(function ($notifiable, $url) {
-            // Cukup kembalikan instance Mailable
             return new CustomVerifyEmail($notifiable);
         });
 
         // Kustomisasi email reset password
         ResetPassword::toMailUsing(function ($notifiable, $token) {
-            // Cukup kembalikan instance Mailable
             return new CustomResetPassword($token, $notifiable);
+        });
+
+        // 🔹 Share berita terbaru ke semua halaman Inertia
+        Inertia::share('latestArticles', function () {
+            return app(BlogArticleService::class)->getLatestRecommendedArticles(5);
         });
     }
 }

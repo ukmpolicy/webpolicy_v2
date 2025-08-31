@@ -214,30 +214,11 @@ export default function ArticleEdit({ article, categories }) {
                                     {errors.content && <p className="mt-2 text-sm text-red-500">{errors.content}</p>}
                                 </div>
                             </div>
-
-                            {/* 3. Ringkasan Artikel (Urutan 4 di Mobile & Desktop Kiri) */}
-                            <div className="bg-card rounded-lg border p-6 shadow-md">
-                                <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Ringkasan Artikel</h2>
-                                <div>
-                                    <Label htmlFor="summary" className="mb-2 block">
-                                        Ringkasan
-                                    </Label>
-                                    <Textarea
-                                        id="summary"
-                                        value={data.summary}
-                                        onChange={(e) => setData('summary', e.target.value)}
-                                        placeholder="Ringkasan singkat yang menggambarkan isi artikel..."
-                                        rows={4}
-                                        className="w-full"
-                                    />
-                                    {errors.summary && <p className="mt-2 text-sm text-red-500">{errors.summary}</p>}
-                                </div>
-                            </div>
                         </div>
 
                         {/* Kolom Kanan untuk Desktop */}
                         <div className="space-y-6 lg:col-span-1">
-                            {/* 1. Judul Artikel (Urutan 2 di Desktop Kanan, hidden di mobile karena sudah ada di kiri) */}
+                            {/* 1. Judul Artikel (Urutan 2 di Desktop Kanan, hidden di mobile) */}
                             <div className="bg-card hidden rounded-lg border p-6 shadow-md lg:block">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Informasi Dasar</h2>
                                 <div className="space-y-5">
@@ -273,7 +254,26 @@ export default function ArticleEdit({ article, categories }) {
                                 </div>
                             </div>
 
-                            {/* 3. Publikasi (Urutan 6 di Mobile & Desktop Kanan) */}
+                            {/* 3. Ringkasan Artikel (Urutan 4 di Mobile & Desktop Kanan) */}
+                            <div className="bg-card rounded-lg border p-6 shadow-md">
+                                <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Ringkasan Artikel</h2>
+                                <div>
+                                    <Label htmlFor="summary" className="mb-2 block">
+                                        Ringkasan
+                                    </Label>
+                                    <Textarea
+                                        id="summary"
+                                        value={data.summary}
+                                        onChange={(e) => setData('summary', e.target.value)}
+                                        placeholder="Ringkasan singkat yang menggambarkan isi artikel..."
+                                        rows={4}
+                                        className="w-full"
+                                    />
+                                    {errors.summary && <p className="mt-2 text-sm text-red-500">{errors.summary}</p>}
+                                </div>
+                            </div>
+
+                            {/* 4. Publikasi (Urutan 6 di Mobile & Desktop Kanan) */}
                             <div className="bg-card rounded-lg border p-6 shadow-md">
                                 <h2 className="mb-6 text-xl font-bold text-gray-800 dark:text-gray-200">Publikasi</h2>
                                 <div>

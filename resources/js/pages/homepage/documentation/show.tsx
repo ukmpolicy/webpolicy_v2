@@ -2,7 +2,6 @@ import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-// Komponen yang sudah ada dan kita gunakan kembali
 import AppFooter from '@/components/homepage/app-footer';
 import AppHeader from '@/components/homepage/app-header';
 import AppLoading from '@/components/homepage/app-loading';
@@ -126,7 +125,8 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
                 setCurrentMediaIndex(index);
             }
         },
-        [paginatedMedia],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [],
     );
 
     const closeLightbox = useCallback(() => {
@@ -137,18 +137,18 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
     const handleNextMedia = useCallback(() => {
         if (currentMediaIndex !== null && currentMediaIndex < paginatedMedia.length - 1) {
             const nextIndex = currentMediaIndex + 1;
-            setSelectedMedia(paginatedMedia[nextIndex]);
+            setSelectedMedia(paginatedMedia.length > 0 ? paginatedMedia.find((_, index) => index === nextIndex) || null : null);
             setCurrentMediaIndex(nextIndex);
         }
-    }, [currentMediaIndex, paginatedMedia]);
+    }, [currentMediaIndex, paginatedMedia.length, paginatedMedia]);
 
     const handlePrevMedia = useCallback(() => {
         if (currentMediaIndex !== null && currentMediaIndex > 0) {
             const prevIndex = currentMediaIndex - 1;
-            setSelectedMedia(paginatedMedia[prevIndex]);
+            setSelectedMedia(paginatedMedia.length > 0 ? paginatedMedia.find((_, index) => index === prevIndex) || null : null);
             setCurrentMediaIndex(prevIndex);
         }
-    }, [currentMediaIndex, paginatedMedia]);
+    }, [currentMediaIndex, paginatedMedia.length, paginatedMedia]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -257,11 +257,11 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
                                         className="group relative cursor-pointer overflow-hidden rounded-lg bg-zinc-900 shadow-lg"
                                         onClick={() => openLightbox(item)}
                                     >
-                                        <div className="aspect-w-1 aspect-h-1">
+                                        <div className="relative w-full overflow-hidden rounded-t-lg pb-[100%]">
                                             {isVideo(item.file) ? (
                                                 <video
                                                     src={mediaPath}
-                                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     muted
                                                     playsInline
                                                 />
@@ -269,7 +269,7 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
                                                 <img
                                                     src={mediaPath}
                                                     alt={item.caption}
-                                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null;
                                                         e.currentTarget.src = 'https://placehold.co/400x400/111/333?text=Error';
@@ -300,29 +300,50 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
 
             {/* MODAL UNTUK PRATINJAU GAMBAR/VIDEO (LIGHTBOX FINAL) */}
             <Dialog open={!!selectedMedia} onOpenChange={closeLightbox}>
-                <DialogContent className="/* Ukuran modal: XL di desktop, 95% tinggi. Ini responsive */ !fixed relative !top-[50%] !left-[50%] flex max-h-[95vh] max-w-screen-xl !-translate-x-1/2 !-translate-y-1/2 flex-col justify-between overflow-hidden rounded-lg bg-black p-0 shadow-2xl">
+                <DialogContent className="!fixed relative !top-[50%] !left-[50%] flex max-h-[95vh] max-w-screen-2xl !-translate-x-1/2 !-translate-y-1/2 flex-col justify-between overflow-hidden rounded-lg bg-black p-0 shadow-2xl">
                     {/* DialogTitle untuk aksesibilitas (dibaca screen reader, disembunyikan visual) */}
                     <DialogTitle className="sr-only">Pratinjau Media</DialogTitle>
 
-                    {/* Area Utama Media (Gambar/Video) */}
-                    {/* Ini adalah kontainer untuk gambar/video.
-                        - flex-grow: Mengambil ruang sebanyak mungkin.
-                        - flex items-center justify-center: Memusatkan gambar/video di tengah kontainer ini.
-                        - w-full h-full: Memastikan kontainer mengisi penuh ruangnya.
-                        - p-4: Padding di sekitar gambar/video di dalam kontainer hitam.
-                    */}
-                    <div className="relative flex h-full w-full flex-grow items-center justify-center p-4">
+                    {/* Tombol Tutup Modal (X) */}
+                    <button
+                        onClick={closeLightbox}
+                        className="absolute top-4 right-4 z-40 rounded-md bg-white/10 p-2 text-white transition-colors hover:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black focus:outline-none md:top-6 md:right-6 lg:top-8 lg:right-8"
+                        aria-label="Tutup pratinjau"
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+
+                    {/* Tombol Navigasi Kiri */}
+                    {hasPrev && (
+                        <button
+                            onClick={handlePrevMedia}
+                            className="absolute top-1/2 left-4 z-10 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors duration-200 hover:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black focus:outline-none md:left-6 lg:left-8"
+                            aria-label="Previous media"
+                        >
+                            <ArrowLeft className="h-6 w-6" />
+                        </button>
+                    )}
+
+                    {/* Tombol Navigasi Kanan */}
+                    {hasNext && (
+                        <button
+                            onClick={handleNextMedia}
+                            className="absolute top-1/2 right-4 z-10 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors duration-200 hover:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black focus:outline-none md:right-6 lg:right-8"
+                            aria-label="Next media"
+                        >
+                            <ChevronRight className="h-6 w-6" />
+                        </button>
+                    )}
+
+                    {/* Container media */}
+                    <div className="flex h-full w-full items-center justify-center px-12 pt-16">
                         {selectedMedia && (
                             <>
                                 {isVideo(selectedMedia.file) ? (
                                     <video
                                         ref={activeMediaRef as React.RefObject<HTMLVideoElement>}
                                         src={`/storage/${selectedMedia.file}`}
-                                        // Kontrol tinggi gambar/video responsif:
-                                        // - max-h-[65vh]: Di mobile/tablet, max 65% tinggi viewport untuk beri ruang caption.
-                                        // - md:max-h-[75vh]: Di tablet, sedikit lebih tinggi.
-                                        // - lg:max-h-[85vh]: Di desktop, max 85% tinggi viewport agar caption tetap terlihat jelas.
-                                        className="max-h-[65vh] max-w-full rounded-md object-contain md:max-h-[75vh] lg:max-h-[85vh]"
+                                        className="max-h-[70vh] max-w-full rounded-md object-contain"
                                         controls
                                         autoPlay
                                         muted
@@ -334,48 +355,17 @@ const AlbumShowPage: React.FC<AlbumShowPageProps> = ({ album }) => {
                                         ref={activeMediaRef as React.RefObject<HTMLImageElement>}
                                         src={`/storage/${selectedMedia.file}`}
                                         alt={selectedMedia.caption}
-                                        className="max-h-[65vh] max-w-full rounded-md object-contain md:max-h-[75vh] lg:max-h-[85vh]"
+                                        className="max-h-[70vh] max-w-full rounded-md object-contain"
                                     />
                                 )}
                             </>
                         )}
-
-                        {/* Tombol Navigasi Kiri - Diposisikan di samping media, di dalam padding modal */}
-                        {hasPrev && (
-                            <button
-                                onClick={handlePrevMedia}
-                                className="absolute top-1/2 left-0 z-10 -translate-y-1/2 rounded-r-lg bg-white/10 p-3 text-white transition-colors duration-200 hover:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black focus:outline-none lg:rounded-full lg:px-4" /* Styling responsif: bulat di desktop, hanya sisi kanan di mobile */
-                                aria-label="Previous media"
-                            >
-                                <ArrowLeft className="h-6 w-6" />
-                            </button>
-                        )}
-
-                        {/* Tombol Navigasi Kanan - Diposisikan di samping media, di dalam padding modal */}
-                        {hasNext && (
-                            <button
-                                onClick={handleNextMedia}
-                                className="absolute top-1/2 right-0 z-10 -translate-y-1/2 rounded-l-lg bg-white/10 p-3 text-white transition-colors duration-200 hover:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black focus:outline-none lg:rounded-full lg:px-4" /* Styling responsif: bulat di desktop, hanya sisi kiri di mobile */
-                                aria-label="Next media"
-                            >
-                                <ChevronRight className="h-6 w-6" />
-                            </button>
-                        )}
                     </div>
 
-                    {/* Caption Media - Selalu di bagian bawah modal */}
-                    <div className="max-h-24 w-full flex-shrink-0 overflow-y-auto px-4 py-2 text-left text-sm text-zinc-300">
+                    {/* Caption Media */}
+                    <div className="max-h-24 w-full flex-shrink-0 overflow-y-auto px-12 py-4 text-left text-sm text-zinc-300">
                         {selectedMedia?.caption && <p>{selectedMedia.caption}</p>}
                     </div>
-
-                    {/* Tombol Tutup Modal (X) - Di posisi kanan atas MODAL secara keseluruhan */}
-                    <button
-                        onClick={closeLightbox}
-                        className="absolute top-0 right-0 z-40 rounded-tr-lg rounded-bl-lg bg-white/10 p-3 text-white transition-colors hover:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black focus:outline-none" /* Desain terintegrasi dengan sudut modal */
-                        aria-label="Tutup pratinjau"
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
                 </DialogContent>
             </Dialog>
         </>

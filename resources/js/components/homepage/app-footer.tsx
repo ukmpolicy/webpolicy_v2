@@ -1,10 +1,33 @@
 import logo from '@/assets/images/favicon.png';
-import { Facebook, Instagram, Linkedin, Mail, Twitter } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
+import { SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si';
 
 export default function AppFooter() {
+    // Ambil latestArticles dari props Inertia
+    const { latestArticles } = usePage().props as {
+        latestArticles?: { id: number; title: string; slug: string }[];
+    };
+
+    // Navigasi utama
+    const navItems = [
+        { label: 'Beranda', href: '/' },
+        { label: 'Tentang', href: '/about' },
+        { label: 'Berita', href: '/berita' },
+        { label: 'Dokumentasi', href: '/dokumentasi' },
+        { label: 'Kontak', href: '/kontak' },
+    ];
+
+    // Social media
+    const socialLinks = [
+        { icon: SiYoutube, href: 'https://www.youtube.com/@ukmpolicypnl' },
+        { icon: SiTiktok, href: 'https://www.tiktok.com/@ukmpolicypnl' },
+        { icon: SiInstagram, href: 'https://www.instagram.com/ukmpolicy.kbmpnl/' },
+    ];
+
     return (
         <footer className="border-t border-white/10 bg-black pt-16 text-gray-300">
-            <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 border-b border-gray-800 px-4 pb-12 md:grid-cols-2 lg:grid-cols-4">
+            {/* Bagian atas */}
+            <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 border-b border-gray-800 px-4 pb-12 sm:grid-cols-2 lg:grid-cols-3">
                 {/* Logo & Deskripsi */}
                 <div>
                     <div className="mb-4 flex items-center gap-3 text-2xl font-bold text-white">
@@ -12,67 +35,61 @@ export default function AppFooter() {
                         UKM POLICY
                     </div>
                     <p className="text-sm leading-relaxed text-gray-400">
-                        Berpartisipasi dan berperan aktif dalam mengembangkan jaringan kerjasama dengan lembaga Politeknik Negeri Lhokseumawe ,
-                        komunitas Linux dan Open Source lainnya, Perguruan tinggi dan Pemerintah Daerah maupun Pusat.
+                        Berpartisipasi aktif mengembangkan jaringan kerjasama dengan lembaga Politeknik Negeri Lhokseumawe, komunitas Linux dan Open
+                        Source, perguruan tinggi, serta pemerintah daerah maupun pusat.
                     </p>
                     <div className="mt-6 flex space-x-4">
-                        {[Facebook, Twitter, Instagram, Linkedin].map((Icon, idx) => (
-                            <Icon key={idx} className="h-5 w-5 cursor-pointer text-gray-500 transition-colors duration-300 hover:text-white" />
+                        {socialLinks.map(({ icon: Icon, href }, idx) => (
+                            <a
+                                key={idx}
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-500 transition-colors duration-300 hover:text-white"
+                            >
+                                <Icon className="h-5 w-5" />
+                            </a>
                         ))}
                     </div>
                 </div>
 
-                {/* Kebijakan */}
+                {/* Navigasi */}
                 <div>
-                    <h4 className="mb-4 font-semibold text-white">Kebijakan</h4>
+                    <h4 className="mb-4 font-semibold text-white">Navigasi</h4>
                     <ul className="space-y-3 text-sm">
-                        {['Kebijakan Privasi', 'Syarat Layanan', 'Penggunaan Data', 'Hak Akses'].map((item, idx) => (
+                        {navItems.map((item, idx) => (
                             <li key={idx}>
-                                <a href="#" className="transition-colors hover:text-white">
-                                    {item}
+                                <a href={item.href} className="transition-colors hover:text-white">
+                                    {item.label}
                                 </a>
                             </li>
                         ))}
                     </ul>
                 </div>
 
-                {/* Sumber Daya */}
+                {/* Berita Terbaru */}
                 <div>
-                    <h4 className="mb-4 font-semibold text-white">Sumber Daya</h4>
+                    <h4 className="mb-4 font-semibold text-white">Berita Terbaru</h4>
                     <ul className="space-y-3 text-sm">
-                        {['Dokumentasi', 'Buku Panduan Mahasiswa', 'Pusat Bantuan', 'Panduan Komunitas'].map((item, idx) => (
-                            <li key={idx}>
-                                <a href="#" className="transition-colors hover:text-white">
-                                    {item}
-                                </a>
-                            </li>
-                        ))}
+                        {latestArticles && latestArticles.length > 0 ? (
+                            latestArticles.map((article) => (
+                                <li key={article.id}>
+                                    <a href={`/berita/${article.slug}`} className="transition-colors hover:text-white">
+                                        {article.title}
+                                    </a>
+                                </li>
+                            ))
+                        ) : (
+                            <li className="text-gray-500">Belum ada berita</li>
+                        )}
                     </ul>
-                </div>
-
-                {/* Berlangganan */}
-                <div>
-                    <h4 className="mb-4 font-semibold text-white">Berlangganan</h4>
-                    <p className="mb-4 text-sm text-gray-400">
-                        Dapatkan pembaruan kebijakan dan berita terbaru dari UKM POLICY langsung ke email Anda.
-                    </p>
-                    <form className="flex overflow-hidden rounded-md border border-gray-700 focus-within:border-red-500">
-                        <input
-                            type="email"
-                            placeholder="Alamat email"
-                            className="w-full bg-transparent px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none"
-                        />
-                        <button type="submit" className="bg-red-600 p-2 transition-colors hover:bg-red-700">
-                            <Mail className="h-4 w-4 text-white" />
-                        </button>
-                    </form>
                 </div>
             </div>
 
-            {/* Bagian Bawah */}
-            <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-4 px-4 py-6 text-sm text-gray-500 md:flex-row">
-                <div>© 2025 UKM POLICY. Hak cipta dilindungi.</div>
-                <div className="flex space-x-6">
+            {/* Bagian bawah */}
+            <div className="mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-4 px-4 py-6 text-sm text-gray-500 md:flex-row md:items-center">
+                <div>© {new Date().getFullYear()} UKM POLICY. Hak cipta dilindungi.</div>
+                <div className="flex flex-col flex-wrap gap-2 md:flex-row md:gap-6">
                     {['Kebijakan Privasi', 'Pernyataan Hukum', 'Syarat Layanan'].map((link, idx) => (
                         <a key={idx} href="#" className="transition-colors hover:text-white">
                             {link}

@@ -108,9 +108,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/missions/{mission}', [MissionController::class, 'destroy'])->name('missions.destroy');
     });
 
+    // Rute untuk mengimpor member
+    Route::post('/members/import', [MemberController::class, 'import'])->name('members.import');
+
+    // Rute untuk mengunduh template import member (Tambahan baru)
+    Route::get('/members/download-template/{type?}', [MemberController::class, 'downloadTemplate'])
+        ->name('members.download-template')
+        ->middleware('permission:members');
+    // Rute untuk ekspor member
+    Route::get('members/export/{type}', [MemberController::class, 'export'])
+        ->name('members.export')
+        ->middleware('permission:members');
+    // ...
+
     // Member management
     Route::resource('members', MemberController::class)->middleware('permission:members');
     Route::post('members/{id}', [MemberController::class, 'update'])->middleware('permission:members');
+
+    // // Rute Import yang baru ditambahkan
+    // Route::post('members/import', [MemberController::class, 'import'])
+    //     ->name('members.import')
+    //     ->middleware('permission:members');
 
     // Division Management
     Route::resource('divisions', DivisionController::class)->middleware('permission:divisions');
@@ -148,8 +166,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:structure-members');
     Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])->middleware('permission:structure-members');
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware('permission:structure-members');
-
 });
 
 // require __DIR__ . '/settings.php'; // TIDAK DIGUNAKAN LAGI
 require __DIR__ . '/auth.php';
+
+
+// Rute fallback untuk halaman not found (Tambahan baru)
+Route::fallback(function () {
+    return Inertia::render('not-found');
+});

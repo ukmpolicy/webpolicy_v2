@@ -17,14 +17,17 @@ class StructureController extends Controller
         $this->structureService = $structureService;
     }
 
-    public function index(Request $request)
+      public function index(Request $request)
     {
         $sort = $request->query('sort', 'desc');
         $periodId = $request->query('period_id');
 
+        // Ambil data periode yang sedang aktif, terlepas dari filter
+        $activePeriod = Period::where('is_active', 1)->first();
+
+        // Jika tidak ada period_id yang dipilih, gunakan periode aktif sebagai default
         if (!$periodId) {
-            $defaultPeriod = Period::where('is_active', 1)->first();
-            $periodId = $defaultPeriod?->id;
+            $periodId = $activePeriod?->id;
         }
 
         $structures = $this->structureService->getAllStructure($request->all());
@@ -34,10 +37,11 @@ class StructureController extends Controller
             'divisions' => $this->structureService->getAllDivisions(),
             'periods' => $this->structureService->getAllPeriods(),
             'sortDirection' => $sort,
-            'selectedPeriodId' => $periodId,
+            'selectedPeriodId' => $periodId, // Kirim selectedPeriodId
+            'activePeriod' => $activePeriod, // Kirim activePeriod yang selalu ada
         ]);
     }
-    
+
     public function store(Request $request)
     {
         try {
@@ -59,7 +63,9 @@ class StructureController extends Controller
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            return back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
         }
     }
 
@@ -83,7 +89,9 @@ class StructureController extends Controller
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            return back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
         }
     }
 
@@ -113,9 +121,7 @@ class StructureController extends Controller
         $existing = $query->where('division_id', $divisionId)->get();
 
         if ($existing->isEmpty()) {
-            $lastBase = Structure::where('period_id', $periodId)
-                ->whereNull('division_id')
-                ->max('level');
+            $lastBase = Structure::where('period_id', $periodId)->whereNull('division_id')->max('level');
             $base = $lastBase ? floor($lastBase) + 1 : 1;
 
             $level = floatval("{$base}.1");
@@ -129,21 +135,21 @@ class StructureController extends Controller
             'level' => number_format($level, 1),
         ]);
     }
-public function reorder(Request $request)
-{
-    $structures = $request->input('data', []);
+    public function reorder(Request $request)
+    {
+        $structures = $request->input('data', []);
 
-    foreach ($structures as $item) {
-        $structure = Structure::find($item['id']);
-        if (!$structure) continue;
+        foreach ($structures as $item) {
+            $structure = Structure::find($item['id']);
+            if (!$structure) {
+                continue;
+            }
 
-        $structure->update([
-            'level' => $item['level']
-        ]);
+            $structure->update([
+                'level' => $item['level'],
+            ]);
+        }
+
+        // return response()->json(['message' => 'Struktur berhasil diubah.']);
     }
-
-    // return response()->json(['message' => 'Struktur berhasil diubah.']);
-}
-
-
 }

@@ -6,11 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { Textarea } from '../ui/textarea';
 
 export function DivisionFormModal({ open, onClose, initialData, periods = [] }) {
     const isEdit = !!initialData?.id;
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
+        description: '',
         period_id: '',
         ...initialData,
     });
@@ -20,6 +22,7 @@ export function DivisionFormModal({ open, onClose, initialData, periods = [] }) 
             // Jika dalam mode edit, set data sesuai initialData
             setData({
                 name: initialData.name || '',
+                description: initialData.description || '',
                 period_id: initialData.period_id ? String(initialData.period_id) : '',
             });
         } else {
@@ -69,6 +72,16 @@ export function DivisionFormModal({ open, onClose, initialData, periods = [] }) 
                         <Label htmlFor="name">Nama Divisi</Label>
                         <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
                         {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="description">Deskripsi</Label>
+                        <Textarea
+                            id="description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                            placeholder="Tulis deskripsi divisi di sini..."
+                        />
+                        {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="period_id">Periode</Label>

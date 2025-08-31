@@ -25,18 +25,6 @@ class MemberService
 
     public function createMember(array $data)
     {
-        // Validasi unik email/nim
-        $existing = $this->memberRepository->checkUnique($data['email'], $data['nim']);
-
-        if ($existing) {
-            if ($existing->email === $data['email']) {
-                throw new \Exception('Email sudah terdaftar');
-            }
-            if ($existing->nim === $data['nim']) {
-                throw new \Exception('NIM sudah terdaftar');
-            }
-        }
-
         // Handle gambar
         if (isset($data['picture'])) {
             $data['picture'] = $this->storeImage($data['picture']);
@@ -48,19 +36,6 @@ class MemberService
     public function updateMember($id, array $data)
     {
         $member = $this->memberRepository->find($id);
-
-        // Validasi unik email/nim
-        $existing = $this->memberRepository->checkUnique($data['email'], $data['nim'], $id);
-
-        if ($existing) {
-            if ($existing->email === $data['email']) {
-                throw new \Exception('Email sudah terdaftar');
-            }
-            if ($existing->nim === $data['nim']) {
-                throw new \Exception('NIM sudah terdaftar');
-            }
-        }
-
         // Handle gambar
         if (isset($data['picture'])) {
             if ($data['picture'] instanceof \Illuminate\Http\UploadedFile) {
@@ -115,5 +90,4 @@ class MemberService
     {
         return $this->memberRepository->getAllBirthdays();
     }
-
 }

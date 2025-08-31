@@ -31,8 +31,8 @@ export default function MemberShow() {
                                 <div className="mb-4 h-32 w-32 overflow-hidden rounded-full border-4 border-gray-200 dark:border-zinc-700">
                                     <img src={`/storage/${member.picture}`} alt={member.name} className="h-full w-full object-cover" />
                                 </div>
-                                <h2 className="text-center text-xl font-bold">{member.name}</h2>
-                                <p className="text-gray-600 dark:text-gray-400">{member.nim}</p>
+                                <h2 className="text-center text-xl font-bold">{member.name || '-'}</h2>
+                                <p className="text-gray-600 dark:text-gray-400">{member.nim || '-'}</p>
                             </div>
                         </div>
                     </div>
@@ -43,19 +43,19 @@ export default function MemberShow() {
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                                    <p className="font-medium">{member.email}</p>
+                                    <p className="font-medium">{member.email || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Alamat</p>
-                                    <p className="font-medium">{member.address}</p>
+                                    <p className="font-medium">{member.address || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Tempat Lahir</p>
-                                    <p className="font-medium">{member.born_at}</p>
+                                    <p className="font-medium">{member.born_at || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">No Whatsapp</p>
-                                    <p className="font-medium">{member.no_wa}</p>
+                                    <p className="font-medium">{member.no_wa || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Tanggal Lahir</p>
@@ -66,13 +66,6 @@ export default function MemberShow() {
                                             year: 'numeric',
                                         })}
                                     </p>
-                                    {/* <p className="font-medium">
-                                        {new Date(member.birth_date_at + 'T00:00:00').toLocaleDateString('id-ID', {
-                                            day: 'numeric',
-                                            month: 'long',
-                                            year: 'numeric',
-                                        })}
-                                    </p> */}
                                 </div>
                             </div>
                         </div>
@@ -82,11 +75,11 @@ export default function MemberShow() {
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Jurusan</p>
-                                    <p className="font-medium">{member.department}</p>
+                                    <p className="font-medium">{member.department || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Program Studi</p>
-                                    <p className="font-medium">{member.study_program}</p>
+                                    <p className="font-medium">{member.study_program || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Periode</p>
@@ -94,7 +87,7 @@ export default function MemberShow() {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Tahun Masuk</p>
-                                    <p className="font-medium">{member.joined_college_on}</p>
+                                    <p className="font-medium">{member.joined_college_on || '-'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Tahun Lulus</p>
