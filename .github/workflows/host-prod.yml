@@ -1,0 +1,53 @@
+name: Build and Push to Production
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout kode dari production
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: 🧰 Setup PHP dan Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, bcmath, curl
+
+      - name: 🧩 Install Composer Dependencies (tanpa dev)
+        run: |
+          composer config platform.php 8.2.29
+          composer install --no-dev --prefer-dist --no-progress --no-interaction
+
+      - name: ⚙️ Laravel Cache Commands
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      - name: 🧰 Setup Node.js dan Install
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: 📦 Install & Build Assets
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: 🟢 Commit hasil build ke branch host-production
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git checkout -B host-production
+          git add .
+          git commit -m "Auto-build from production" || echo "Nothing to commit"
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/ukmpolicy/webpolicy_v2.git host-production --force
