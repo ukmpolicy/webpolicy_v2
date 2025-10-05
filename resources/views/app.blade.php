@@ -36,6 +36,7 @@
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
         {{-- Anda bisa menghapus dua baris di bawah ini jika hanya ingin menggunakan title-policy.png --}}
+        {{--  --}}
         {{-- <link rel="icon" href="/favicon.ico" sizes="any"> --}}
         {{-- <link rel="icon" href="/favicon.svg" type="image/svg+xml"> --}}
 
