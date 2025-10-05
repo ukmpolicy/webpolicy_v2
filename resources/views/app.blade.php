@@ -33,7 +33,7 @@
         <title inertia>{{ $page['head']['title'] ?? $page['title'] ?? '' }}</title>
 
         {{-- Favicon baru Anda (menggantikan yang lama jika diinginkan) --}}
-        <link rel="icon" type="image/png" href="{{ asset('title-policy.png') }}">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
         {{-- Anda bisa menghapus dua baris di bawah ini jika hanya ingin menggunakan title-policy.png --}}
         {{-- <link rel="icon" href="/favicon.ico" sizes="any"> --}}
