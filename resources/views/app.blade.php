@@ -4,6 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        @if(config('app.env') == 'production' )
+        <meta name="robots" content="index, follow">
+        @else
+        <meta name="robots" content="noindex, nofollow">
+        @endif
+
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
             (function() {
@@ -33,9 +39,10 @@
         <title inertia>{{ $page['head']['title'] ?? $page['title'] ?? '' }}</title>
 
         {{-- Favicon baru Anda (menggantikan yang lama jika diinginkan) --}}
-        <link rel="icon" type="image/png" href="{{ asset('title-policy.png') }}">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
         {{-- Anda bisa menghapus dua baris di bawah ini jika hanya ingin menggunakan title-policy.png --}}
+        {{--  --}}
         {{-- <link rel="icon" href="/favicon.ico" sizes="any"> --}}
         {{-- <link rel="icon" href="/favicon.svg" type="image/svg+xml"> --}}
 
