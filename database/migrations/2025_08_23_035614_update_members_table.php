@@ -10,9 +10,18 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Drop FK lama yang dibuat saat create_members_table (onDelete cascade)
         Schema::table('members', function (Blueprint $table) {
-            // $table->foreign("period_id")->references("id")->on("periods")->nullable()->nullOnDelete()->change();
-            // Tambahkan foreign key yang hilang
+            $table->dropForeign(['period_id']);
+        });
+
+        // Ubah period_id jadi nullable agar ON DELETE SET NULL bisa bekerja di MySQL
+        Schema::table('members', function (Blueprint $table) {
+            $table->unsignedBigInteger('period_id')->nullable()->change();
+        });
+
+        // Tambahkan kembali foreign key dengan SET NULL
+        Schema::table('members', function (Blueprint $table) {
             $table->foreign('period_id')->references('id')->on('periods')->onDelete('set null');
         });
     }
