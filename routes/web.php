@@ -24,6 +24,7 @@ use App\Http\Controllers\VissionController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\ProfileUserController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\PendaftaranController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -166,6 +167,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:structure-members');
     Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])->middleware('permission:structure-members');
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware('permission:structure-members');
+
+    // Pendaftaran
+    Route::resource('pendaftaran', PendaftaranController::class)->except(['create', 'edit']);
+    Route::post('pendaftaran/{id}/process', [PendaftaranController::class, 'process'])->name('pendaftaran.process');
+    Route::get('kuisioner', [PendaftaranController::class, 'kuisionerIndex'])->name('kuisioner.index');
+    Route::get('dokumen-berkas', [PendaftaranController::class, 'dokumenIndex'])->name('dokumen.index');
 });
 
 // require __DIR__ . '/settings.php'; // TIDAK DIGUNAKAN LAGI
