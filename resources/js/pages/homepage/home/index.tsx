@@ -1,4 +1,3 @@
-// index.tsx
 import { Head } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
 
@@ -8,6 +7,7 @@ import AppHeader from '@/components/homepage/app-header';
 import AppHero from '@/components/homepage/app-hero';
 import AppLabel from '@/components/homepage/app-label';
 import AppLoading from '@/components/homepage/app-loading';
+import HeroCountdownOverlay from '@/components/homepage/open-recruitment/HeroCountdownOverlay';
 import AppStruktural from '@/components/homepage/app-struktural';
 import AppVisiMisi from '@/components/homepage/app-visi-misi';
 
@@ -24,15 +24,24 @@ interface StructureMember {
     picture?: string | null;
 }
 
-// Tambahkan prop isBirthday di interface
+interface Period {
+    id: number;
+    name: string;
+    is_active: boolean;
+    is_open_recruitment: boolean;
+    recruitment_announcement_at?: string;
+    recruitment_started_at?: string;
+    recruitment_ended_at?: string;
+}
+
 interface HomePageProps {
     divisions: Division[];
     structureMembers: StructureMember[];
     isBirthday: boolean;
+    period?: Period;
 }
 
-// Tambahkan isBirthday sebagai parameter props
-const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirthday }) => {
+const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirthday, period }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -40,26 +49,33 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
         return () => clearTimeout(timer);
     }, []);
 
-    // Tambahkan useEffect untuk mengontrol kelas pada <body>
     useEffect(() => {
-        // Saat komponen dimuat, tambahkan kelas 'public-theme'
         document.body.classList.add('public-theme');
 
-        // Saat komponen tidak lagi digunakan, hapus kelasnya
         return () => {
             document.body.classList.remove('public-theme');
         };
-    }, []); // Array kosong memastikan efek ini hanya berjalan sekali saat mount dan unmount
+    }, []);
 
     if (isLoading) return <AppLoading />;
+
+    // Cek apakah open recruitment disetujui untuk ditampilkan berdasarkan periode berjalan
+    const now = new Date();
+    const announcementDate = period?.recruitment_announcement_at ? new Date(period.recruitment_announcement_at) : null;
+    const isPastAnnouncement = announcementDate ? now >= announcementDate : true; // Jika tidak ada announcement_at, tampilkan saja
+    const showRecruitment = period?.is_open_recruitment && period?.recruitment_started_at && isPastAnnouncement;
 
     return (
         <>
             <Head title="UKM POLICY - KBMPNL" />
-            {/* Teruskan prop isBirthday ke komponen AppHeader */}
+
             <AppHeader isBirthday={isBirthday} />
+
             <main className="bg-black pt-18">
-                <AppHero />
+                <section className="relative">
+                    <AppHero showRecruitment={showRecruitment} period={period} />
+                </section>
+
                 <AppLabel />
                 <AppVisiMisi />
                 <AppLabel />
@@ -67,6 +83,7 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
                 <AppBidang divisions={divisions} />
                 <AppStruktural strukturalList={structureMembers} />
             </main>
+
             <AppFooter />
         </>
     );

@@ -24,6 +24,11 @@ use App\Http\Controllers\VissionController;
 use App\Http\Controllers\MissionController;
 use App\Http\Controllers\ProfileUserController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\PendaftaranController;
+use App\Http\Controllers\JenisBerkasController;
+use App\Http\Controllers\PertanyaanKuesionerController;
+use App\Http\Controllers\FormPendaftaranController;
+use App\Http\Controllers\PengaturanWaktuController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,6 +37,9 @@ use Inertia\Inertia;
 | Halaman Publik
 |--------------------------------------------------------------------------
 */
+Route::get('/open-recruitment', function () {
+    return redirect()->route('pendaftaran.landing');
+})->name('homepage.open-recruitment');
 
 // Grup rute publik yang akan dilindungi jika email belum diverifikasi
 Route::middleware(['email.public.verified'])->group(function () {
@@ -166,10 +174,57 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:structure-members');
     Route::post('structure-members/{id}', [StructureMemberController::class, 'update'])->middleware('permission:structure-members');
     Route::get('/structure-members/{id}', [StructureMemberController::class, 'show'])->middleware('permission:structure-members');
+
+    // =========================================================
+    // Open Recruitment — Manajemen Admin
+    // =========================================================
+
+    // Manajemen data pendaftar (read + update status + delete)
+    Route::middleware('permission:pendaftaran')->group(function () {
+        Route::get('pendaftaran', [PendaftaranController::class, 'index'])->name('pendaftaran.index');
+        Route::get('pendaftaran/{id}', [PendaftaranController::class, 'show'])->name('pendaftaran.show');
+        Route::patch('pendaftaran/{id}/status', [PendaftaranController::class, 'updateStatus'])->name('pendaftaran.updateStatus');
+        Route::delete('pendaftaran/{id}', [PendaftaranController::class, 'destroy'])->name('pendaftaran.destroy');
+    });
+
+    // Manajemen jenis berkas (CRUD)
+    Route::middleware('permission:pendaftaran')->group(function () {
+        Route::get('jenis-berkas', [JenisBerkasController::class, 'index'])->name('jenis-berkas.index');
+        Route::post('jenis-berkas', [JenisBerkasController::class, 'store'])->name('jenis-berkas.store');
+        Route::put('jenis-berkas/{id}', [JenisBerkasController::class, 'update'])->name('jenis-berkas.update');
+        Route::delete('jenis-berkas/{id}', [JenisBerkasController::class, 'destroy'])->name('jenis-berkas.destroy');
+    });
+
+    // Manajemen pertanyaan kuesioner (CRUD)
+    Route::middleware('permission:pendaftaran')->group(function () {
+        Route::get('pertanyaan-kuesioner', [PertanyaanKuesionerController::class, 'index'])->name('pertanyaan-kuesioner.index');
+        Route::post('pertanyaan-kuesioner', [PertanyaanKuesionerController::class, 'store'])->name('pertanyaan-kuesioner.store');
+        Route::put('pertanyaan-kuesioner/{id}', [PertanyaanKuesionerController::class, 'update'])->name('pertanyaan-kuesioner.update');
+        Route::delete('pertanyaan-kuesioner/{id}', [PertanyaanKuesionerController::class, 'destroy'])->name('pertanyaan-kuesioner.destroy');
+    });
+
+    // Pengaturan Waktu Open Recruitment
+    Route::middleware('permission:periods')->group(function () {
+        Route::get('pengaturan-waktu', [PengaturanWaktuController::class, 'index'])->name('pengaturan-waktu.index');
+        Route::put('pengaturan-waktu', [PengaturanWaktuController::class, 'update'])->name('pengaturan-waktu.update');
+    });
 });
 
 // require __DIR__ . '/settings.php'; // TIDAK DIGUNAKAN LAGI
 require __DIR__ . '/auth.php';
+
+// =========================================================
+// Open Recruitment — Halaman User (Butuh Login)
+// =========================================================
+Route::middleware(['auth', 'verified'])->prefix('daftar')->name('pendaftaran.')->group(function () {
+    Route::get('/', [FormPendaftaranController::class, 'landing'])->name('landing');
+    Route::get('/data-diri', [FormPendaftaranController::class, 'formDataDiri'])->name('data-diri');
+    Route::post('/data-diri', [FormPendaftaranController::class, 'simpanDataDiri'])->name('simpan-data-diri');
+    Route::get('/berkas', [FormPendaftaranController::class, 'formBerkas'])->name('berkas');
+    Route::post('/berkas/upload', [FormPendaftaranController::class, 'uploadBerkas'])->name('upload-berkas');
+    Route::get('/kuesioner', [FormPendaftaranController::class, 'formKuesioner'])->name('kuesioner');
+    Route::post('/kuesioner', [FormPendaftaranController::class, 'simpanKuesioner'])->name('simpan-kuesioner');
+});
 
 
 // Rute fallback untuk halaman not found (Tambahan baru)

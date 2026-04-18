@@ -1,9 +1,25 @@
 import logo from '@/assets/images/banner-man.png';
 import { motion } from 'framer-motion';
+import HeroCountdownOverlay from './open-recruitment/HeroCountdownOverlay';
 
-const Hero = () => {
+interface Period {
+    id: number;
+    name: string;
+    is_active: boolean;
+    is_open_recruitment: boolean;
+    recruitment_announcement_at?: string;
+    recruitment_started_at?: string;
+    recruitment_ended_at?: string;
+}
+
+interface AppHeroProps {
+    showRecruitment?: boolean | "";
+    period?: Period;
+}
+
+const Hero: React.FC<AppHeroProps> = ({ showRecruitment, period }) => {
     return (
-        <section id="home" className="relative flex min-h-screen items-center overflow-hidden bg-black pt-20 text-white">
+        <section id="home" className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black text-white">
             {/* Background Layer */}
             <div className="absolute inset-0 z-0">
                 <div
@@ -21,9 +37,20 @@ const Hero = () => {
                 <div className="absolute right-10 bottom-10 h-[200px] w-[200px] rounded-full bg-white/10 opacity-10 blur-2xl sm:h-[300px] sm:w-[300px]" />
             </div>
 
+            {/* Top Overlay Content dalam Flow */}
+            {showRecruitment && period && (
+                <div className="relative z-20 w-full pt-20 pb-4">
+                    <HeroCountdownOverlay
+                        openAt={period.recruitment_started_at as string}
+                        closeAt={period.recruitment_ended_at}
+                        href="/daftar"
+                    />
+                </div>
+            )}
+
             {/* Main Content */}
-            <div className="relative z-20 container mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 items-center gap-6 md:-mt-20 lg:grid-cols-[70%_30%] lg:gap-4">
+            <div className={`relative z-20 container mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 ${showRecruitment ? 'pt-8 pb-20' : 'py-20'}`}>
+                <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[70%_30%] lg:gap-4">
                     {/* Text Section */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -74,12 +101,7 @@ const Hero = () => {
                             animate={{ opacity: 1 }}
                             transition={{ delay: 1.5 }}
                         >
-                            <a
-                                href="#"
-                                className="inline-flex items-center justify-center rounded-md bg-red-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-red-700"
-                            >
-                                Bergabung Sekarang
-                            </a>
+                    
                             <a
                                 href="/about"
                                 className="flex items-center justify-center gap-3 rounded-md border border-white/20 bg-white/5 px-6 py-3 text-base font-medium text-white transition-all duration-300 hover:scale-105 hover:bg-white/10"

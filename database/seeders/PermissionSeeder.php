@@ -28,6 +28,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'Manage Role for User', 'key' => 'manage-users'],
             ['name' => 'Category Articles', 'key' => 'category-articles'],
             ['name' => 'Articles', 'key' => 'articles'],
+            ['name' => 'Open Recruitment', 'key' => 'pendaftaran'],
         ];
 
         foreach ($permissions as $permission) {

@@ -13,9 +13,9 @@ import UpdateProfileInformation from '@/components/homepage/profile-user/update-
 // Mengimpor komponen-komponen yang sudah dipisahkan
 
 export default function ProfileUser() {
-    // Menerima props 'isBirthday' dan 'memberName' dari server
+    // Menerima props 'isBirthday' dan 'memberName' serta 'history' dari server
     const { props } = usePage();
-    const { user, status, isBirthday, memberName } = props;
+    const { user, status, isBirthday, memberName, history } = props;
 
     // Variasi animasi untuk elemen-elemen
     const fadeInSlideUp = {
@@ -106,7 +106,7 @@ export default function ProfileUser() {
                                     <NotificationSection isBirthday={isBirthday} memberName={memberName} />
                                 </motion.div>
                                 <motion.div variants={itemVariants}>
-                                    <OpenRequirement />
+                                    <OpenRequirement history={history} />
                                 </motion.div>
                             </div>
                         </div>
