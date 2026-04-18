@@ -24,13 +24,24 @@ interface StructureMember {
     picture?: string | null;
 }
 
+interface Period {
+    id: number;
+    name: string;
+    is_active: boolean;
+    is_open_recruitment: boolean;
+    recruitment_announcement_at?: string;
+    recruitment_started_at?: string;
+    recruitment_ended_at?: string;
+}
+
 interface HomePageProps {
     divisions: Division[];
     structureMembers: StructureMember[];
     isBirthday: boolean;
+    period?: Period;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirthday }) => {
+const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirthday, period }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -48,6 +59,12 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
 
     if (isLoading) return <AppLoading />;
 
+    // Cek apakah open recruitment disetujui untuk ditampilkan berdasarkan periode berjalan
+    const now = new Date();
+    const announcementDate = period?.recruitment_announcement_at ? new Date(period.recruitment_announcement_at) : null;
+    const isPastAnnouncement = announcementDate ? now >= announcementDate : true; // Jika tidak ada announcement_at, tampilkan saja
+    const showRecruitment = period?.is_open_recruitment && period?.recruitment_started_at && isPastAnnouncement;
+
     return (
         <>
             <Head title="UKM POLICY - KBMPNL" />
@@ -56,12 +73,7 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
 
             <main className="bg-black pt-18">
                 <section className="relative">
-                    <AppHero />
-                    <HeroCountdownOverlay
-                        openAt="2026-04-18 08:00:00"
-                        closeAt="2026-05-05 23:59:59"
-                        href="/open-recruitment"
-                    />
+                    <AppHero showRecruitment={showRecruitment} period={period} />
                 </section>
 
                 <AppLabel />

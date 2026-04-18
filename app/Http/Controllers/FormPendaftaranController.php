@@ -29,24 +29,41 @@ class FormPendaftaranController extends Controller
     /**
      * Halaman utama pendaftaran (cek apakah periode sedang buka).
      */
+    /**
+     * Halaman utama pendaftaran (cek apakah periode sedang buka).
+     */
+    /**
+     * Halaman utama pendaftaran (cek apakah periode sedang buka).
+     */
     public function landing()
     {
-        $period = Period::where('is_open_recruitment', true)
-            ->where('recruitment_started_at', '<=', now())
-            ->where('recruitment_ended_at', '>=', now())
-            ->first();
+        $period = $this->getActivePeriodOrFail();
 
-        if (!$period) {
-            return Inertia::render('pendaftaran/tutup');
+        if ($this->shouldRedirectToRiwayat($period->id)) {
+            return redirect()->route('profile.edit');
         }
 
-        $user          = Auth::user();
-        $pendaftaran   = $this->pendaftaranService->getPendaftaranByUser($user->id, $period->id);
-
         return Inertia::render('pendaftaran/landing', [
-            'period'       => $period,
-            'pendaftaran'  => $pendaftaran,
+            'period'      => $period,
+            'pendaftaran' => null, // Tidak perlu mengirim pendaftaran karena baru disimpan di akhir
         ]);
+    }
+
+    private function shouldRedirectToRiwayat($currentPeriodId)
+    {
+        $userId = Auth::id();
+        $history = \App\Models\Pendaftaran::where('user_id', $userId)->get();
+
+        if ($history->isEmpty()) {
+            return false;
+        }
+
+        foreach ($history as $h) {
+            if ($h->status === 'accepted') return true;
+            if ($h->status === 'pending') return true;
+            if ($h->period_id == $currentPeriodId) return true;
+        }
+        return false;
     }
 
     /**
@@ -55,22 +72,29 @@ class FormPendaftaranController extends Controller
     public function formDataDiri()
     {
         $period = $this->getActivePeriodOrFail();
-        $user          = Auth::user();
-        $pendaftaran   = $this->pendaftaranService->getPendaftaranByUser($user->id, $period->id);
+
+        if ($this->shouldRedirectToRiwayat($period->id)) {
+            return redirect()->route('profile.edit');
+        }
+
+        // Jika pendaftaran belum dibentuk, kita load isian dari session sebagai feedback fallback
+        $draft = session('pendaftaran_draft.data_diri');
 
         return Inertia::render('pendaftaran/form-data-diri', [
             'period'      => $period,
-            'pendaftaran' => $pendaftaran,
+            'pendaftaran' => $draft,
         ]);
     }
 
     /**
-     * STEP 1: Simpan/update data diri.
+     * STEP 1: Simpan/update data diri (SESSIONS).
      */
     public function simpanDataDiri(Request $request)
     {
         $period = $this->getActivePeriodOrFail();
-        $userId = Auth::id();
+        if ($this->shouldRedirectToRiwayat($period->id)) {
+            return redirect()->route('profile.edit');
+        }
 
         $validated = $request->validate([
             'nim'                    => 'required|string|max:30',
@@ -78,32 +102,23 @@ class FormPendaftaranController extends Controller
             'email'                  => 'required|email|max:100',
             'jurusan'                => 'required|string|max:150',
             'prodi'                  => 'required|string|max:150',
-            'alamat'                 => 'nullable|string|max:255',
-            'tgl_lahir'              => 'nullable|date',
-            'tempat_lahir'           => 'nullable|string|max:100',
-            'jenis_kelamin'          => 'nullable|in:L,P',
-            'agama'                  => 'nullable|string|max:50',
-            'no_wa'                  => 'nullable|string|max:20',
-            'pengalaman_organisasi'  => 'nullable|string',
-            'motivasi'               => 'nullable|string',
-            'motto'                  => 'nullable|string|max:255',
+            'soft_skill'             => 'nullable|string|max:255',
+            'alamat'                 => 'required|string|max:255',
+            'tgl_lahir'              => 'required|date',
+            'tempat_lahir'           => 'required|string|max:100',
+            'jenis_kelamin'          => 'required|in:L,P',
+            'agama'                  => 'required|string|max:50',
+            'no_wa'                  => 'required|string|max:20',
+            'pengalaman_organisasi'  => 'required|string',
+            'motivasi'               => 'required|string',
+            'motto'                  => 'required|string|max:255',
         ]);
 
         $validated['period_id'] = $period->id;
+        
+        session(['pendaftaran_draft.data_diri' => $validated]);
 
-        try {
-            $existing = $this->pendaftaranService->getPendaftaranByUser($userId, $period->id);
-
-            if ($existing) {
-                $this->pendaftaranService->updatePendaftaran($existing->id, $validated);
-            } else {
-                $this->pendaftaranService->createPendaftaran($validated);
-            }
-
-            return redirect()->route('pendaftaran.berkas')->with('success', 'Data diri berhasil disimpan.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => $e->getMessage()])->withInput();
-        }
+        return redirect()->route('pendaftaran.berkas')->with('success', 'Data diri diamankan. Lanjut isi berkas.');
     }
 
     /**
@@ -112,44 +127,73 @@ class FormPendaftaranController extends Controller
     public function formBerkas()
     {
         $period      = $this->getActivePeriodOrFail();
-        $pendaftaran = $this->pendaftaranService->getPendaftaranByUser(Auth::id(), $period->id);
 
-        if (!$pendaftaran) {
-            return redirect()->route('pendaftaran.data-diri')->with('error', 'Isi data diri terlebih dahulu.');
+        if (!session()->has('pendaftaran_draft.data_diri')) {
+             return redirect()->route('pendaftaran.data-diri')->with('error', 'Isi data diri terlebih dahulu.');
         }
 
         $jenisBerkas = $this->jenisBerkasService->getAllAktif();
-        $dokumen     = $this->dokumenService->getDokumenByPendaftaran($pendaftaran->id);
+        $dokumenDraft = session('pendaftaran_draft.berkas', []);
+
+        // Mapping draft map string => object untuk kompatibilitas UI
+        $dokumen = [];
+        foreach($dokumenDraft as $jbId => $fileObj) {
+            $dokumen[] = [
+                'jenis_berkas_id' => $jbId,
+                'file_path' => $fileObj['path'],
+            ];
+        }
 
         return Inertia::render('pendaftaran/form-berkas', [
-            'pendaftaran' => $pendaftaran,
+            'pendaftaran' => [],
             'jenisBerkas' => $jenisBerkas,
             'dokumen'     => $dokumen,
         ]);
     }
 
     /**
-     * STEP 2: Upload satu berkas.
+     * STEP 2: Upload multiple berkas secara batch (SESSIONS/TMP).
      */
     public function uploadBerkas(Request $request)
     {
-        $period      = $this->getActivePeriodOrFail();
-        $pendaftaran = $this->pendaftaranService->getPendaftaranByUser(Auth::id(), $period->id);
+        $period = $this->getActivePeriodOrFail();
 
-        abort_if(!$pendaftaran, 403, 'Pendaftaran tidak ditemukan.');
-
-        $validated = $request->validate([
-            'jenis_berkas_id' => 'required|exists:jenis_berkas,id',
-            'file'            => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB
-        ]);
+        if (!session()->has('pendaftaran_draft.data_diri')) {
+             return redirect()->route('pendaftaran.data-diri')->with('error', 'Selesaikan data diri.');
+        }
 
         try {
-            $this->dokumenService->uploadDokumen(
-                $pendaftaran->id,
-                $validated['jenis_berkas_id'],
-                $request->file('file')
-            );
-            return redirect()->back()->with('success', 'Berkas berhasil diupload.');
+            $jenisBerkasList = $this->jenisBerkasService->getAllAktif();
+            $draftBerkas = session('pendaftaran_draft.berkas', []);
+
+            $docsToValidate = [];
+            foreach ($jenisBerkasList as $jb) {
+                $fileKey = 'berkas_' . $jb->id;
+                $sudahAda = isset($draftBerkas[$jb->id]);
+
+                if ($jb->is_required && !$sudahAda) {
+                    $docsToValidate[$fileKey] = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                } else {
+                    $docsToValidate[$fileKey] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                }
+            }
+
+            $request->validate($docsToValidate);
+
+            foreach ($jenisBerkasList as $jb) {
+                $fileKey = 'berkas_' . $jb->id;
+                if ($request->hasFile($fileKey)) {
+                    $path = $request->file($fileKey)->store('pendaftaran/tmp', 'public');
+                    $draftBerkas[$jb->id] = [
+                        'path' => $path,
+                        'originalName' => $request->file($fileKey)->getClientOriginalName()
+                    ];
+                }
+            }
+            
+            session(['pendaftaran_draft.berkas' => $draftBerkas]);
+            
+            return redirect()->route('pendaftaran.kuesioner')->with('success', 'Berkas berhasil diamankan.');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -161,65 +205,100 @@ class FormPendaftaranController extends Controller
     public function formKuesioner()
     {
         $period      = $this->getActivePeriodOrFail();
-        $pendaftaran = $this->pendaftaranService->getPendaftaranByUser(Auth::id(), $period->id);
 
-        if (!$pendaftaran) {
+        if (!session()->has('pendaftaran_draft.data_diri')) {
             return redirect()->route('pendaftaran.data-diri')->with('error', 'Isi data diri terlebih dahulu.');
         }
 
         $pertanyaan = $this->pertanyaanService->getAllAktif();
-        $jawaban    = $this->jawabanService->getJawabanByPendaftaran($pendaftaran->id);
+        $jawabanDraft = session('pendaftaran_draft.kuesioner', []);
+
+        $jawaban = [];
+        foreach($jawabanDraft as $ptId => $jawabanText) {
+             $jawaban[] = [
+                 'pertanyaan_kuesioner_id' => $ptId,
+                 'jawaban' => $jawabanText,
+             ];
+        }
 
         return Inertia::render('pendaftaran/form-kuesioner', [
-            'pendaftaran' => $pendaftaran,
+            'pendaftaran' => ['period_id' => $period->id],
             'pertanyaan'  => $pertanyaan,
             'jawaban'     => $jawaban,
         ]);
     }
 
     /**
-     * STEP 3: Simpan semua jawaban kuesioner.
+     * STEP 3: Simpan final semuanya ke database
      */
     public function simpanKuesioner(Request $request)
     {
         $period      = $this->getActivePeriodOrFail();
-        $pendaftaran = $this->pendaftaranService->getPendaftaranByUser(Auth::id(), $period->id);
 
-        abort_if(!$pendaftaran, 403, 'Pendaftaran tidak ditemukan.');
-
-        $validated = $request->validate([
-            'jawaban'   => 'required|array',
-            'jawaban.*' => 'nullable|string',
-        ]);
+        if (!session()->has('pendaftaran_draft.data_diri')) {
+            return redirect()->route('pendaftaran.data-diri')->with('error', 'Sesi telah berakhir, ulangi data diri.');
+        }
 
         try {
-            $this->jawabanService->simpanJawaban($pendaftaran->id, $validated['jawaban']);
-            return redirect()->route('pendaftaran.selesai')->with('success', 'Kuesioner berhasil disimpan.');
+            $pertanyaanList = $this->pertanyaanService->getAllAktif();
+            $jawabanToSave = [];
+            $rules = [];
+
+            foreach ($pertanyaanList as $pt) {
+                $uiKey = 'jawaban_' . $pt->id;
+                $rules[$uiKey] = 'required|string|min:3';
+                if ($request->has($uiKey)) {
+                    $jawabanToSave[$pt->id] = $request->input($uiKey);
+                }
+            }
+
+            $request->validate($rules);
+            
+            // Simpan Ke Tabel sesungguhnya agar final & Atomik DB
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            // 1. Data Diri
+            $dataDiri = session('pendaftaran_draft.data_diri');
+            $pendaftaran = $this->pendaftaranService->createPendaftaran($dataDiri);
+
+            // 2. Transisi File Berkas
+            $draftBerkas = session('pendaftaran_draft.berkas', []);
+            $dokumenRepo = app(\App\Repositories\DokumenPendaftaranRepository::class);
+            foreach($draftBerkas as $jenisBerkasId => $fileObj) {
+                $oldPath = $fileObj['path'];
+                $newPath = str_replace('pendaftaran/tmp', 'pendaftaran/berkas/final_'.$pendaftaran->id, $oldPath);
+                
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
+                     \Illuminate\Support\Facades\Storage::disk('public')->move($oldPath, $newPath);
+                     $dokumenRepo->upsert($pendaftaran->id, $jenisBerkasId, $newPath, $fileObj['originalName']);
+                }
+            }
+
+            // 3. Kuesioner
+            if(!empty($jawabanToSave)) {
+                $this->jawabanService->simpanJawaban($pendaftaran->id, $jawabanToSave);
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+            session()->forget('pendaftaran_draft'); // Bersihkan remahan session draft
+            
+            return redirect()->route('profile.edit')->with('success', 'Pendaftaran Berhasil Dikirimkan ke Sistem!');
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
-    }
-
-    /**
-     * Halaman konfirmasi setelah semua step selesai.
-     */
-    public function selesai()
-    {
-        $period      = $this->getActivePeriodOrFail();
-        $pendaftaran = $this->pendaftaranService->getPendaftaranByUser(Auth::id(), $period->id);
-
-        return Inertia::render('pendaftaran/selesai', [
-            'pendaftaran' => $pendaftaran,
-        ]);
     }
 
     // ===== Helper =====
 
     private function getActivePeriodOrFail()
     {
-        $period = Period::where('is_open_recruitment', true)
+        $period = \App\Models\Period::where('is_open_recruitment', true)
             ->where('recruitment_started_at', '<=', now())
-            ->where('recruitment_ended_at', '>=', now())
+            ->where(function ($query) {
+                $query->where('recruitment_ended_at', '>=', now())
+                      ->orWhereNull('recruitment_ended_at');
+            })
             ->first();
 
         abort_if(!$period, 404, 'Pendaftaran sedang tidak dibuka.');

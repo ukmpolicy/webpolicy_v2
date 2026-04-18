@@ -86,10 +86,9 @@ const HeroCountdownOverlay: React.FC<HeroCountdownOverlayProps> = ({
     const isClosed = !!closeDate && now > closeDate;
 
     return (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20">
-            <div className="pointer-events-auto mx-auto w-full max-w-7xl px-4 pt-2 sm:px-6 lg:px-8">
-                <div className="rounded-[28px] border border-white/10 bg-black/75 px-5 py-5 shadow-2xl backdrop-blur-sm">
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="pointer-events-auto mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-[28px] border border-white/10 bg-black/75 px-5 py-5 shadow-2xl backdrop-blur-sm">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                         {isUpcoming && (
                             <>
                                 <div className="space-y-2">
@@ -166,7 +165,6 @@ const HeroCountdownOverlay: React.FC<HeroCountdownOverlayProps> = ({
                     </div>
                 </div>
             </div>
-        </div>
     );
 };
 

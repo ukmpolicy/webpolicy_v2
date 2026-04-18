@@ -29,18 +29,24 @@ class HomePageController extends Controller
     {
         $periodId = $request->query('period_id');
 
-        if (!$periodId) {
-            $periodId = Period::where('is_active', 1)->first()?->id ?? Period::latest()->first()?->id;
+        $period = Period::where('id', $periodId)->first();
+        if (!$period) {
+            $period = Period::where('is_active', 1)->first() ?? Period::latest()->first();
+            $periodId = $period?->id;
         }
 
-        $divisions = $this->divisionService->getAllDivisions($periodId);
+        if (!$periodId) {
+            $periodId = null; // Guard safety
+        }
+
+        $divisions = $periodId ? $this->divisionService->getAllDivisions($periodId) : [];
 
         // Ambil struktur yang sudah diurutkan berdasarkan level, dengan filter has_many_member = false
-        $structuresWithMembers = Structure::with('structureMembers')
+        $structuresWithMembers = $periodId ? Structure::with('structureMembers')
             ->where('period_id', $periodId)
             ->where('has_many_member', false)
             ->orderBy('level', 'asc')
-            ->get();
+            ->get() : collect();
 
         // Kumpulkan semua anggota dari setiap struktur
         $structureMembers = collect();
@@ -63,8 +69,8 @@ class HomePageController extends Controller
         });
       
         // Ambil visi dan misi berdasarkan period_id
-        $visi = Vission::where('period_id', $periodId)->pluck('content')->toArray();
-        $misi = Mission::where('period_id', $periodId)->pluck('content')->toArray();
+        $visi = $periodId ? Vission::where('period_id', $periodId)->pluck('content')->toArray() : [];
+        $misi = $periodId ? Mission::where('period_id', $periodId)->pluck('content')->toArray() : [];
 
         $isBirthday = false;
         $memberName = null;
@@ -88,6 +94,7 @@ class HomePageController extends Controller
             'misi' => $misi,
             'isBirthday' => $isBirthday,
             'memberName' => $memberName,
+            'period' => $period,
         ]);
     }
 }
