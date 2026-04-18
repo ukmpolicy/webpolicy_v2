@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Clock, User, FileText, MessageSquare, ArrowLeft } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 type Dokumen = { id: number; jenis_berkas?: { label: string }; file_path: string; original_name: string };
 type Jawaban = { id: number; pertanyaan?: { pertanyaan: string }; jawaban: string };
@@ -34,7 +35,8 @@ export default function PendaftaranShow() {
         setLoading(true);
         router.patch(`/pendaftaran/${pendaftaran.id}/status`, { status, feedback }, {
             onFinish: () => setLoading(false),
-            onSuccess: () => alert('Status berhasil diperbarui!'),
+            onSuccess: () => toast.success('Status pendaftar berhasil diperbarui!'),
+            onError: () => toast.error('Gagal memperbarui status. Coba lagi.'),
         });
     };
 

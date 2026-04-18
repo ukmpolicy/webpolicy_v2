@@ -1,9 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Eye, Trash2, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { PendaftaranTable } from '@/components/TablePendaftaran/PendaftaranTable';
 
 type Pendaftaran = {
     id: number;
@@ -23,11 +21,7 @@ type Statistik = {
     rejected: number;
 };
 
-const statusConfig = {
-    pending:  { label: 'Pending',  color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', icon: Clock },
-    accepted: { label: 'Diterima', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',   icon: CheckCircle },
-    rejected: { label: 'Ditolak',  color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',           icon: XCircle },
-};
+
 
 export default function PendaftaranIndex() {
     const { pendaftarans = [], periods = [], activePeriodId = null, activePeriod = null, statistik = null, filterStatus = '' } =
@@ -47,10 +41,7 @@ export default function PendaftaranIndex() {
         router.get('/pendaftaran', { period_id: period, status }, { preserveState: true, replace: true });
     };
 
-    const handleDelete = (id: number) => {
-        if (!confirm('Hapus data pendaftar ini?')) return;
-        router.delete(`/pendaftaran/${id}`, { preserveScroll: true });
-    };
+
 
     return (
         <AppLayout breadcrumbs={[{ title: 'Open Recruitment', href: '/pendaftaran' }, { title: 'Pendaftaran', href: '/pendaftaran' }]}>
@@ -111,75 +102,10 @@ export default function PendaftaranIndex() {
                 </div>
 
                 {/* Tabel */}
-                <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b bg-muted/50 text-left">
-                                    <th className="px-4 py-3 font-semibold">#</th>
-                                    <th className="px-4 py-3 font-semibold">Nama</th>
-                                    <th className="px-4 py-3 font-semibold">NIM</th>
-                                    <th className="px-4 py-3 font-semibold">Email</th>
-                                    <th className="px-4 py-3 font-semibold">Jurusan</th>
-                                    <th className="px-4 py-3 font-semibold">Periode</th>
-                                    <th className="px-4 py-3 font-semibold">Status</th>
-                                    <th className="px-4 py-3 font-semibold">Tanggal Daftar</th>
-                                    <th className="px-4 py-3 text-right font-semibold">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {pendaftarans.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={9} className="py-10 text-center text-muted-foreground">
-                                            Belum ada data pendaftar.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    pendaftarans.map((item, idx) => {
-                                        const sc = statusConfig[item.status];
-                                        const Icon = sc.icon;
-                                        return (
-                                            <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                                                <td className="px-4 py-3 text-muted-foreground">{idx + 1}</td>
-                                                <td className="px-4 py-3 font-medium">{item.nama}</td>
-                                                <td className="px-4 py-3 font-mono text-xs">{item.nim}</td>
-                                                <td className="px-4 py-3 text-muted-foreground">{item.email}</td>
-                                                <td className="px-4 py-3">{item.jurusan}</td>
-                                                <td className="px-4 py-3">{item.period?.name ?? '-'}</td>
-                                                <td className="px-4 py-3">
-                                                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${sc.color}`}>
-                                                        <Icon size={11} />
-                                                        {sc.label}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3 text-muted-foreground">
-                                                    {new Date(item.created_at).toLocaleDateString('id-ID')}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex justify-end gap-2">
-                                                        <Link href={`/pendaftaran/${item.id}`}>
-                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                <Eye size={14} />
-                                                            </Button>
-                                                        </Link>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="destructive"
-                                                            className="h-8 w-8 p-0"
-                                                            onClick={() => handleDelete(item.id)}
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <PendaftaranTable 
+                    data={pendaftarans} 
+                    onView={(id) => router.visit(`/pendaftaran/${id}`)}
+                />
             </div>
         </AppLayout>
     );
