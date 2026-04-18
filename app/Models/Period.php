@@ -10,7 +10,10 @@ class Period extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'started_at', 'ended_at', 'is_active'];
+    protected $fillable = [
+        'name', 'started_at', 'ended_at', 'is_active',
+        'is_open_recruitment', 'recruitment_announcement_at', 'recruitment_started_at', 'recruitment_ended_at', 'recruitment_description', 'recruitment_quota'
+    ];
 
     public function members()
     {
@@ -43,6 +46,11 @@ class Period extends Model
     public function missions()
     {
         return $this->hasMany(Mission::class);
+    }
+
+    public function pendaftaran()
+    {
+        return $this->hasMany(Pendaftaran::class);
     }
 
 

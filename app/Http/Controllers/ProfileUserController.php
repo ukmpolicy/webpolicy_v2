@@ -39,10 +39,14 @@ class ProfileUserController extends Controller
             $memberName = $member->name; // Gunakan nama dari tabel members
         }
 
+        // Cari riwayat pendaftaran untuk ditampilkan di profile
+        $history = \App\Models\Pendaftaran::with('period')->where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+
         return Inertia::render('homepage/profile-user/index', [
             'user' => $user->only('name', 'email', 'picture', 'bio', 'created_at', 'updated_at'),
             'isBirthday' => $isBirthday, // Mengirim flag ke frontend
             'memberName' => $memberName,   // Mengirim nama member ke frontend
+            'history' => $history, // Mengirim riwayat
         ]);
     }
 
