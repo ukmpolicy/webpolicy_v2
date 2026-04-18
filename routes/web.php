@@ -38,9 +38,7 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 Route::get('/open-recruitment', function () {
-    return Inertia::render('homepage/open-recruitment/index', [
-        'isBirthday' => false,
-    ]);
+    return redirect()->route('pendaftaran.landing');
 })->name('homepage.open-recruitment');
 
 // Grup rute publik yang akan dilindungi jika email belum diverifikasi
@@ -226,7 +224,6 @@ Route::middleware(['auth', 'verified'])->prefix('daftar')->name('pendaftaran.')-
     Route::post('/berkas/upload', [FormPendaftaranController::class, 'uploadBerkas'])->name('upload-berkas');
     Route::get('/kuesioner', [FormPendaftaranController::class, 'formKuesioner'])->name('kuesioner');
     Route::post('/kuesioner', [FormPendaftaranController::class, 'simpanKuesioner'])->name('simpan-kuesioner');
-    Route::get('/selesai', [FormPendaftaranController::class, 'selesai'])->name('selesai');
 });
 
 

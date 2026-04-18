@@ -19,6 +19,7 @@ class Pendaftaran extends Model
         'email',
         'jurusan',
         'prodi',
+        'soft_skill',
         'alamat',
         'tgl_lahir',
         'tempat_lahir',

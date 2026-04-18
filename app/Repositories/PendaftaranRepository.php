@@ -29,7 +29,8 @@ class PendaftaranRepository
 
     public function findByUser(int $userId, int $periodId)
     {
-        return Pendaftaran::where('user_id', $userId)
+        return Pendaftaran::withTrashed()
+            ->where('user_id', $userId)
             ->where('period_id', $periodId)
             ->with(['dokumen.jenisBerkas', 'jawaban.pertanyaan'])
             ->first();
@@ -42,7 +43,12 @@ class PendaftaranRepository
 
     public function update($id, array $data)
     {
-        $pendaftaran = Pendaftaran::findOrFail($id);
+        $pendaftaran = Pendaftaran::withTrashed()->findOrFail($id);
+        
+        if ($pendaftaran->trashed()) {
+            $pendaftaran->restore();
+        }
+        
         $pendaftaran->update($data);
         return $pendaftaran;
     }
