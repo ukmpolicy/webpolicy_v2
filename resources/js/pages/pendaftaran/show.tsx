@@ -3,13 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, FileText, User, XCircle, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileText, User, XCircle, Clock, ZoomIn } from 'lucide-react';
 import { useState } from 'react';
 
 export default function PendaftaranShow() {
-    const { pendaftaran } = usePage().props as any;
+    const { pendaftaran, fields = [] } = usePage().props as any;
+    
+    // Group fields by type
+    const kuisionerFields = fields.filter((f: any) => f.type === 'kuisioner' && f.is_active);
+    const dokumenFields = fields.filter((f: any) => f.type === 'dokumen' && f.is_active);
+
     const [activeTab, setActiveTab] = useState<'bio' | 'kuisioner' | 'berkas'>('bio');
 
     const { data, setData, post, processing, errors } = useForm({
@@ -31,30 +37,48 @@ export default function PendaftaranShow() {
     };
 
     const DataRow = ({ label, value }: { label: string, value: any }) => (
-        <div className="grid grid-cols-3 py-2 border-b last:border-0">
-            <div className="font-semibold text-gray-500">{label}</div>
-            <div className="col-span-2">{value || '-'}</div>
+        <div className="grid grid-cols-3 py-2 border-b dark:border-zinc-800 last:border-0">
+            <div className="font-semibold text-gray-500 dark:text-gray-400">{label}</div>
+            <div className="col-span-2 dark:text-zinc-200">{value || '-'}</div>
         </div>
     );
 
-    const BerkasRow = ({ title, path }: { title: string, path: string | null }) => (
+    const BerkasRow = ({ title, path }: { title: string, path: string | null }) => {
+        const isImage = path?.match(/\.(jpeg|jpg|gif|png)$/) != null;
+
+        return (
         <div className="mb-4">
-            <h4 className="font-semibold mb-2">{title}</h4>
+            <h4 className="font-semibold mb-2 text-sm dark:text-zinc-200">{title}</h4>
             {path ? (
-                <div className="rounded border bg-gray-50 p-2 text-center overflow-hidden">
-                   {path.match(/\.(jpeg|jpg|gif|png)$/) != null ? (
-                       <img src={`/storage/${path}`} alt={title} className="max-h-64 mx-auto rounded" />
+                <div className="rounded border bg-gray-50 dark:bg-zinc-800 dark:border-zinc-700 p-2 text-center overflow-hidden relative group">
+                   {isImage ? (
+                       <>
+                           <img src={`/storage/${path}`} alt={title} className="max-h-48 w-full object-cover rounded" />
+                           <Dialog>
+                               <DialogTrigger asChild>
+                                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                                        <ZoomIn className="text-white w-8 h-8" />
+                                   </div>
+                               </DialogTrigger>
+                               <DialogContent className="max-w-4xl p-1 bg-transparent border-none shadow-none">
+                                   <img src={`/storage/${path}`} alt={title} className="w-full h-auto rounded" />
+                               </DialogContent>
+                           </Dialog>
+                       </>
                    ) : (
-                       <a href={`/storage/${path}`} target="_blank" rel="noreferrer" className="text-blue-500 underline flex items-center justify-center py-4">
-                           <FileText className="mr-2" /> Buka {title} (PDF/Doc)
+                       <a href={`/storage/${path}`} target="_blank" rel="noreferrer" className="text-blue-500 dark:text-blue-400 underline flex flex-col items-center justify-center py-10">
+                           <FileText className="mb-2 w-10 h-10" /> Buka / Unduh {title}
                        </a>
                    )}
                 </div>
             ) : (
-                <span className="text-gray-400 italic">Berkas tidak diunggah</span>
+                <div className="rounded border bg-gray-50 dark:bg-zinc-900/50 dark:border-zinc-800 p-8 flex items-center justify-center">
+                    <span className="text-gray-400 dark:text-gray-500 italic text-sm">Tidak diunggah</span>
+                </div>
             )}
         </div>
-    );
+        );
+    };
 
     return (
         <AppLayout breadcrumbs={[
@@ -80,22 +104,22 @@ export default function PendaftaranShow() {
                     {/* Kiri: Navigasi & Detail Konten */}
                     <div className="md:col-span-2 space-y-4">
                         {/* Tab Navigasi Sederhana */}
-                        <div className="flex border-b">
+                        <div className="flex border-b dark:border-zinc-800">
                             <button
                                 onClick={() => setActiveTab('bio')}
-                                className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'bio' ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                                className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'bio' ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
                             >
                                 <User className="w-4 h-4" /> Data Diri
                             </button>
                             <button
                                 onClick={() => setActiveTab('kuisioner')}
-                                className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'kuisioner' ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                                className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'kuisioner' ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
                             >
                                 <FileText className="w-4 h-4" /> Kuisioner
                             </button>
                             <button
                                 onClick={() => setActiveTab('berkas')}
-                                className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'berkas' ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                                className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'berkas' ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
                             >
                                 <FileText className="w-4 h-4" /> Dokumen Berkas
                             </button>
@@ -126,53 +150,35 @@ export default function PendaftaranShow() {
 
                                 {activeTab === 'kuisioner' && (
                                     <div className="space-y-6">
-                                        {pendaftaran.kuisioner ? (
-                                            <>
-                                                <div>
-                                                    <div className="font-semibold text-gray-700 mb-1">1. Deskripsi Diri</div>
-                                                    <div className="bg-gray-50 p-3 rounded">{pendaftaran.kuisioner.deskripsi_diri || '-'}</div>
+                                        {kuisionerFields.length > 0 ? (
+                                            kuisionerFields.map((field: any, index: number) => (
+                                                <div key={field.id}>
+                                                    <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">{index + 1}. {field.label}</div>
+                                                    <div className="bg-gray-50 dark:bg-zinc-800 p-3 rounded whitespace-pre-wrap">
+                                                        {pendaftaran[field.name] || <span className="italic text-gray-400">Tidak diisi</span>}
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <div className="font-semibold text-gray-700 mb-1">2. Alasan Bergabung</div>
-                                                    <div className="bg-gray-50 p-3 rounded">{pendaftaran.kuisioner.alasan_bergabung || '-'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-semibold text-gray-700 mb-1">3. Makna Logo</div>
-                                                    <div className="bg-gray-50 p-3 rounded">{pendaftaran.kuisioner.makna_logo || '-'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-semibold text-gray-700 mb-1">4. Visi & Misi</div>
-                                                    <div className="bg-gray-50 p-3 rounded">{pendaftaran.kuisioner.visi_misi || '-'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-semibold text-gray-700 mb-1">5. Sejarah UKM</div>
-                                                    <div className="bg-gray-50 p-3 rounded">{pendaftaran.kuisioner.sejarah_ukm || '-'}</div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-semibold text-gray-700 mb-1">6. Pengetahuan Linux</div>
-                                                    <div className="bg-gray-50 p-3 rounded">{pendaftaran.kuisioner.pengetahuan_linux || '-'}</div>
-                                                </div>
-                                            </>
+                                            ))
                                         ) : (
-                                            <div className="text-center py-6 text-gray-500">Pendaftar tidak mengisi modul kuisioner tambahan.</div>
+                                            <div className="text-center py-6 text-gray-500 dark:text-gray-400">Tidak ada field kuisioner yang aktif.</div>
                                         )}
                                     </div>
                                 )}
 
                                 {activeTab === 'berkas' && (
                                     <div className="space-y-4">
-                                        {pendaftaran.dokumen_berkas ? (
+                                        {dokumenFields.length > 0 ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <BerkasRow title="Pas Photo" path={pendaftaran.dokumen_berkas.pas_photo} />
-                                                <BerkasRow title="Bukti Pembayaran" path={pendaftaran.dokumen_berkas.bukti_pembayaran} />
-                                                <BerkasRow title="Sertifikat PPKMB" path={pendaftaran.dokumen_berkas.sertifikat_ppkmb} />
-                                                <BerkasRow title="KTP/KTM/Akte (Tgl Lahir)" path={pendaftaran.dokumen_berkas.tgl_lahir_doc} />
-                                                <BerkasRow title="Screenshot Follow IG" path={pendaftaran.dokumen_berkas.follow_ig} />
-                                                <BerkasRow title="Screenshot Follow TikTok" path={pendaftaran.dokumen_berkas.follow_tiktok} />
-                                                <BerkasRow title="Screenshot Subscribe YouTube" path={pendaftaran.dokumen_berkas.follow_yt} />
+                                                {dokumenFields.map((field: any) => (
+                                                    <BerkasRow 
+                                                        key={field.id}
+                                                        title={field.label} 
+                                                        path={pendaftaran[field.name]} 
+                                                    />
+                                                ))}
                                             </div>
                                         ) : (
-                                            <div className="text-center py-6 text-gray-500">Pendaftar tidak mengunggah dokumen/berkas apapun.</div>
+                                            <div className="text-center py-6 text-gray-500 dark:text-gray-400">Tidak ada field dokumen yang aktif.</div>
                                         )}
                                     </div>
                                 )}
@@ -191,8 +197,8 @@ export default function PendaftaranShow() {
                                 <form onSubmit={submitProcess} className="space-y-6">
                                     <div className="space-y-3">
                                         <Label>Status Kelulusan</Label>
-                                        <div className="grid grid-cols-1 gap-2 border p-2 rounded-md bg-gray-50">
-                                            <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-green-50 rounded">
+                                        <div className="grid grid-cols-1 gap-2 border dark:border-zinc-700 p-2 rounded-md bg-gray-50 dark:bg-zinc-800">
+                                            <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition-colors">
                                                 <input 
                                                     type="radio" 
                                                     name="status" 
@@ -201,11 +207,11 @@ export default function PendaftaranShow() {
                                                     onChange={e => setData('status', e.target.value)} 
                                                     className="w-4 h-4 text-green-600 focus:ring-green-500 cursor-pointer"
                                                 />
-                                                <CheckCircle className="w-4 h-4 text-green-600" />
-                                                <span className="font-medium text-green-700">Accepted (Diterima)</span>
+                                                <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-500" />
+                                                <span className="font-medium text-green-700 dark:text-green-400">Accepted (Diterima)</span>
                                             </label>
                                             
-                                            <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-red-50 rounded border-t">
+                                            <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded border-t dark:border-zinc-700 transition-colors">
                                                 <input 
                                                     type="radio" 
                                                     name="status" 
@@ -214,11 +220,11 @@ export default function PendaftaranShow() {
                                                     onChange={e => setData('status', e.target.value)} 
                                                     className="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer"
                                                 />
-                                                <XCircle className="w-4 h-4 text-red-600" />
-                                                <span className="font-medium text-red-700">Rejected (Ditolak)</span>
+                                                <XCircle className="w-4 h-4 text-red-600 dark:text-red-500" />
+                                                <span className="font-medium text-red-700 dark:text-red-400">Rejected (Ditolak)</span>
                                             </label>
                                             
-                                            <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-yellow-50 rounded border-t">
+                                            <label className="flex items-center gap-2 cursor-pointer p-2 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded border-t dark:border-zinc-700 transition-colors">
                                                 <input 
                                                     type="radio" 
                                                     name="status" 
@@ -227,8 +233,8 @@ export default function PendaftaranShow() {
                                                     onChange={e => setData('status', e.target.value)} 
                                                     className="w-4 h-4 text-yellow-600 focus:ring-yellow-500 cursor-pointer"
                                                 />
-                                                <Clock className="w-4 h-4 text-yellow-600" />
-                                                <span className="font-medium text-yellow-700">Pending (Tunda)</span>
+                                                <Clock className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+                                                <span className="font-medium text-yellow-700 dark:text-yellow-400">Pending (Tunda)</span>
                                             </label>
                                         </div>
                                         {errors.status && <div className="text-sm text-red-500">{errors.status}</div>}

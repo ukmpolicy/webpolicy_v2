@@ -33,8 +33,11 @@ class PendaftaranController extends Controller
     {
         try {
             $pendaftaran = $this->pendaftaranService->getPendaftaranById($id);
+            $fields = \App\Models\RecruitmentField::all();
+            
             return Inertia::render('pendaftaran/show', [
-                'pendaftaran' => $pendaftaran
+                'pendaftaran' => $pendaftaran,
+                'fields' => $fields
             ]);
         } catch (Exception $e) {
             return back()->with('error', 'Data pendaftaran tidak ditemukan.');
@@ -67,70 +70,64 @@ class PendaftaranController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'period_id' => 'required|exists:periods,id',
-            'nama' => 'required|string|max:100',
-            'nim' => 'required|string|max:30',
-            'jurusan' => 'required|string|max:150',
-            'prodi' => 'required|string|max:150',
-            'alamat' => 'nullable|string|max:255',
-            'tgl_lahir' => 'nullable|date',
-            'tempat_lahir' => 'nullable|string|max:100',
-            'jenis_kelamin' => 'nullable|in:L,P',
-            'agama' => 'nullable|string|max:50',
-            'no_wa' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:100',
-            'soft_skill' => 'nullable|string',
+        $request->validate([
+            'user_id'               => 'required|exists:users,id',
+            'period_id'             => 'required|exists:periods,id',
+            'nama'                  => 'required|string|max:100',
+            'nim'                   => 'required|string|max:30',
+            'jurusan'               => 'required|string|max:150',
+            'prodi'                 => 'required|string|max:150',
+            'alamat'                => 'nullable|string|max:255',
+            'tgl_lahir'             => 'nullable|date',
+            'tempat_lahir'          => 'nullable|string|max:100',
+            'jenis_kelamin'         => 'nullable|in:L,P',
+            'agama'                 => 'nullable|string|max:50',
+            'no_wa'                 => 'nullable|string|max:20',
+            'email'                 => 'nullable|email|max:100',
+            'soft_skill'            => 'nullable|string',
             'pengalaman_organisasi' => 'nullable|string',
-            'motivasi' => 'nullable|string',
-            'motto' => 'nullable|string|max:255',
-
-            // Validasi Kuisioner
-            'deskripsi_diri' => 'nullable|string',
-            'alasan_bergabung' => 'nullable|string',
-            'makna_logo' => 'nullable|string',
-            'visi_misi' => 'nullable|string',
-            'sejarah_ukm' => 'nullable|string',
-            'pengetahuan_linux' => 'nullable|string',
-
-            // Validasi Dokumen Berkas (File Uploads)
-            'pas_photo' => 'nullable|file|image|max:2048',
-            'sertifikat_ppkmb' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'follow_ig' => 'nullable|file|image|max:2048',
-            'follow_tiktok' => 'nullable|file|image|max:2048',
-            'follow_yt' => 'nullable|file|image|max:2048',
-            'tgl_lahir_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'bukti_pembayaran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'berkas_tambahan_1' => 'nullable|file|max:5120',
-            'berkas_tambahan_2' => 'nullable|file|max:5120',
+            'motivasi'              => 'nullable|string',
+            'motto'                 => 'nullable|string|max:255',
+            // Kuisioner (teks)
+            'deskripsi_diri'        => 'nullable|string',
+            'alasan_bergabung'      => 'nullable|string',
+            'makna_logo'            => 'nullable|string',
+            'visi_misi'             => 'nullable|string',
+            'sejarah_ukm'           => 'nullable|string',
+            'pengetahuan_linux'     => 'nullable|string',
+            // Dokumen (file upload)
+            'pas_photo'             => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'sertifikat_ppkmb'      => 'nullable|file|max:5120',
+            'follow_ig'             => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'follow_tiktok'         => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'follow_yt'             => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'tgl_lahir_doc'         => 'nullable|file|max:5120',
+            'bukti_pembayaran'      => 'nullable|file|max:5120',
+            'berkas_tambahan_1'     => 'nullable|file|max:5120',
+            'berkas_tambahan_2'     => 'nullable|file|max:5120',
         ]);
 
         try {
-            // Pemisahan data kuisioner
-            $validatedData['kuisioner'] = $request->only([
-                'deskripsi_diri', 'alasan_bergabung', 'makna_logo', 'visi_misi', 'sejarah_ukm', 'pengetahuan_linux'
+            $data = $request->except([
+                'pas_photo','sertifikat_ppkmb','follow_ig','follow_tiktok',
+                'follow_yt','tgl_lahir_doc','bukti_pembayaran',
+                'berkas_tambahan_1','berkas_tambahan_2',
             ]);
 
-            // Pemrosesan File Berkas
-            $berkasFields = [
-                'pas_photo', 'sertifikat_ppkmb', 'follow_ig', 'follow_tiktok',
-                'follow_yt', 'tgl_lahir_doc', 'bukti_pembayaran',
-                'berkas_tambahan_1', 'berkas_tambahan_2'
+            // Simpan file dokumen satu per satu ke storage
+            $fileFields = [
+                'pas_photo','sertifikat_ppkmb','follow_ig','follow_tiktok',
+                'follow_yt','tgl_lahir_doc','bukti_pembayaran',
+                'berkas_tambahan_1','berkas_tambahan_2',
             ];
 
-            $dokumenBerkas = [];
-            foreach ($berkasFields as $field) {
+            foreach ($fileFields as $field) {
                 if ($request->hasFile($field)) {
-                    $dokumenBerkas[$field] = $request->file($field)->store('pendaftaran_berkas', 'public');
+                    $data[$field] = $request->file($field)->store('pendaftaran_berkas', 'public');
                 }
             }
 
-            if (!empty($dokumenBerkas)) {
-                $validatedData['dokumen_berkas'] = $dokumenBerkas;
-            }
-
-            $this->pendaftaranService->register($validatedData);
+            $this->pendaftaranService->register($data);
             return redirect()->back()->with('success', 'Pendaftaran berhasil disubmit.');
         } catch (Exception $e) {
             Log::error('Error store pendaftaran: ' . $e->getMessage());

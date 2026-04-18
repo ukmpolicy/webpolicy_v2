@@ -171,8 +171,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Pendaftaran
     Route::resource('pendaftaran', PendaftaranController::class)->except(['create', 'edit']);
     Route::post('pendaftaran/{id}/process', [PendaftaranController::class, 'process'])->name('pendaftaran.process');
-    Route::get('kuisioner', [PendaftaranController::class, 'kuisionerIndex'])->name('kuisioner.index');
-    Route::get('dokumen-berkas', [PendaftaranController::class, 'dokumenIndex'])->name('dokumen.index');
+    Route::get('kuisioner', [\App\Http\Controllers\RecruitmentFieldController::class, 'indexKuisioner'])->name('kuisioner.index');
+    Route::get('dokumen-berkas', [\App\Http\Controllers\RecruitmentFieldController::class, 'indexDokumen'])->name('dokumen.index');
+    Route::resource('recruitment-fields', \App\Http\Controllers\RecruitmentFieldController::class)->only(['store', 'update', 'destroy']);
+    // Timeline & Setting
+    Route::get('open-recruitment-timeline', [\App\Http\Controllers\SettingController::class, 'openRecruitmentTimeline'])->name('pendaftaran.timeline');
+    Route::post('open-recruitment-timeline', [\App\Http\Controllers\SettingController::class, 'updateOpenRecruitmentTimeline']);
+
 });
 
 // require __DIR__ . '/settings.php'; // TIDAK DIGUNAKAN LAGI

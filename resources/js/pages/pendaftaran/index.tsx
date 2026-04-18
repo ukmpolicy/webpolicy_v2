@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage } from '@inertiajs/react';
-import { PendaftaranTable } from '@/components/PendaftaranTable';
+import { PendaftaranTable } from '@/components/pendaftaran/pendaftaran-table';
 
 export default function PendaftaranIndex() {
     const { pendaftarans = [] } = usePage().props as any;

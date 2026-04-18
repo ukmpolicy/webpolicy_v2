@@ -13,56 +13,25 @@ class Pendaftaran extends Model
     protected $table = 'pendaftaran';
 
     protected $fillable = [
-        'user_id',
-        'period_id',
-        'nama',
-        'nim',
-        'jurusan',
-        'prodi',
-        'alamat',
-        'tgl_lahir',
-        'tempat_lahir',
-        'jenis_kelamin',
-        'agama',
-        'no_wa',
-        'email',
-        'soft_skill',
-        'pengalaman_organisasi',
-        'motivasi',
-        'motto',
-        'status',
-        'feedback'
+        'user_id', 'period_id',
+        'nama', 'nim', 'jurusan', 'prodi', 'alamat', 'tgl_lahir',
+        'tempat_lahir', 'jenis_kelamin', 'agama', 'no_wa', 'email',
+        'soft_skill', 'pengalaman_organisasi', 'motivasi', 'motto',
+        'deskripsi_diri', 'alasan_bergabung', 'makna_logo', 'visi_misi',
+        'sejarah_ukm', 'pengetahuan_linux',
+        'pas_photo', 'sertifikat_ppkmb', 'follow_ig', 'follow_tiktok',
+        'follow_yt', 'tgl_lahir_doc', 'bukti_pembayaran',
+        'berkas_tambahan_1', 'berkas_tambahan_2',
+        'status', 'feedback',
     ];
 
-    /**
-     * Relasi ke User
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi ke Period
-     */
     public function period()
     {
         return $this->belongsTo(Period::class);
-    }
-
-    /**
-     * Relasi ke Dokumen Berkas
-     */
-    public function dokumenBerkas()
-    {
-        return $this->hasOne(DokumenBerkas::class);
-    }
-
-    /**
-     * Relasi ke Kuisioner
-     */
-    public function kuisioner()
-    {
-        return $this->hasOne(KuisionerPendaftaran::class);
     }
 }

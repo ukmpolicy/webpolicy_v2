@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { NavGroup } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { Album, BookOpenText, Building2, CalendarRange, ClipboardCheck, ClipboardList, FileText, Folder, Layers, LayoutGrid, User2, UserCog } from 'lucide-react';
+import { Album, BookOpenText, Building2, CalendarRange, ClipboardCheck, ClipboardList, Clock, FileText, Folder, Layers, LayoutGrid, User2, UserCog } from 'lucide-react';
 import AppSidebarBranding from './app-sidebar-branding';
 
 const mainNavItems: NavGroup[] = [
@@ -78,6 +78,12 @@ const mainNavItems: NavGroup[] = [
                 title: 'Dokumen Berkas',
                 href: '/dokumen-berkas',
                 icon: Folder,
+                permission: 'dashboard',
+            },
+            {
+                title: 'Waktu Pendaftaran',
+                href: '/open-recruitment-timeline',
+                icon: Clock,
                 permission: 'dashboard',
             },
         ],

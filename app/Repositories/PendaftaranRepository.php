@@ -8,22 +8,22 @@ class PendaftaranRepository
 {
     public function getAll()
     {
-        return Pendaftaran::with(['user', 'period', 'dokumenBerkas', 'kuisioner'])->orderBy('created_at', 'desc')->get();
+        return Pendaftaran::with(['user', 'period'])->orderBy('created_at', 'desc')->get();
     }
 
     public function getById($id)
     {
-        return Pendaftaran::with(['user', 'period', 'dokumenBerkas', 'kuisioner'])->findOrFail($id);
+        return Pendaftaran::with(['user', 'period'])->findOrFail($id);
     }
 
     public function getByUserId($userId)
     {
-        return Pendaftaran::with(['period', 'dokumenBerkas', 'kuisioner'])->where('user_id', $userId)->get();
+        return Pendaftaran::with(['period'])->where('user_id', $userId)->get();
     }
 
     public function getByPeriodId($periodId)
     {
-        return Pendaftaran::with(['user', 'dokumenBerkas', 'kuisioner'])->where('period_id', $periodId)->get();
+        return Pendaftaran::with(['user'])->where('period_id', $periodId)->get();
     }
 
     public function create(array $data)

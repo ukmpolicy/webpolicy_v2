@@ -10,7 +10,22 @@ class Period extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'started_at', 'ended_at', 'is_active'];
+    protected $fillable = [
+        'name', 'started_at', 'ended_at', 'is_active',
+        'is_open_recruitment',
+        'recruitment_started_at',
+        'recruitment_ended_at',
+        'recruitment_teaser_at',
+        'recruitment_description',
+        'recruitment_quota',
+    ];
+
+    protected $casts = [
+        'is_open_recruitment' => 'boolean',
+        'recruitment_started_at' => 'datetime',
+        'recruitment_ended_at' => 'datetime',
+        'recruitment_teaser_at' => 'datetime',
+    ];
 
     public function members()
     {

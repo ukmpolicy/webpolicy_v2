@@ -37,25 +37,17 @@ class PendaftaranService
 
     public function register(array $data)
     {
-        // Validasi double register berdasarkan user_id atau nim dalam satu periode
-        $exists = $this->pendaftaranRepository->checkExists($data['user_id'], $data['nim'], $data['period_id']);
-        
+        // Cek double register berdasarkan user_id atau nim dalam satu periode
+        $exists = $this->pendaftaranRepository->checkExists(
+            $data['user_id'], $data['nim'], $data['period_id']
+        );
+
         if ($exists) {
-            throw new Exception("User atau NIM sudah terdaftar pada periode ini.");
+            throw new Exception('User atau NIM sudah terdaftar pada periode ini.');
         }
 
         return DB::transaction(function () use ($data) {
-            $pendaftaran = $this->pendaftaranRepository->create($data);
-
-            if (isset($data['dokumen_berkas']) && is_array($data['dokumen_berkas'])) {
-                $pendaftaran->dokumenBerkas()->create($data['dokumen_berkas']);
-            }
-
-            if (isset($data['kuisioner']) && is_array($data['kuisioner'])) {
-                $pendaftaran->kuisioner()->create($data['kuisioner']);
-            }
-
-            return $pendaftaran;
+            return $this->pendaftaranRepository->create($data);
         });
     }
 
@@ -82,5 +74,22 @@ class PendaftaranService
         return DB::transaction(function () use ($id) {
             return $this->pendaftaranRepository->delete($id);
         });
+    }
+
+    public function getTotalApplicantsCount($periodId = null)
+    {
+        if ($periodId) {
+            return \App\Models\Pendaftaran::where('period_id', $periodId)->count();
+        }
+        return \App\Models\Pendaftaran::count();
+    }
+
+    public function getPendingApplicantsCount($periodId = null)
+    {
+        $query = \App\Models\Pendaftaran::where('status', 'pending');
+        if ($periodId) {
+            $query->where('period_id', $periodId);
+        }
+        return $query->count();
     }
 }

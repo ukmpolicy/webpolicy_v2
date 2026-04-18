@@ -7,6 +7,7 @@ use App\Services\BlogArticleService;
 use App\Services\MediaService;
 use App\Services\MemberService;
 use App\Services\PeriodService;
+use App\Services\PendaftaranService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,15 +19,23 @@ class DashboardController extends Controller
     protected $articleService;
     protected $mediaService;
     protected $albumService;
+    protected $pendaftaranService;
 
     // Tambahkan service ke constructor
-    public function __construct(MemberService $memberService, PeriodService $periodService, BlogArticleService $articleService, AlbumService $albumService, MediaService $mediaService)
-    {
+    public function __construct(
+        MemberService $memberService, 
+        PeriodService $periodService, 
+        BlogArticleService $articleService, 
+        AlbumService $albumService, 
+        MediaService $mediaService,
+        PendaftaranService $pendaftaranService
+    ) {
         $this->memberService = $memberService;
         $this->periodService = $periodService;
         $this->articleService = $articleService;
         $this->albumService = $albumService;
         $this->mediaService = $mediaService;
+        $this->pendaftaranService = $pendaftaranService;
     }
     public function index()
     {
@@ -69,6 +78,15 @@ class DashboardController extends Controller
          // Mengambil 3 artikel terpopuler untuk dashboard
         $popularArticles = $this->articleService->getPopularArticles(3);
 
+        // Recruitment Timeline - baca dari periode aktif (bukan settings table)
+        $recruitmentTeaserDate = $activePeriod?->recruitment_teaser_at?->toIso8601String();
+        $recruitmentStartDate  = $activePeriod?->recruitment_started_at?->toIso8601String();
+        $recruitmentEndDate    = $activePeriod?->recruitment_ended_at?->toIso8601String();
+
+        // Recruitment Data
+        $totalApplicantsCount = $this->pendaftaranService->getTotalApplicantsCount($activePeriod ? $activePeriod->id : null);
+        $pendingApplicantsCount = $this->pendaftaranService->getPendingApplicantsCount($activePeriod ? $activePeriod->id : null);
+
         return Inertia::render('dashboard', [
             'totalMembersCount' => $totalMembersCount,
             'activeMembersCount' => $activeMembersCount,
@@ -82,6 +100,12 @@ class DashboardController extends Controller
             'privateAlbumsCount' => $privateAlbumsCount,
             'birthdays' => $birthdaysByDate,
             'popularArticles' => $popularArticles,
+            'recruitmentTeaser' => $recruitmentTeaserDate,
+            'recruitmentStart' => $recruitmentStartDate,
+            'recruitmentEnd' => $recruitmentEndDate,
+            'totalApplicantsCount' => $totalApplicantsCount,
+            'pendingApplicantsCount' => $pendingApplicantsCount,
+            'serverTime' => now()->toIso8601String(),
         ]);
     }
 }

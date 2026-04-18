@@ -5,23 +5,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('pendaftaran', function (Blueprint $table) {
             $table->id();
 
-            // Relasi ke user (login) dan periode open recruitment
-            $table->foreignId('user_id')
-                ->constrained('users')
-                ->onDelete('cascade');
-            $table->foreignId('period_id')
-                ->constrained('periods')
-                ->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
 
-            // Data diri pendaftar
+            // Data Diri
             $table->string('nama', 100);
             $table->string('nim', 30);
             $table->string('jurusan', 150);
@@ -38,11 +30,29 @@ return new class extends Migration {
             $table->text('motivasi')->nullable();
             $table->string('motto', 255)->nullable();
 
-            // Status Pendaftaran dan Feedback Pengurus
+            // Jawaban Kuisioner
+            $table->text('deskripsi_diri')->nullable();
+            $table->text('alasan_bergabung')->nullable();
+            $table->text('makna_logo')->nullable();
+            $table->text('visi_misi')->nullable();
+            $table->text('sejarah_ukm')->nullable();
+            $table->text('pengetahuan_linux')->nullable();
+
+            // Berkas Dokumen
+            $table->string('pas_photo')->nullable();
+            $table->string('sertifikat_ppkmb')->nullable();
+            $table->string('follow_ig')->nullable();
+            $table->string('follow_tiktok')->nullable();
+            $table->string('follow_yt')->nullable();
+            $table->string('tgl_lahir_doc')->nullable();
+            $table->string('bukti_pembayaran')->nullable();
+            $table->string('berkas_tambahan_1')->nullable();
+            $table->string('berkas_tambahan_2')->nullable();
+
+            // Status & Review
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->text('feedback')->nullable();
 
-            // Constraint unik: Satu user / NIM hanya bisa mendaftar 1x di periode yang sama
             $table->unique(['user_id', 'period_id'], 'unique_user_period');
             $table->unique(['nim', 'period_id'], 'unique_nim_period');
 
@@ -51,9 +61,6 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('pendaftaran');
