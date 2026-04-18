@@ -32,20 +32,11 @@ use Inertia\Inertia;
 | Halaman Publik
 |--------------------------------------------------------------------------
 */
-// Rute untuk halaman open recruitment (sementara hardcoded, nanti akan diambil dari database periode yang aktif)
 Route::get('/open-recruitment', function () {
-    return Inertia::render('open-recruitment/create', [
-        'period' => [
-            'id' => 1,
-            'is_active' => true,
-            'is_open_recruitment' => true,
-            'recruitment_started_at' => now()->subDay()->toDateTimeString(),
-            'recruitment_ended_at' => now()->addDays(7)->toDateTimeString(),
-            'recruitment_description' => 'Template open recruitment untuk pengisian data pendaftar UKM-POLICY.',
-            'recruitment_quota' => 50,
-        ],
+    return Inertia::render('homepage/open-recruitment/index', [
+        'isBirthday' => false,
     ]);
-})->name('open-recruitment.create');
+})->name('homepage.open-recruitment');
 
 // Grup rute publik yang akan dilindungi jika email belum diverifikasi
 Route::middleware(['email.public.verified'])->group(function () {
