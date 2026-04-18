@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { NavGroup } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { Album, BookOpenText, Building2, CalendarRange, ClipboardList, FileText, Folder, Layers, LayoutGrid, User2, UserCog } from 'lucide-react';
+import { Album, BookOpenText, Building2, CalendarRange, ClipboardList, FileText, Folder, Layers, LayoutGrid, ListChecks, ScrollText, Settings2, User2, UserCog, Users } from 'lucide-react';
 import AppSidebarBranding from './app-sidebar-branding';
 
 const mainNavItems: NavGroup[] = [
@@ -56,6 +56,35 @@ const mainNavItems: NavGroup[] = [
                 href: '/structures',
                 icon: Building2,
                 permission: 'structures',
+            },
+        ],
+    },
+    {
+        title: 'Open Recruitment',
+        items: [
+            {
+                title: 'Pendaftaran',
+                href: '/pendaftaran',
+                icon: Users,
+                permission: 'pendaftaran',
+            },
+            {
+                title: 'Kuesioner',
+                href: '/pertanyaan-kuesioner',
+                icon: ScrollText,
+                permission: 'pendaftaran',
+            },
+            {
+                title: 'Dokumen',
+                href: '/jenis-berkas',
+                icon: ListChecks,
+                permission: 'pendaftaran',
+            },
+            {
+                title: 'Pengaturan Waktu',
+                href: '/pengaturan-waktu',
+                icon: Settings2,
+                permission: 'periods',
             },
         ],
     },
@@ -131,7 +160,7 @@ export function AppSidebar() {
                 }),
             };
         })
-        .filter((group) => group !== null);
+        .filter((group): group is NavGroup => group !== null);
 
     return (
         <Sidebar collapsible="icon" variant="inset">

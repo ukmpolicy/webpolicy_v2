@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(PermissionSeeder::class);
         $this->call(AdminRoleSeeder::class);
+        $this->call(JenisBerkasSeeder::class);
+        $this->call(PertanyaanKuesionerSeeder::class);
 
         if (!User::where('email', 'admin@gmail.com')->first()) {
             User::factory()->create([
