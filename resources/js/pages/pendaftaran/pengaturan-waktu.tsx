@@ -2,8 +2,9 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CalendarClock, Megaphone, CheckCircle2, PlayCircle, StopCircle, ArrowRight, TimerReset, AlarmClock } from 'lucide-react';
+import { CalendarClock, Megaphone, CheckCircle2, PlayCircle, StopCircle, ArrowRight, AlarmClock } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import { toast } from 'sonner';
 
 type Period = {
     id: number;
@@ -98,7 +99,8 @@ export default function PengaturanWaktu() {
             ...form
         }, {
             onFinish: () => setLoading(false),
-            onSuccess: () => alert('Pengaturan jadwal pendaftaran berhasil disimpan!'),
+            onSuccess: () => toast.success('Pengaturan jadwal pendaftaran berhasil disimpan!'),
+            onError: () => toast.error('Gagal menyimpan pengaturan. Coba lagi.'),
         });
     };
 
