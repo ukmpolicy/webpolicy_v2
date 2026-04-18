@@ -293,10 +293,14 @@ class FormPendaftaranController extends Controller
 
     private function getActivePeriodOrFail()
     {
-        $period = \App\Models\Period::where('is_open_recruitment', true)
-            ->where('recruitment_started_at', '<=', now())
-            ->where(function ($query) {
-                $query->where('recruitment_ended_at', '>=', now())
+        // Paksa timezone WIB agar 100% kebal dari delay Cache Timezone di cPanel/Server Hosting
+        $wibNow = \Carbon\Carbon::now('Asia/Jakarta');
+
+        $period = \App\Models\Period::where('is_active', true)
+            ->where('is_open_recruitment', true)
+            ->where('recruitment_started_at', '<=', $wibNow)
+            ->where(function ($query) use ($wibNow) {
+                $query->where('recruitment_ended_at', '>=', $wibNow)
                       ->orWhereNull('recruitment_ended_at');
             })
             ->first();
