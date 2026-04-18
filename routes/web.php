@@ -37,9 +37,6 @@ use Inertia\Inertia;
 | Halaman Publik
 |--------------------------------------------------------------------------
 */
-Route::get('/open-recruitment', function () {
-    return redirect()->route('pendaftaran.landing');
-})->name('homepage.open-recruitment');
 
 // Grup rute publik yang akan dilindungi jika email belum diverifikasi
 Route::middleware(['email.public.verified'])->group(function () {
