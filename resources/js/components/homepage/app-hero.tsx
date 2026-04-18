@@ -74,12 +74,7 @@ const Hero = () => {
                             animate={{ opacity: 1 }}
                             transition={{ delay: 1.5 }}
                         >
-                            <a
-                                href="#"
-                                className="inline-flex items-center justify-center rounded-md bg-red-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-red-700"
-                            >
-                                Bergabung Sekarang
-                            </a>
+                    
                             <a
                                 href="/about"
                                 className="flex items-center justify-center gap-3 rounded-md border border-white/20 bg-white/5 px-6 py-3 text-base font-medium text-white transition-all duration-300 hover:scale-105 hover:bg-white/10"

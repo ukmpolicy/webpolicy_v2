@@ -1,4 +1,3 @@
-// index.tsx
 import { Head } from '@inertiajs/react';
 import React, { useEffect, useState } from 'react';
 
@@ -8,6 +7,7 @@ import AppHeader from '@/components/homepage/app-header';
 import AppHero from '@/components/homepage/app-hero';
 import AppLabel from '@/components/homepage/app-label';
 import AppLoading from '@/components/homepage/app-loading';
+import HeroCountdownOverlay from '@/components/homepage/open-recruitment/HeroCountdownOverlay';
 import AppStruktural from '@/components/homepage/app-struktural';
 import AppVisiMisi from '@/components/homepage/app-visi-misi';
 
@@ -24,14 +24,12 @@ interface StructureMember {
     picture?: string | null;
 }
 
-// Tambahkan prop isBirthday di interface
 interface HomePageProps {
     divisions: Division[];
     structureMembers: StructureMember[];
     isBirthday: boolean;
 }
 
-// Tambahkan isBirthday sebagai parameter props
 const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirthday }) => {
     const [isLoading, setIsLoading] = useState(true);
 
@@ -40,26 +38,32 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
         return () => clearTimeout(timer);
     }, []);
 
-    // Tambahkan useEffect untuk mengontrol kelas pada <body>
     useEffect(() => {
-        // Saat komponen dimuat, tambahkan kelas 'public-theme'
         document.body.classList.add('public-theme');
 
-        // Saat komponen tidak lagi digunakan, hapus kelasnya
         return () => {
             document.body.classList.remove('public-theme');
         };
-    }, []); // Array kosong memastikan efek ini hanya berjalan sekali saat mount dan unmount
+    }, []);
 
     if (isLoading) return <AppLoading />;
 
     return (
         <>
             <Head title="UKM POLICY - KBMPNL" />
-            {/* Teruskan prop isBirthday ke komponen AppHeader */}
+
             <AppHeader isBirthday={isBirthday} />
+
             <main className="bg-black pt-18">
-                <AppHero />
+                <section className="relative">
+                    <AppHero />
+                    <HeroCountdownOverlay
+                        openAt="2026-04-18 08:00:00"
+                        closeAt="2026-05-05 23:59:59"
+                        href="/open-recruitment"
+                    />
+                </section>
+
                 <AppLabel />
                 <AppVisiMisi />
                 <AppLabel />
@@ -67,6 +71,7 @@ const HomePage: React.FC<HomePageProps> = ({ divisions, structureMembers, isBirt
                 <AppBidang divisions={divisions} />
                 <AppStruktural strukturalList={structureMembers} />
             </main>
+
             <AppFooter />
         </>
     );
