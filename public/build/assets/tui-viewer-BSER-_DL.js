@@ -1,0 +1,1 @@
+import{j as i}from"./app-3_N3GyJP.js";import{V as r,c as s}from"./index-D-ScvHyJ.js";const o=({content:e})=>i.jsxs("div",{className:"tui-viewer-wrapper",children:[" ",i.jsx(r,{initialValue:e||"",plugins:[s]})]});export{o as T};
