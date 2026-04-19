@@ -48,12 +48,11 @@ const MotivationSection: React.FC<MotivationSectionProps> = ({ values, onChange 
 
                 <FormTextareaField
                     id="pengalaman_organisasi"
-                    label="Pengalaman Organisasi"
+                    label="Pengalaman Organisasi (Opsional)"
                     value={values.pengalaman_organisasi}
                     onChange={(value) => onChange('pengalaman_organisasi', value)}
-                    placeholder="Tuliskan pengalaman organisasi yang pernah kamu ikuti, baik di kampus, sekolah, maupun di luar."
+                    placeholder="Tuliskan pengalaman organisasi yang pernah kamu ikuti, baik di kampus, sekolah, maupun di luar. (Kosongkan jika tidak ada)"
                     rows={5}
-                    required
                 />
 
                 <FormTextareaField

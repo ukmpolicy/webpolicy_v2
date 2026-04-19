@@ -109,7 +109,7 @@ class FormPendaftaranController extends Controller
             'jenis_kelamin'          => 'required|in:L,P',
             'agama'                  => 'required|string|max:50',
             'no_wa'                  => 'required|string|max:20',
-            'pengalaman_organisasi'  => 'required|string',
+            'pengalaman_organisasi'  => 'nullable|string',
             'motivasi'               => 'required|string',
             'motto'                  => 'required|string|max:255',
         ]);
