@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import AppFooter from '@/components/homepage/app-footer';
 import AppHeader from '@/components/homepage/app-header';
@@ -26,6 +26,8 @@ interface FormBerkasProps {
 }
 
 const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokumen }) => {
+    const errorSummaryRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         document.body.classList.add('public-theme');
         return () => {
@@ -41,12 +43,25 @@ const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokum
 
     const { data, setData, post, processing, errors } = useForm(initialData);
 
+    // Scroll ke error summary jika ada error baru
+    useEffect(() => {
+        if (Object.keys(errors).length > 0 && errorSummaryRef.current) {
+            errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [errors]);
+
     const handleFileChange = (field: string, value: File | null) => {
         setData(field, value);
     };
 
     const handleSubmit = () => {
-        post(route('pendaftaran.upload-berkas'));
+        post(route('pendaftaran.upload-berkas'), {
+            forceFormData: true,
+            preserveScroll: true,
+            onError: () => {
+                // Error handling otomatis via useForm.errors
+            }
+        });
     };
 
     // Fungsi cek apa file sudah pernah diupload
@@ -66,18 +81,30 @@ const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokum
 
                     <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
                         <div className="max-w-3xl space-y-4">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1.5 text-xs font-medium text-red-400">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                                </span>
+                                Persyaratan Dokumen
+                            </div>
+                            
                             <h1 className="text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
                                 Step 2: Upload Berkas
                             </h1>
                             <p className="max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
-                                Unggah dokumen persyaratan pendaftaran dengan format yang benar (Maks 5MB).
+                                Unggah dokumen persyaratan pendaftaran dengan format yang benar. 
+                                <span className="block mt-1 font-semibold text-red-400">Penting: Maksimal ukuran per file adalah 5MB. Gunakan format JPG, PNG, atau PDF.</span>
                             </p>
                             
                             {Object.keys(errors).length > 0 && (
-                                <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-100 text-sm">
-                                    <ul className="list-disc pl-5">
-                                        {Object.values(errors).map((err, idx) => (
-                                            <li key={idx}>{(err as string)}</li>
+                                <div ref={errorSummaryRef} className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-100 text-sm">
+                                    <p className="font-bold mb-2">Mohon perbaiki kesalahan berikut:</p>
+                                    <ul className="list-disc pl-5 space-y-1">
+                                        {Object.entries(errors).map(([key, err], idx) => (
+                                            <li key={idx}>
+                                                <span className="capitalize">{key.replace('berkas_', 'Berkas ')}</span>: {(err as string)}
+                                            </li>
                                         ))}
                                     </ul>
                                 </div>
@@ -92,10 +119,11 @@ const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokum
                                 </span>
                                 <div className="space-y-2">
                                     <h2 className="text-2xl font-black leading-tight text-white sm:text-3xl">Pemberkasan</h2>
+                                    <p className="text-sm text-zinc-400">Pastikan file yang diunggah terbaca dengan jelas.</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 {jenisBerkas.map((jb) => {
                                     const fileKey = `berkas_${jb.id}`;
                                     const uploaded = getUploadedDoc(jb.id);
@@ -109,10 +137,11 @@ const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokum
                                                 id={fileKey}
                                                 label={fileLabel}
                                                 file={data[fileKey]}
+                                                error={errors[fileKey]}
                                                 onChange={(file) => handleFileChange(fileKey, file)}
                                                 helperText={jb.keterangan}
                                                 accept=".jpg,.jpeg,.png,.pdf"
-                                                required={jb.is_required && !uploaded} // Wajib jika pengaturan is_required true DAN belum pernah diupload sebelumnya
+                                                required={jb.is_required && !uploaded}
                                             />
                                         </div>
                                     );
@@ -124,10 +153,10 @@ const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokum
                         <div className="mt-8 flex items-center justify-between">
                             <button
                                 onClick={() => window.history.back()}
-                                className="text-zinc-400 hover:text-white flex items-center gap-2 transition-colors"
+                                className="text-zinc-400 hover:text-white flex items-center gap-2 transition-colors px-4 py-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                                <span>Kembali</span>
+                                <span className="font-medium">Kembali</span>
                             </button>
                             
                             <button
@@ -135,21 +164,23 @@ const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokum
                                 disabled={processing}
                                 className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-red-600 px-8 py-3.5 font-bold text-white shadow-[0_0_40px_rgba(220,53,69,0.4)] transition-all duration-300 hover:scale-105 hover:bg-red-500 hover:shadow-[0_0_60px_rgba(220,53,69,0.6)] disabled:opacity-50"
                             >
-                                <span className="relative z-10">{processing ? 'Mengunggah...' : 'Unggah & Lanjut'}</span>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
-                                >
-                                    <path d="m9 18 6-6-6-6" />
-                                </svg>
+                                <span className="relative z-10">{processing ? 'Sedang Mengunggah...' : 'Unggah & Lanjut'}</span>
+                                {!processing && (
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+                                    >
+                                        <path d="m9 18 6-6-6-6" />
+                                    </svg>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -162,3 +193,4 @@ const FormBerkas: React.FC<FormBerkasProps> = ({ pendaftaran, jenisBerkas, dokum
 };
 
 export default FormBerkas;
+
