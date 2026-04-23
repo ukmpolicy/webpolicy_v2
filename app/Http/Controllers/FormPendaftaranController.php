@@ -172,9 +172,9 @@ class FormPendaftaranController extends Controller
                 $sudahAda = isset($draftBerkas[$jb->id]);
 
                 if ($jb->is_required && !$sudahAda) {
-                    $docsToValidate[$fileKey] = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                    $docsToValidate[$fileKey] = 'required|file|mimes:jpg,jpeg,png,pdf,heic,heif|max:5120';
                 } else {
-                    $docsToValidate[$fileKey] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                    $docsToValidate[$fileKey] = 'nullable|file|mimes:jpg,jpeg,png,pdf,heic,heif|max:5120';
                 }
             }
 
