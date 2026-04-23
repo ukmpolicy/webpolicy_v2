@@ -1,0 +1,1 @@
+import{j as s,H as e}from"./app-DlyKwAw9.js";import{A as r,a as o}from"./app-header-DdTSIirs.js";import{T as m}from"./index-w52QuPX7.js";const j=({children:a,title:t})=>s.jsxs(s.Fragment,{children:[s.jsx(e,{title:t}),s.jsx(r,{}),s.jsx("main",{className:"min-h-screen bg-black pt-0 text-white",children:a}),s.jsx(o,{}),s.jsx(m,{})]});export{j as B};
