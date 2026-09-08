@@ -23,8 +23,8 @@ class DatabaseSeeder extends Seeder
         if (!User::where('email', 'admin@gmail.com')->first()) {
             User::factory()->create([
                 'name' => 'Administrator',
-                'email' => 'admin@gmail.com',
-                'password' => bcrypt('admin123'), // Use a secure password
+                'email' => 'admin@ukmpolicy.com',
+                'password' => bcrypt('ukmpolicy1'), // Use a secure password
                 'role_id' => 1,
             ]);
         }
